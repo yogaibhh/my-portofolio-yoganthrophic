@@ -1,0 +1,235 @@
+/* NETRA — Strategic Interdependence Console. Faithful port of
+   erpdesign/NETRA/congonetra.jsx. All rules scoped under .netra-dash
+   (CSS nesting) so the dark intel UI never leaks into the portfolio.
+   Original 100vh layout -> fixed 760px embed. @keyframes at top level. */
+.netra-dash {
+  --bg: #141414;
+  --bg2: #1c1c1c;
+  --bg3: #222222;
+  --bgp: rgba(20, 20, 20, .96);
+  --bgh: rgba(20, 20, 20, .98);
+  --brd: rgba(99, 110, 140, .2);
+  --brda: rgba(99, 110, 140, .12);
+  --t1: #e2e8f0;
+  --t2: #94a3b8;
+  --td: #64748b;
+  --tb: #f8fafc;
+  --crit: #f43f5e;
+  --hi: #fb923c;
+  --elev: #facc15;
+  --mon: #22d3ee;
+  --info: #60a5fa;
+  --ok: #34d399;
+  --accent: #818cf8;
+  --surface: rgba(255, 255, 255, .03);
+  --fm: 'JetBrains Mono', ui-monospace, monospace;
+  --fs: 'Inter', 'IBM Plex Sans', system-ui, sans-serif;
+  --r: 8px;
+
+  position: relative;
+  height: 760px;
+  background: var(--bg);
+  color: var(--t1);
+  font-family: var(--fs);
+  border-radius: 14px;
+  border: 1px solid var(--brd);
+  overflow: hidden;
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, .3); border-radius: 10px; }
+
+  .nx-flag { width: 16px; height: 11px; object-fit: cover; border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(255, 255, 255, .12); }
+
+  /* ===== TOP BAR ===== */
+  .nx-top { position: absolute; top: 0; left: 0; right: 0; height: 64px; background: var(--bgh); border-bottom: 1px solid var(--brd); display: flex; align-items: center; justify-content: space-between; padding: 0 22px; z-index: 40; backdrop-filter: blur(24px); }
+  .nx-head-left { display: flex; flex-direction: column; gap: 3px; }
+  .nx-title { font-family: var(--fm); font-size: 16px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: var(--tb); }
+  .nx-sub { font-size: 10px; color: var(--t2); letter-spacing: .5px; display: flex; align-items: center; gap: 7px; }
+  .nx-tag { font-family: var(--fm); font-size: 7px; font-weight: 700; letter-spacing: 1px; padding: 2px 5px; border-radius: 3px; }
+  .nx-tag.geo { color: var(--info); background: rgba(96, 165, 250, .14); }
+  .nx-tag.acled { color: var(--elev); background: rgba(250, 204, 21, .14); }
+
+  .nx-top-right { display: flex; align-items: center; gap: 10px; position: relative; }
+  .nx-date-pill { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--brda); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+  .nx-date-pill:hover { border-color: var(--brd); background: rgba(255, 255, 255, .07); }
+  .nx-cal { background: rgba(255, 255, 255, .1); padding: 2px 5px; border-radius: 5px; font-size: 11px; }
+  .nx-pill-txt { font-family: var(--fm); font-size: 11px; font-weight: 600; color: var(--t1); letter-spacing: .5px; }
+  .nx-caret { color: var(--td); font-size: 9px; }
+  .nx-filter-btn { display: flex; align-items: center; gap: 6px; background: rgba(30, 41, 59, .8); border: 1px solid rgba(148, 163, 184, .3); color: var(--t1); padding: 7px 14px; border-radius: 8px; font-family: var(--fm); font-size: 11px; font-weight: 700; letter-spacing: .5px; cursor: pointer; transition: .2s; }
+  .nx-filter-btn:hover { background: rgba(51, 65, 85, 1); }
+  .nx-filter-btn.active { background: rgba(129, 140, 248, .2); border-color: rgba(129, 140, 248, .5); color: var(--accent); }
+
+  .nx-filter-panel { position: absolute; top: calc(100% + 8px); right: 0; width: 320px; background: var(--bgp); border: 1px solid var(--brd); border-radius: var(--r); z-index: 50; backdrop-filter: blur(24px); box-shadow: 0 8px 32px rgba(0, 0, 0, .5); }
+  .fd-header { padding: 14px 16px; border-bottom: 1px solid var(--brda); display: flex; justify-content: space-between; align-items: center; }
+  .fd-title { font-family: var(--fm); font-size: 12px; font-weight: 700; color: var(--t1); letter-spacing: 1px; }
+  .fd-x { background: transparent; border: none; color: var(--td); cursor: pointer; font-size: 12px; }
+  .fd-body { padding: 16px; display: flex; flex-direction: column; gap: 18px; }
+  .fd-section-title { font-family: var(--fm); font-size: 10px; font-weight: 700; color: var(--td); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+  .nx-preset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .preset-item { background: var(--surface); border: 1px solid var(--brda); color: var(--t2); padding: 7px; border-radius: 4px; font-family: var(--fm); font-size: 10px; cursor: pointer; text-align: center; transition: .2s; }
+  .preset-item:hover { background: rgba(255, 255, 255, .05); color: var(--t1); }
+  .preset-item.active { background: rgba(96, 165, 250, .12); color: var(--info); border-color: var(--info); font-weight: 700; }
+  .fd-footer { padding: 14px 16px; border-top: 1px solid var(--brda); display: flex; justify-content: flex-end; }
+  .nx-apply { background: var(--accent); color: #fff; border: none; padding: 8px 18px; border-radius: 6px; font-family: var(--fm); font-size: 11px; font-weight: 700; cursor: pointer; }
+  .nx-apply:hover { background: #6366f1; box-shadow: 0 0 12px rgba(99, 102, 241, .4); }
+
+  /* ===== BODY GRID ===== */
+  .nx-body { position: absolute; top: 64px; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: 320px 1fr 380px; }
+
+  /* ===== LEFT SIDEBAR ===== */
+  .nx-sidebar { background: var(--bgp); border-right: 1px solid var(--brd); display: flex; flex-direction: column; backdrop-filter: blur(24px); overflow: hidden; }
+  .nx-sh { padding: 14px 16px; border-bottom: 1px solid var(--brd); display: flex; flex-direction: column; gap: 10px; }
+  .nx-sh-title { font-family: var(--fm); font-size: 10px; font-weight: 600; letter-spacing: 1.5px; color: var(--td); text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+  .nx-sh-title::before { content: ''; width: 3px; height: 14px; background: var(--accent); border-radius: 2px; }
+  .nx-side-x { margin-left: auto; width: 20px; height: 20px; border-radius: 5px; background: var(--surface); border: 1px solid var(--brd); color: var(--td); font-size: 13px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: .15s; }
+  .nx-side-x:hover { color: #fff; background: rgba(255, 255, 255, .08); }
+  .nx-side-show { position: absolute; top: 50%; left: 0; transform: translateY(-50%); z-index: 430; font-family: var(--fm); font-size: 9px; font-weight: 700; letter-spacing: 1px; color: var(--t1); background: var(--bgp); border: 1px solid var(--brd); border-left: none; border-radius: 0 8px 8px 0; padding: 10px 8px; cursor: pointer; backdrop-filter: blur(12px); box-shadow: 4px 0 18px rgba(0, 0, 0, .4); transition: .15s; }
+  .nx-side-show:hover { border-color: var(--accent); color: #fff; }
+  .nx-search { position: relative; }
+  .nx-search input { width: 100%; background: var(--surface); border: 1px solid var(--brda); border-radius: var(--r); padding: 8px 12px 8px 32px; color: var(--t1); font-family: var(--fs); font-size: 12px; outline: none; }
+  .nx-search input::placeholder { color: var(--td); font-size: 11px; }
+  .nx-search input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(129, 140, 248, .1); }
+  .nx-search-ic { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); font-size: 11px; pointer-events: none; opacity: .6; }
+  .nx-mode-sw { display: flex; gap: 4px; }
+  .nx-mode-btn { flex: 1; background: var(--surface); border: 1px solid var(--brda); color: var(--td); font-family: var(--fm); font-size: 9px; font-weight: 600; padding: 7px 0; cursor: pointer; letter-spacing: .6px; border-radius: 6px; transition: .2s; }
+  .nx-mode-btn:hover { color: var(--t1); background: rgba(255, 255, 255, .06); border-color: var(--brd); }
+  .nx-mode-btn.active { background: rgba(96, 165, 250, .15); border-color: rgba(96, 165, 250, .4); color: var(--info); font-weight: 700; }
+
+  .nx-evlist { flex: 1; overflow-y: auto; padding: 8px; }
+  .nx-list-cap { font-family: var(--fm); font-size: 8px; font-weight: 700; letter-spacing: 1px; color: var(--td); padding: 4px 6px 8px; }
+  .nx-empty { font-family: var(--fm); font-size: 10px; color: var(--td); text-align: center; padding: 24px 12px; }
+  .nx-ecard { padding: 11px 13px; margin-bottom: 6px; border: 1px solid var(--brda); border-radius: var(--r); cursor: pointer; transition: all .2s cubic-bezier(.4, 0, .2, 1); background: var(--surface); }
+  .nx-ecard:hover { background: rgba(255, 255, 255, .05); border-color: var(--brd); transform: translateX(2px); }
+  .nx-ecard.active { background: rgba(129, 140, 248, .08); border-color: rgba(129, 140, 248, .35); box-shadow: inset 3px 0 0 var(--accent); }
+  .nx-ec-top { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; }
+  .nx-ec-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .nx-ec-dot[data-sev=critical] { background: var(--crit); box-shadow: 0 0 6px rgba(244, 63, 94, .5); }
+  .nx-ec-dot[data-sev=high] { background: var(--hi); box-shadow: 0 0 5px rgba(251, 146, 60, .5); }
+  .nx-ec-dot[data-sev=elevated] { background: var(--elev); box-shadow: 0 0 5px rgba(250, 204, 21, .4); }
+  .nx-ec-dot[data-sev=monitoring] { background: var(--mon); box-shadow: 0 0 5px rgba(34, 211, 238, .4); }
+  .nx-ec-sev { font-family: var(--fm); font-size: 8px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+  .nx-ec-sev[data-sev=critical] { color: var(--crit); }
+  .nx-ec-sev[data-sev=high] { color: var(--hi); }
+  .nx-ec-sev[data-sev=elevated] { color: var(--elev); }
+  .nx-ec-sev[data-sev=monitoring] { color: var(--mon); }
+  .nx-ec-src { font-family: var(--fm); font-size: 7px; font-weight: 700; color: var(--td); border: 1px solid var(--brda); border-radius: 3px; padding: 1px 4px; }
+  .nx-ec-ts { margin-left: auto; font-family: var(--fm); font-size: 8px; color: var(--td); }
+  .nx-ec-title { font-size: 12px; font-weight: 600; color: var(--t1); line-height: 1.4; margin-bottom: 6px; }
+  .nx-ec-meta { display: flex; align-items: center; gap: 6px; font-family: var(--fm); font-size: 9px; color: var(--td); }
+
+  /* ===== MAP ===== */
+  .nx-map-wrap { position: relative; overflow: hidden; }
+  .netra-map { width: 100%; height: 100%; background: #0c0c0c; }
+  .netra-map .leaflet-container { background: #0c0c0c; font-family: var(--fs); }
+  .netra-map .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(.85) contrast(.95) saturate(.55); }
+  .netra-map .leaflet-control-attribution { background: rgba(20, 20, 20, .8) !important; color: var(--td) !important; font-size: 8px; }
+  .netra-map .leaflet-control-attribution a { color: var(--info) !important; }
+  .netra-map .leaflet-control-zoom a { background: var(--bg2) !important; color: var(--t1) !important; border-color: var(--brd) !important; }
+
+  .nx-layerswitch { position: absolute; top: 12px; right: 12px; width: 220px; background: rgba(15, 15, 20, .92); border: 1px solid rgba(255, 255, 255, .1); backdrop-filter: blur(10px); border-radius: 8px; overflow: hidden; z-index: 420; box-shadow: 0 10px 30px rgba(0, 0, 0, .5); }
+  .nx-layerswitch.collapsed { width: 150px; }
+  .nx-ls-head { display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; font-family: var(--fm); font-size: 10px; font-weight: 700; letter-spacing: 1px; color: var(--t2); cursor: pointer; background: rgba(255, 255, 255, .03); border-bottom: 1px solid rgba(255, 255, 255, .05); }
+  .nx-ls-caret { color: var(--td); font-size: 9px; }
+  .nx-ls-body { max-height: 320px; overflow-y: auto; }
+  .nx-ls-group { padding: 8px 12px; font-family: var(--fm); font-size: 9px; color: var(--td); background: rgba(255, 255, 255, .03); letter-spacing: 1px; border-bottom: 1px solid rgba(255, 255, 255, .05); }
+  .nx-layer-btn { width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: transparent; border: none; border-bottom: 1px solid rgba(255, 255, 255, .03); color: var(--t2); font-family: var(--fm); font-size: 11px; cursor: pointer; text-align: left; transition: all .2s; }
+  .nx-layer-btn:hover { background: rgba(255, 255, 255, .05); color: var(--t1); }
+  .nx-layer-btn.active { background: rgba(129, 140, 248, .1); color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+  .nx-cb { width: 14px; height: 14px; border: 1.5px solid var(--td); border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #fff; flex-shrink: 0; transition: all .2s; }
+  .nx-cb.on { border-color: var(--accent); background: var(--accent); }
+  .nx-ls-chips { display: flex; gap: 5px; padding: 9px 12px; }
+  .nx-ls-chips span { font-family: var(--fm); font-size: 8px; font-weight: 700; color: var(--td); border: 1px solid var(--brda); border-radius: 3px; padding: 2px 5px; }
+
+  .nx-map-chips { position: absolute; top: 12px; left: 12px; z-index: 410; display: flex; gap: 5px; }
+  .nx-mc { display: flex; align-items: center; gap: 4px; background: rgba(20, 20, 20, .9); backdrop-filter: blur(10px); border: 1px solid var(--brd); border-radius: 5px; padding: 4px 8px; font-family: var(--fm); font-size: 9px; font-weight: 700; color: var(--t2); }
+  .nx-mc-dot { width: 7px; height: 7px; border-radius: 50%; }
+
+  .nx-watch { position: absolute; bottom: 64px; left: 12px; width: 250px; background: rgba(20, 20, 20, .94); backdrop-filter: blur(14px); border: 1px solid var(--brd); border-radius: var(--r); padding: 10px; z-index: 415; box-shadow: 0 8px 24px rgba(0, 0, 0, .4); }
+  .nx-watch-t { font-family: var(--fm); font-size: 8px; font-weight: 700; letter-spacing: 1px; color: var(--td); margin-bottom: 8px; }
+  .nx-watch-row { display: flex; align-items: center; gap: 8px; padding: 5px 6px; border-radius: 5px; cursor: pointer; transition: .15s; }
+  .nx-watch-row:hover { background: rgba(255, 255, 255, .05); }
+  .nx-watch-row.active { background: rgba(129, 140, 248, .12); box-shadow: inset 2px 0 0 var(--accent); }
+  .nx-watch-name { flex: 1; font-size: 10px; color: var(--t1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .nx-watch-sev { font-family: var(--fm); font-size: 7px; font-weight: 700; letter-spacing: .5px; }
+  .nx-watch-sev[data-sev=critical] { color: var(--crit); }
+  .nx-watch-sev[data-sev=high] { color: var(--hi); }
+  .nx-watch-sev[data-sev=elevated] { color: var(--elev); }
+  .nx-watch-sev[data-sev=monitoring] { color: var(--mon); }
+
+  /* LEGEND */
+  .nx-legend { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); z-index: 425; background: var(--bgp); border: 1px solid var(--brd); border-radius: var(--r); padding: 6px 16px; display: flex; align-items: center; gap: 13px; font-family: var(--fm); font-size: 8px; letter-spacing: .6px; backdrop-filter: blur(20px); white-space: nowrap; box-shadow: 0 4px 24px rgba(0, 0, 0, .3); }
+  .nx-lg-t { color: var(--td); font-weight: 700; letter-spacing: 1.5px; }
+  .nx-lg-i { display: flex; align-items: center; gap: 5px; color: var(--t2); cursor: pointer; transition: all .2s; user-select: none; padding: 3px 5px; border-radius: 4px; }
+  .nx-lg-i:hover { color: var(--t1); background: rgba(255, 255, 255, .05); }
+  .nx-lg-i.dimmed { opacity: .25; text-decoration: line-through; filter: grayscale(1); }
+  .nx-lg-dot { width: 7px; height: 7px; border-radius: 50%; }
+  .nx-lg-div { width: 1px; height: 12px; background: var(--brd); }
+  .nx-lg-ln { width: 18px; height: 2px; border-radius: 1px; }
+  .nx-lg-ln.d { background: var(--crit); }
+  .nx-lg-ln.i { background: var(--hi); opacity: .7; }
+
+  /* ===== RIGHT DETAIL PANEL ===== */
+  .nx-detail { position: relative; background: var(--bgp); border-left: 1px solid var(--brd); backdrop-filter: blur(24px); overflow-y: auto; padding: 16px; }
+  .nx-d-close { position: absolute; top: 12px; right: 12px; z-index: 6; width: 22px; height: 22px; border-radius: 6px; background: var(--surface); border: 1px solid var(--brd); color: var(--td); font-size: 11px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: .15s; }
+  .nx-d-close:hover { color: #fff; background: rgba(255, 255, 255, .08); border-color: var(--brda); }
+  .nx-d-head { margin-bottom: 14px; }
+  .nx-d-badge { display: inline-block; font-family: var(--fm); font-size: 8px; font-weight: 700; letter-spacing: 1px; padding: 3px 7px; border-radius: 4px; margin-bottom: 8px; }
+  .nx-d-badge[data-sev=critical] { color: var(--crit); background: rgba(244, 63, 94, .12); }
+  .nx-d-badge[data-sev=high] { color: var(--hi); background: rgba(251, 146, 60, .12); }
+  .nx-d-badge[data-sev=elevated] { color: var(--elev); background: rgba(250, 204, 21, .12); }
+  .nx-d-badge[data-sev=monitoring] { color: var(--mon); background: rgba(34, 211, 238, .12); }
+  .nx-d-src { font-family: var(--fm); font-size: 8px; font-weight: 700; letter-spacing: 1px; color: var(--td); margin-bottom: 6px; }
+  .nx-d-title { font-size: 16px; font-weight: 700; color: var(--tb); line-height: 1.3; margin-bottom: 8px; }
+  .nx-d-meta { display: flex; align-items: center; gap: 7px; font-family: var(--fm); font-size: 9px; color: var(--td); }
+  .nx-d-flag-big { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+  .nx-d-flag-big img { width: 44px; height: 30px; object-fit: cover; border-radius: 4px; box-shadow: 0 0 0 1px rgba(255, 255, 255, .15); flex-shrink: 0; }
+  .nx-d-persona { font-size: 11px; font-style: italic; color: var(--t2); line-height: 1.5; padding: 8px 10px; background: var(--surface); border-left: 2px solid var(--accent); border-radius: 4px; }
+
+  .nx-d-tabs { display: flex; gap: 4px; margin: 14px 0; }
+  .nx-d-tab { flex: 1; background: var(--surface); border: 1px solid var(--brda); color: var(--td); font-family: var(--fm); font-size: 8px; font-weight: 600; padding: 8px 0; cursor: pointer; letter-spacing: .4px; border-radius: 6px; transition: .2s; }
+  .nx-d-tab:hover { color: var(--t1); background: rgba(255, 255, 255, .05); border-color: var(--brd); }
+  .nx-d-tab.active { background: rgba(96, 165, 250, .12); color: var(--info); font-weight: 700; border-color: rgba(96, 165, 250, .3); }
+
+  .nx-d-section { background: var(--surface); border: 1px solid var(--brda); border-radius: var(--r); padding: 12px; margin-bottom: 10px; }
+  .nx-d-label { font-family: var(--fm); font-size: 9px; font-weight: 700; letter-spacing: .8px; color: var(--td); text-transform: uppercase; margin-bottom: 8px; }
+  .nx-d-text { font-size: 12px; line-height: 1.6; color: var(--t2); }
+
+  .nx-impact-row, .nx-rel-row { display: flex; align-items: center; gap: 8px; padding: 6px 4px; border-radius: 5px; cursor: pointer; transition: .15s; }
+  .nx-impact-row:hover, .nx-rel-row:hover { background: rgba(255, 255, 255, .05); }
+  .nx-impact-name { flex: 1; font-size: 11px; color: var(--t1); }
+  .nx-impact-sev { font-family: var(--fm); font-size: 8px; font-weight: 700; }
+  .nx-impact-sev[data-sev=critical] { color: var(--crit); }
+  .nx-impact-sev[data-sev=high] { color: var(--hi); }
+  .nx-impact-sev[data-sev=elevated] { color: var(--elev); }
+  .nx-impact-sev[data-sev=monitoring] { color: var(--mon); }
+  .nx-rel-title { font-size: 11px; color: var(--t2); line-height: 1.35; }
+
+  .nx-expo { display: flex; flex-direction: column; gap: 7px; }
+  .nx-expo-row { display: flex; align-items: center; gap: 8px; }
+  .nx-expo-k { width: 64px; font-family: var(--fm); font-size: 9px; color: var(--td); }
+  .nx-expo-bar { flex: 1; height: 6px; background: rgba(255, 255, 255, .06); border-radius: 3px; overflow: hidden; }
+  .nx-expo-bar span { display: block; height: 100%; border-radius: 3px; transition: width .4s; }
+  .nx-expo-v { width: 22px; text-align: right; font-family: var(--fm); font-size: 10px; font-weight: 700; color: var(--t1); }
+
+  .nx-d-back { width: 100%; margin-top: 6px; background: var(--surface); border: 1px solid var(--brda); color: var(--t2); font-family: var(--fm); font-size: 9px; font-weight: 700; letter-spacing: .5px; padding: 9px 0; border-radius: 6px; cursor: pointer; transition: .2s; }
+  .nx-d-back:hover { background: rgba(255, 255, 255, .05); color: var(--t1); border-color: var(--brd); }
+}
+
+/* Leaflet tooltip skin (rendered outside the scoped tree) */
+.netra-tt.leaflet-tooltip { background: rgba(20, 20, 20, .98); border: 1px solid rgba(99, 110, 140, .2); color: #e2e8f0; font-family: 'JetBrains Mono', monospace; font-size: 9px; line-height: 1.45; border-radius: 8px; box-shadow: 0 8px 32px rgba(0, 0, 0, .4); }
+.netra-tt.leaflet-tooltip::before { display: none; }
+
+/* live pulse for the LIVE feed caption (top-level keyframes — lightningcss rejects nested) */
+.netra-dash .nx-list-cap { animation: nx-pulse 2.4s ease-in-out infinite; }
+
+@keyframes nx-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+
+/* Animated flowing connection lines (SVG paths Leaflet renders into the overlay pane).
+   stroke-dashoffset target -1260 is divisible by every dash period below -> seamless loop. */
+.netra-map .nx-flow { animation: nx-flow 18s linear infinite; }
+.netra-map .nx-flow-d { stroke-dasharray: 6 8; }
+.netra-map .nx-flow-i { stroke-dasharray: 3 6; }
+.netra-map .nx-flow-c { stroke-dasharray: 4 6; }
+@keyframes nx-flow { to { stroke-dashoffset: -1260; } }
