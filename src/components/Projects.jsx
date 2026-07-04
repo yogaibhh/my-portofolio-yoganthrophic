@@ -2,21 +2,21 @@ const projects = [
   {
     title: 'Cloud Seeding Hunter',
     description:
-      'Flutter mobile app for meteorological data analysis with PyTorch/TensorFlow Lite edge AI, geospatial tracking dashboard. 40% improvement in field reporting workflow.',
-    tags: ['Flutter', 'PyTorch', 'TensorFlow Lite', 'Geospatial'],
+      'Trained and deployed a lightweight edge-inference classification model (PyTorch, TensorFlow Lite) for offline, on-device predictions in remote areas. Built the end-to-end Flutter mobile app, including an interactive geospatial tracking dashboard for the field engineering team.',
+    tags: ['Flutter', 'PyTorch', 'TensorFlow Lite', 'Edge AI', 'Geospatial'],
     link: '#',
   },
   {
     title: 'AI Screen Reader',
     description:
-      'Electron/React desktop app integrated with Generative AI APIs (Deepgram, Groq, OpenRouter) for automated visual context reading.',
+      'Electron/React desktop app integrating multiple LLM providers (Deepgram, Groq, OpenRouter) to read and interpret on-screen visual context automatically, with API credential handling across a compiled cross-platform executable.',
     tags: ['Electron', 'React', 'Deepgram', 'Groq', 'OpenRouter'],
     link: '#',
   },
   {
     title: 'MCP AI Data Analyst',
     description:
-      'Model Context Protocol integration for natural-language querying of PostgreSQL with read-only sandboxed AI operations.',
+      'Configured Model Context Protocol (MCP) to connect a local PostgreSQL instance for real-time, natural-language querying of production tables — scoped to a strict read-only role to sandbox all AI operations.',
     tags: ['MCP', 'PostgreSQL', 'AI Agent', 'Python'],
     link: '#',
   },

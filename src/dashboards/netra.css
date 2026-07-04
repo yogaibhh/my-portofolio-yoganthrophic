@@ -27,6 +27,7 @@
   --r: 8px;
 
   position: relative;
+  isolation: isolate;
   height: 760px;
   background: var(--bg);
   color: var(--t1);

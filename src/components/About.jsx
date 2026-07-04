@@ -2,7 +2,7 @@ export default function About() {
   const stats = [
     { value: '3+', label: 'Years of Experience' },
     { value: '40%', label: 'Pipeline Optimization' },
-    { value: '1M+', label: 'Data Points Processed' },
+    { value: '4', label: 'LLM Providers Integrated' },
   ]
 
   return (
@@ -17,16 +17,19 @@ export default function About() {
         {/* Bio */}
         <div className="max-w-3xl mb-16">
           <p className="text-body text-lg leading-relaxed mb-6">
-            I'm a versatile Data Scientist and Analytics Engineer based in Bogor, Indonesia,
-            with expertise spanning complex data parsing, meteorological modeling, and
-            interactive visualization. I graduated from IPB University with a degree in
-            Applied Meteorology and a GPA of 3.67/4.00.
+            I'm an AI/ML-focused engineer based in Bogor, Indonesia, with hands-on experience
+            training and deploying edge-inference models (PyTorch, TensorFlow Lite),
+            integrating multiple LLM providers (OpenAI, Groq, OpenRouter, Deepgram) into
+            production tooling, and building agentic data workflows with the Model Context
+            Protocol (MCP).
           </p>
           <p className="text-body text-lg leading-relaxed">
-            I'm adept at using Python and SQL to optimize high-volume data pipelines, achieving
-            a 40% reduction in reporting time. My specialty lies in bridging heavy-duty data
-            processing with frontend execution — building national-scale monitoring systems
-            using React, Mapbox GL, and AI integrations.
+            I currently own full-stack scope — frontend, backend, and database — in an AI
+            Native engineering track, having shipped a standardized full-stack boilerplate
+            that replaced a fragmented internal dashboard system. My background in data
+            engineering (Python ETL pipelines, Elasticsearch, PostgreSQL) gives me a practical
+            foundation for building the data layer that AI systems depend on. I graduated
+            from IPB University with a degree in Applied Meteorology, GPA 3.67/4.00.
           </p>
         </div>
 

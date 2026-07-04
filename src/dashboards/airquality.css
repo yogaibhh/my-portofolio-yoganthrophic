@@ -19,6 +19,7 @@
   border-radius: 14px;
   border: 1px solid var(--bd);
   overflow: hidden;
+  isolation: isolate;
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 

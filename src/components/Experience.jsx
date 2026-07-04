@@ -1,24 +1,35 @@
 const experiences = [
   {
-    role: 'Data Scientist | Generative AI',
+    role: 'AI Native Engineer',
     company: 'PT Pixel Digital (PT Ebdesk Teknologi)',
     location: 'Tangerang',
-    period: 'Oct 2025 — Present',
+    period: 'Jun 2026 — Present',
     bullets: [
-      'Engineered robust Python-based ETL pipelines for National Stability Index and NPI predictive models',
-      'Architected interactive React-based security monitoring dashboards (Kodam Radin Inten, NETRA) with Elasticsearch & Mapbox GL',
-      'Developed Fire Risk Prediction System (Karhutla) using Google Earth Engine and NASA POWER data',
-      'Integrated AI agents into development workflows for ERP design optimization',
+      'Own full-stack scope (frontend, backend, database) building applied-AI "skills" that automate internal engineering workflows, moving beyond a data-scientist-only remit',
+      'Migrating a fragmented internal BI-style dashboard system into a standardized full-stack boilerplate built through AI-assisted code generation, making bug handling faster and more consistent across dashboards',
+      'Researching additional applied-AI capabilities: multi-format data cleaning (documents, spreadsheets, video, audio, satellite imagery), handwritten-document extraction from scanned PDFs, and Google Earth Engine code generation',
     ],
   },
   {
-    role: 'Data Analyst | Geopolitical Simulation',
+    role: 'Data Scientist',
+    company: 'PT Pixel Digital (PT Ebdesk Teknologi)',
+    location: 'Tangerang',
+    period: 'Oct 2025 — Jun 2026',
+    bullets: [
+      'Engineered Python-based ETL pipelines to parse and normalize high-volume unstructured data feeding the National Stability Index and NPI predictive models',
+      'Built React-based geospatial monitoring dashboards backed by Elasticsearch/Lucene queries and Mapbox GL, rendering real-time spatial and network-flow (Sankey) data for security operations',
+      'Developed a fire-risk prediction model (Karhutla) using Google Earth Engine and NASA POWER meteorological data',
+      'Prototyped AI-agent-assisted dashboard and template generation for internal ERP tooling — an early version of the full-stack standardization work later formalized in the AI Native role',
+    ],
+  },
+  {
+    role: 'Data Analyst',
     company: 'PT Pixel Digital (PT Ebdesk Teknologi)',
     location: 'Tangerang',
     period: 'May — Oct 2025',
     bullets: [
-      'Integrated multi-agent simulation results into PostgreSQL databases',
-      'Built dynamic visualizations for trade patterns and geopolitical trends',
+      'Integrated multi-agent simulation outputs into PostgreSQL, connecting raw simulation logs to downstream visualization layers',
+      'Built dashboards tracking trade patterns and geopolitical trends for stakeholder use',
     ],
   },
   {
@@ -27,8 +38,8 @@ const experiences = [
     location: 'Bandung',
     period: 'Oct — Dec 2024',
     bullets: [
-      'Processed 480+ hours of weather data, automating data cleaning & visualization',
-      '40% faster reporting time for weather modification projects',
+      'Processed and analyzed 480+ hours of weather data in Python (Google Colab) and Excel, automating cleaning and visualization workflows',
+      'Cut reporting time by 40% through automated data processing workflows for large meteorological datasets',
     ],
   },
   {
@@ -37,8 +48,8 @@ const experiences = [
     location: 'Bogor',
     period: 'Sep — Oct 2023',
     bullets: [
-      'Processed 175,000+ hourly weather data points spanning 10 years',
-      'Developed 2023 DKI Jakarta Air Quality Monitoring Map Album',
+      'Processed 175,000+ hourly weather data points (10 years, rainfall & temperature) in Excel',
+      'Compiled the 2023 DKI Jakarta Air Quality Monitoring Map Album across 20+ monitoring locations',
     ],
   },
 ]

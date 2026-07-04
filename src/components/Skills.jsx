@@ -1,19 +1,19 @@
 const skillCategories = [
   {
-    title: 'Languages & Dev',
-    skills: ['Python (Pandas, NumPy)', 'SQL', 'JavaScript (React)', 'Dart (Flutter)'],
+    title: 'AI / ML',
+    skills: ['LLM API Integration (OpenAI, Groq, OpenRouter, Deepgram)', 'Model Context Protocol (MCP)', 'PyTorch & TensorFlow Lite', 'Edge AI Inference', 'Agentic Workflows'],
+  },
+  {
+    title: 'Full-Stack & Data Engineering',
+    skills: ['Python (Pandas, NumPy)', 'SQL & PostgreSQL', 'Elasticsearch & Lucene Queries', 'ETL Pipeline Design'],
+  },
+  {
+    title: 'Systems & Frontend',
+    skills: ['JavaScript (React)', 'Dart (Flutter)', 'Electron'],
   },
   {
     title: 'Geospatial',
-    skills: ['Google Earth Engine', 'Mapbox GL', 'ArcGIS', 'NASA POWER'],
-  },
-  {
-    title: 'Data Infrastructure',
-    skills: ['Elasticsearch', 'Lucene Queries', 'ETL Automation', 'PostgreSQL'],
-  },
-  {
-    title: 'AI & Analytics',
-    skills: ['Predictive Modeling', 'AI Agent Integration', 'Spatial Data Engineering', 'Statistical Analysis'],
+    skills: ['Google Earth Engine (GEE)', 'Mapbox GL', 'ArcGIS'],
   },
 ]
 

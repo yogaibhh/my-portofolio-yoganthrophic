@@ -1,3 +1,6 @@
+const CV_URL = `${import.meta.env.BASE_URL}Muhamad_Yoga_Ibrahim_CV_AI_Engineer.pdf`
+const CV_FILENAME = 'Muhamad_Yoga_Ibrahim_CV_AI_Engineer.pdf'
+
 export default function Hero() {
   return (
     <section
@@ -15,14 +18,15 @@ export default function Hero() {
           </div>
 
           <h1>
-            Data Scientist &<br />
-            Analytics Engineer
+            AI Engineer<br />
+            Applied ML & LLM Integration
           </h1>
 
           <p className="text-body text-lg max-w-lg leading-relaxed">
-            Versatile Data Scientist with expertise spanning complex data parsing,
-            meteorological modeling, and interactive visualization. Building
-            national-scale monitoring systems using React, Mapbox GL, and AI integrations.
+            AI/ML engineer building edge-inference models, integrating LLM providers
+            (OpenAI, Groq, OpenRouter, Deepgram) into production tooling, and shipping
+            agentic workflows with the Model Context Protocol — backed by a data
+            engineering foundation in Python, Elasticsearch, and PostgreSQL.
           </p>
 
           <div className="flex flex-wrap items-center gap-4 mt-4">
@@ -33,7 +37,8 @@ export default function Hero() {
               View Projects
             </a>
             <a
-              href="#contact"
+              href={CV_URL}
+              download={CV_FILENAME}
               className="inline-flex items-center px-6 py-3 rounded-lg border border-hairline text-body font-medium hover:border-ink hover:text-ink transition-colors"
             >
               Download CV
@@ -51,57 +56,59 @@ export default function Hero() {
               <p className="text-muted mt-1">Faster Pipelines</p>
             </div>
             <div>
-              <span className="text-2xl font-display text-ink">1M+</span>
-              <p className="text-muted mt-1">Data Points</p>
+              <span className="text-2xl font-display text-ink">4</span>
+              <p className="text-muted mt-1">LLM Providers Integrated</p>
             </div>
           </div>
         </div>
 
-        {/* Right visual */}
+        {/* Right visual — live CV preview */}
         <div className="flex justify-center lg:justify-end">
           <div className="relative w-full max-w-md aspect-square">
-            {/* Background decorative shapes */}
-            <div className="absolute inset-0 rounded-2xl bg-surface-card overflow-hidden">
-              {/* Abstract geometric pattern */}
-              <svg
-                className="absolute inset-0 w-full h-full"
-                viewBox="0 0 400 400"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                {/* Grid dots */}
-                {Array.from({ length: 8 }, (_, i) =>
-                  Array.from({ length: 8 }, (_, j) => (
-                    <circle
-                      key={`${i}-${j}`}
-                      cx={60 + j * 40}
-                      cy={60 + i * 40}
-                      r="2"
-                      fill="#cc785c"
-                      opacity="0.2"
-                    />
-                  ))
-                )}
-                {/* Large accent circle */}
-                <circle cx="280" cy="120" r="60" fill="#cc785c" opacity="0.15" />
-                {/* Dark element */}
-                <rect x="60" y="240" width="120" height="120" rx="12" fill="#181715" opacity="0.9" />
-                {/* Teal accent */}
-                <circle cx="320" cy="300" r="40" fill="#5db8a6" opacity="0.25" />
-                {/* Coral stripe */}
-                <rect x="200" y="180" width="160" height="8" rx="4" fill="#cc785c" opacity="0.6" />
-                <rect x="200" y="200" width="120" height="8" rx="4" fill="#cc785c" opacity="0.4" />
-                <rect x="200" y="220" width="80" height="8" rx="4" fill="#cc785c" opacity="0.2" />
-              </svg>
-
-              {/* Code snippet overlay */}
-              <div className="absolute bottom-8 left-8 right-8 bg-surface-dark rounded-xl p-4 text-sm font-mono">
-                <div className="text-on-dark-soft text-xs mb-2">// data_pipeline.py</div>
-                <div className="text-accent-teal">def</div>
-                <span className="text-on-dark"> process_pipeline</span>
-                <span className="text-on-dark-soft">(data):</span>
-                <div className="text-on-dark-soft ml-4 mt-1">return optimize(data)</div>
+            <div className="absolute inset-0 rounded-2xl bg-surface-card overflow-hidden border border-hairline">
+              {/* Header bar */}
+              <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-3 bg-canvas/90 backdrop-blur-sm border-b border-hairline-soft">
+                <span className="text-xs font-medium text-muted uppercase tracking-wider">
+                  Resume Preview
+                </span>
+                <a
+                  href={CV_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:text-primary-active transition-colors"
+                >
+                  Open Full CV
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
+                    <path d="M15 3h6v6M10 14L21 3" />
+                  </svg>
+                </a>
               </div>
+
+              {/* Inline PDF embed */}
+              <object
+                data={CV_URL}
+                type="application/pdf"
+                className="absolute inset-0 w-full h-full pt-11"
+              >
+                <div className="absolute inset-0 pt-11 flex flex-col items-center justify-center gap-3 px-6 text-center">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-primary">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                    <path d="M14 2v6h6" />
+                  </svg>
+                  <p className="text-muted text-sm">
+                    Preview isn't supported on this device.
+                  </p>
+                  <a
+                    href={CV_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-4 py-2 rounded-lg bg-primary text-on-primary text-sm font-medium hover:bg-primary-active transition-colors"
+                  >
+                    Open CV
+                  </a>
+                </div>
+              </object>
             </div>
           </div>
         </div>

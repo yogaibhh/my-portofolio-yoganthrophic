@@ -1,9 +1,9 @@
 const certifications = [
   'Associate Data Analyst in Python (DataCamp)',
   'Associate Data Analyst in PowerBI (DataCamp)',
-  'Working with OpenAI API (DataCamp, Oct 2025)',
-  'Associate Data Analyst in SQL (DataCamp, Apr 2025)',
+  'Working with the OpenAI API (DataCamp, Oct 2025)',
   'Associate Business Analyst in SQL (DataCamp, May 2025)',
+  'Associate Data Analyst in SQL (DataCamp, Apr 2025)',
   'Data Analyst | Generasi Gigih 3.0 (GoTo Impact Foundation, 2023)',
 ]
 
