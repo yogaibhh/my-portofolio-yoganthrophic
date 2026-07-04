@@ -1,15 +1,41 @@
 import { useState } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 const navLinks = [
-  { label: 'About', href: '#about' },
-  { label: 'Experience', href: '#experience' },
-  { label: 'Projects', href: '#projects' },
-  { label: 'Skills', href: '#skills' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'About', id: 'about' },
+  { label: 'Experience', id: 'experience' },
+  { label: 'Projects', id: 'projects' },
+  { label: 'Skills', id: 'skills' },
+  { label: 'Contact', id: 'contact' },
 ]
+
+const NAVBAR_HEIGHT = 64
+
+function scrollToId(id) {
+  const el = document.getElementById(id)
+  if (!el) return
+  const top = el.getBoundingClientRect().top + window.scrollY - NAVBAR_HEIGHT
+  window.scrollTo({ top, behavior: 'smooth' })
+}
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  /* HashRouter uses "#" for routing, so a plain <a href="#about"> would
+     overwrite the route hash and land on a blank, unmatched route.
+     Scroll manually instead, navigating home first if on another page. */
+  const goToSection = (id) => (e) => {
+    e.preventDefault()
+    setMobileOpen(false)
+    if (location.pathname !== '/') {
+      navigate('/')
+      requestAnimationFrame(() => requestAnimationFrame(() => scrollToId(id)))
+    } else {
+      scrollToId(id)
+    }
+  }
 
   return (
     <nav
@@ -26,8 +52,9 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
             <a
-              key={link.href}
-              href={link.href}
+              key={link.id}
+              href={`#${link.id}`}
+              onClick={goToSection(link.id)}
               className="text-sm font-medium text-body hover:text-ink transition-colors"
             >
               {link.label}
@@ -35,6 +62,7 @@ export default function Navbar() {
           ))}
           <a
             href="#contact"
+            onClick={goToSection('contact')}
             className="inline-flex items-center px-5 py-2 rounded-lg bg-primary text-on-primary text-sm font-medium hover:bg-primary-active transition-colors"
           >
             Contact Me
@@ -63,9 +91,9 @@ export default function Navbar() {
         <div className="fixed inset-0 top-16 bg-canvas z-40 flex flex-col items-center justify-center gap-8 md:hidden">
           {navLinks.map((link) => (
             <a
-              key={link.href}
-              href={link.href}
-              onClick={() => setMobileOpen(false)}
+              key={link.id}
+              href={`#${link.id}`}
+              onClick={goToSection(link.id)}
               className="text-2xl font-display text-ink hover:text-primary transition-colors"
             >
               {link.label}
@@ -73,7 +101,7 @@ export default function Navbar() {
           ))}
           <a
             href="#contact"
-            onClick={() => setMobileOpen(false)}
+            onClick={goToSection('contact')}
             className="inline-flex items-center px-6 py-3 rounded-lg bg-primary text-on-primary text-base font-medium hover:bg-primary-active transition-colors"
           >
             Contact Me

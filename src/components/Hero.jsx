@@ -65,9 +65,9 @@ export default function Hero() {
         {/* Right visual — live CV preview */}
         <div className="flex justify-center lg:justify-end">
           <div className="relative w-full max-w-md aspect-square">
-            <div className="absolute inset-0 rounded-2xl bg-surface-card overflow-hidden border border-hairline">
+            <div className="absolute inset-0 rounded-2xl bg-surface-card overflow-hidden border border-hairline flex flex-col">
               {/* Header bar */}
-              <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-3 bg-canvas/90 backdrop-blur-sm border-b border-hairline-soft">
+              <div className="shrink-0 z-10 flex items-center justify-between px-4 py-3 bg-canvas/90 backdrop-blur-sm border-b border-hairline-soft">
                 <span className="text-xs font-medium text-muted uppercase tracking-wider">
                   Resume Preview
                 </span>
@@ -89,9 +89,9 @@ export default function Hero() {
               <object
                 data={CV_URL}
                 type="application/pdf"
-                className="absolute inset-0 w-full h-full pt-11"
+                className="flex-1 w-full min-h-0"
               >
-                <div className="absolute inset-0 pt-11 flex flex-col items-center justify-center gap-3 px-6 text-center">
+                <div className="flex flex-col items-center justify-center gap-3 px-6 py-8 text-center h-full">
                   <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-primary">
                     <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
                     <path d="M14 2v6h6" />
