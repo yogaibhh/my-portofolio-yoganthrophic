@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 
 const navLinks = [
+  { label: 'GitHub', id: 'github' },
   { label: 'About', id: 'about' },
   { label: 'Experience', id: 'experience' },
   { label: 'Projects', id: 'projects' },

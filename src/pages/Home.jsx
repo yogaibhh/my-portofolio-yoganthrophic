@@ -1,5 +1,6 @@
 import Navbar from '../components/Navbar'
 import Hero from '../components/Hero'
+import GitHub from '../components/GitHub'
 import About from '../components/About'
 import Experience from '../components/Experience'
 import Projects from '../components/Projects'
@@ -15,6 +16,7 @@ function Home() {
       <Navbar />
       <main>
         <Hero />
+        <GitHub />
         <About />
         <Experience />
         <Projects />
