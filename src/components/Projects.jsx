@@ -18,9 +18,44 @@ const projects = [
   {
     title: 'MCP AI Data Analyst',
     description:
-      'Configured Model Context Protocol (MCP) to connect a local PostgreSQL instance for real-time, natural-language querying of production tables — scoped to a strict read-only role to sandbox all AI operations.',
+      'Configured Model Context Protocol (MCP) to connect a local PostgreSQL instance for real-time, natural-language querying of production tables — scoped to a strict read-only role to sandbox all AI operations. Public SQLite demo implementation on GitHub.',
     tags: ['MCP', 'PostgreSQL', 'AI Agent', 'Python'],
-    link: '#',
+    link: 'https://github.com/yogaibhh/mcp-sqlite-analyst',
+  },
+  {
+    title: 'Telco Customer Churn Prediction',
+    description:
+      'End-to-end churn analysis of 7,043 telecom customers: EDA of churn drivers, sklearn preprocessing pipelines, and a three-model comparison reaching 0.84 ROC-AUC — permutation importance points to tenure, fiber-optic service, and month-to-month contracts.',
+    tags: ['Python', 'scikit-learn', 'Machine Learning', 'EDA'],
+    link: 'https://github.com/yogaibhh/telco-churn-prediction',
+  },
+  {
+    title: 'Music Store SQL Analytics',
+    description:
+      'Twelve business questions answered in pure SQL on the Chinook database — CTEs, window functions (LAG, ROW_NUMBER, running totals), and multi-table joins — surfacing revenue concentration, catalog dead stock, and customer lifetime value.',
+    tags: ['SQL', 'SQLite', 'Window Functions', 'Data Analysis'],
+    link: 'https://github.com/yogaibhh/chinook-sql-analytics',
+  },
+  {
+    title: 'Weather ETL Pipeline',
+    description:
+      'Production-style ETL from the Open-Meteo API into a SQLite dim/fact warehouse for five Indonesian cities (4,560 daily rows): retry/backoff extraction, data-quality gates, idempotent upserts, logging, and 17 unit tests.',
+    tags: ['Python', 'ETL', 'SQLite', 'Data Engineering'],
+    link: 'https://github.com/yogaibhh/weather-etl-pipeline',
+  },
+  {
+    title: 'Indonesia Earthquake Analysis',
+    description:
+      'Geospatial EDA of 10,294 M4.5+ earthquakes from the USGS catalog (2015–2026): Gutenberg-Richter b-value fitting, depth profiling, and a spatial map tracing the Sunda subduction zone.',
+    tags: ['Python', 'Geospatial', 'EDA', 'USGS API'],
+    link: 'https://github.com/yogaibhh/indonesia-earthquake-analysis',
+  },
+  {
+    title: 'FMCG Sales Dashboard (Excel)',
+    description:
+      'Interactive Excel dashboard built from cleaned FMCG transaction data — KPI cards, charts, and a real dropdown-driven filter wired to SUMIFS/AVERAGEIFS formulas, generated end-to-end with a reproducible Python workflow.',
+    tags: ['Excel', 'Python', 'Data Visualization', 'BI'],
+    link: 'https://github.com/yogaibhh/fmcg-dashboard-excel-testing',
   },
 ]
 
