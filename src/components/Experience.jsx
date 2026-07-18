@@ -1,3 +1,5 @@
+import Reveal from './Reveal'
+
 const experiences = [
   {
     role: 'AI Native Engineer',
@@ -57,7 +59,7 @@ const experiences = [
 export default function Experience() {
   return (
     <section id="experience" className="bg-surface-soft py-24">
-      <div className="max-w-[1200px] mx-auto px-6">
+      <Reveal className="max-w-[1200px] mx-auto px-6">
         {/* Section heading */}
         <div className="mb-12">
           <h2 className="text-ink">Work Experience</h2>
@@ -103,7 +105,7 @@ export default function Experience() {
             ))}
           </div>
         </div>
-      </div>
+      </Reveal>
     </section>
   )
 }

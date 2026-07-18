@@ -1,3 +1,5 @@
+import Reveal from './Reveal'
+
 const certifications = [
   'Associate Data Analyst in Python (DataCamp)',
   'Associate Data Analyst in PowerBI (DataCamp)',
@@ -16,7 +18,7 @@ const awards = [
 export default function Education() {
   return (
     <section id="education" className="bg-canvas py-24">
-      <div className="max-w-[1200px] mx-auto px-6">
+      <Reveal className="max-w-[1200px] mx-auto px-6">
         {/* Section heading */}
         <div className="mb-12">
           <h2>Education & Certifications</h2>
@@ -107,7 +109,7 @@ export default function Education() {
             </div>
           </div>
         </div>
-      </div>
+      </Reveal>
     </section>
   )
 }

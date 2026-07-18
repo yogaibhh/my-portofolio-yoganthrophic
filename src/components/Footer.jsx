@@ -1,10 +1,20 @@
 const quickLinks = [
-  { label: 'About', href: '#about' },
-  { label: 'Experience', href: '#experience' },
-  { label: 'Projects', href: '#projects' },
-  { label: 'Skills', href: '#skills' },
-  { label: 'Education', href: '#education' },
+  { label: 'About', id: 'about' },
+  { label: 'Experience', id: 'experience' },
+  { label: 'Projects', id: 'projects' },
+  { label: 'Skills', id: 'skills' },
+  { label: 'Education', id: 'education' },
 ]
+
+/* Plain href="#about" would overwrite the HashRouter route hash and blank the
+   page — scroll manually instead (Footer only renders on Home). */
+const goToSection = (id) => (e) => {
+  e.preventDefault()
+  const el = document.getElementById(id)
+  if (!el) return
+  const top = el.getBoundingClientRect().top + window.scrollY - 64
+  window.scrollTo({ top, behavior: 'smooth' })
+}
 
 const socials = [
   { label: 'LinkedIn', href: 'https://linkedin.com/in/muhamadyogaibra' },
@@ -17,12 +27,19 @@ export default function Footer() {
       <div className="max-w-[1200px] mx-auto px-6">
         {/* Brand */}
         <div className="mb-12">
-          <a href="#" className="font-display text-2xl text-on-dark tracking-tight">
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault()
+              window.scrollTo({ top: 0, behavior: 'smooth' })
+            }}
+            className="font-display text-2xl text-on-dark tracking-tight"
+          >
             Yoga Ibrahim
           </a>
           <p className="text-on-dark-soft text-sm mt-2 max-w-sm">
-            Data Scientist & Analytics Engineer based in Bogor, Indonesia.
-            Building data-driven solutions with modern technologies.
+            AI Engineer &middot; Applied ML &amp; LLM Integration. Based in Bogor,
+            Indonesia — building edge ML models and agentic LLM workflows.
           </p>
         </div>
 
@@ -35,9 +52,10 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2">
               {quickLinks.map((link) => (
-                <li key={link.href}>
+                <li key={link.id}>
                   <a
-                    href={link.href}
+                    href={`#${link.id}`}
+                    onClick={goToSection(link.id)}
                     className="text-on-dark-soft text-sm hover:text-on-dark transition-colors"
                   >
                     {link.label}
@@ -75,7 +93,7 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2 text-on-dark-soft text-sm">
               <li>yoga.ibh205@gmail.com</li>
-              <li>+62 8129235842</li>
+              <li>+62 812-9235-8420</li>
               <li>Bogor, Indonesia</li>
             </ul>
           </div>

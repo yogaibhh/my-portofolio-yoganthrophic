@@ -1,7 +1,9 @@
+import Reveal from './Reveal'
+
 export default function Contact() {
   return (
     <section id="contact" className="py-24">
-      <div className="max-w-[1200px] mx-auto px-6">
+      <Reveal className="max-w-[1200px] mx-auto px-6">
         <div className="bg-primary rounded-2xl px-8 py-16 md:px-16 md:py-20 text-center">
           <h2 className="text-on-primary mb-4">Let's Work Together</h2>
           <p className="text-on-primary/80 text-lg max-w-xl mx-auto mb-8">
@@ -58,7 +60,7 @@ export default function Contact() {
             </div>
           </div>
         </div>
-      </div>
+      </Reveal>
     </section>
   )
 }

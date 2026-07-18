@@ -1,3 +1,5 @@
+import Reveal from './Reveal'
+
 export default function About() {
   const stats = [
     { value: '3+', label: 'Years of Experience' },
@@ -7,7 +9,7 @@ export default function About() {
 
   return (
     <section id="about" className="bg-canvas py-24">
-      <div className="max-w-[1200px] mx-auto px-6">
+      <Reveal className="max-w-[1200px] mx-auto px-6">
         {/* Section heading */}
         <div className="mb-12">
           <h2>About Me</h2>
@@ -49,7 +51,7 @@ export default function About() {
             </div>
           ))}
         </div>
-      </div>
+      </Reveal>
     </section>
   )
 }

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import Reveal from './Reveal'
 
 const GH_USER = 'yogaibhh'
 const GH_URL = `https://github.com/${GH_USER}`
@@ -176,7 +177,7 @@ export default function GitHub() {
 
   return (
     <section id="github" className="bg-canvas py-24">
-      <div className="max-w-[1200px] mx-auto px-6">
+      <Reveal className="max-w-[1200px] mx-auto px-6">
         {/* Section heading + profile badge */}
         <div className="mb-12 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
@@ -244,7 +245,7 @@ export default function GitHub() {
             </svg>
           </a>
         </div>
-      </div>
+      </Reveal>
     </section>
   )
 }

@@ -1,3 +1,5 @@
+import Reveal from './Reveal'
+
 const CV_URL = `${import.meta.env.BASE_URL}Muhamad_Yoga_Ibrahim_CV_AI_Engineer.pdf`
 const CV_FILENAME = 'Muhamad_Yoga_Ibrahim_CV_AI_Engineer.pdf'
 
@@ -10,26 +12,42 @@ export default function Hero() {
       <div className="max-w-[1200px] mx-auto w-full px-6 py-24 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         {/* Left content */}
         <div className="flex flex-col gap-6">
-          <div className="flex items-center gap-3">
+          {/* Availability chip */}
+          <Reveal className="inline-flex items-center gap-2 self-start px-3 py-1.5 rounded-full border border-hairline bg-surface-soft">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full rounded-full bg-accent-teal opacity-75 motion-safe:animate-ping"></span>
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent-teal"></span>
+            </span>
+            <span className="text-xs font-medium text-body">Open to AI/ML engineering roles</span>
+          </Reveal>
+
+          <Reveal delay={80} className="flex items-center gap-3">
             <span className="inline-block w-12 h-[2px] bg-primary"></span>
             <span className="text-sm font-medium text-primary uppercase tracking-wider">
-              Hello, I'm Yoga
+              Hello, I'm
             </span>
-          </div>
+          </Reveal>
 
-          <h1>
-            AI Engineer<br />
-            Applied ML & LLM Integration
-          </h1>
+          <Reveal as="h1" delay={160}>
+            Muhamad Yoga Ibrahim
+          </Reveal>
 
-          <p className="text-body text-lg max-w-lg leading-relaxed">
+          <Reveal
+            as="p"
+            delay={240}
+            className="font-display text-primary text-[28px] md:text-[34px] leading-tight tracking-tight -mt-2"
+          >
+            AI Engineer — Applied ML &amp; LLM Integration
+          </Reveal>
+
+          <Reveal as="p" delay={320} className="text-body text-lg max-w-lg leading-relaxed">
             AI/ML engineer building edge-inference models, integrating LLM providers
             (OpenAI, Groq, OpenRouter, Deepgram) into production tooling, and shipping
             agentic workflows with the Model Context Protocol — backed by a data
             engineering foundation in Python, Elasticsearch, and PostgreSQL.
-          </p>
+          </Reveal>
 
-          <div className="flex flex-wrap items-center gap-4 mt-4">
+          <Reveal delay={400} className="flex flex-wrap items-center gap-4 mt-4">
             <a
               href="#projects"
               className="inline-flex items-center px-6 py-3 rounded-lg bg-primary text-on-primary font-medium hover:bg-primary-active transition-colors"
@@ -43,10 +61,10 @@ export default function Hero() {
             >
               Download CV
             </a>
-          </div>
+          </Reveal>
 
           {/* Quick stats */}
-          <div className="flex flex-wrap gap-6 mt-6 text-sm">
+          <Reveal delay={480} className="flex flex-wrap gap-6 mt-6 text-sm">
             <div>
               <span className="text-2xl font-display text-ink">3+</span>
               <p className="text-muted mt-1">Years Experience</p>
@@ -59,7 +77,7 @@ export default function Hero() {
               <span className="text-2xl font-display text-ink">4</span>
               <p className="text-muted mt-1">LLM Providers Integrated</p>
             </div>
-          </div>
+          </Reveal>
         </div>
 
         {/* Right visual — live CV preview */}

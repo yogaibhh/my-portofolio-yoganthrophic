@@ -1,3 +1,5 @@
+import Reveal from './Reveal'
+
 const skillCategories = [
   {
     title: 'AI / ML',
@@ -20,7 +22,7 @@ const skillCategories = [
 export default function Skills() {
   return (
     <section id="skills" className="bg-surface-card py-24">
-      <div className="max-w-[1200px] mx-auto px-6">
+      <Reveal className="max-w-[1200px] mx-auto px-6">
         {/* Section heading */}
         <div className="mb-12">
           <h2>Skills & Expertise</h2>
@@ -49,7 +51,7 @@ export default function Skills() {
             </div>
           ))}
         </div>
-      </div>
+      </Reveal>
     </section>
   )
 }

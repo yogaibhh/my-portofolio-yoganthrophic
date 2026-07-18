@@ -1,3 +1,5 @@
+import Reveal from './Reveal'
+
 const projects = [
   {
     title: 'Cloud Seeding Hunter',
@@ -25,7 +27,7 @@ const projects = [
 export default function Projects() {
   return (
     <section id="projects" className="bg-canvas py-24">
-      <div className="max-w-[1200px] mx-auto px-6">
+      <Reveal className="max-w-[1200px] mx-auto px-6">
         {/* Section heading */}
         <div className="mb-12">
           <h2>Featured Projects</h2>
@@ -66,20 +68,24 @@ export default function Projects() {
                 ))}
               </div>
 
-              {/* Link */}
-              <a
-                href={project.link}
-                className="inline-flex items-center gap-1 text-primary text-sm font-medium hover:text-primary-active transition-colors mt-2"
-              >
-                Learn More
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
-              </a>
+              {/* Link — hidden until a real URL is filled in */}
+              {project.link && project.link !== '#' && (
+                <a
+                  href={project.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-primary text-sm font-medium hover:text-primary-active transition-colors mt-2"
+                >
+                  Learn More
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
+                </a>
+              )}
             </div>
           ))}
         </div>
-      </div>
+      </Reveal>
     </section>
   )
 }

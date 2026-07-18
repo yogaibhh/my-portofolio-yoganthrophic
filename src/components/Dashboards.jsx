@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import dashboards from '../data/dashboards'
 import { DashboardDemo, hasDemo } from '../dashboards/registry'
+import Reveal from './Reveal'
 
 /* Render the heavy live demo only once its section scrolls into view,
    so the top of the homepage stays fast. */
@@ -27,7 +28,7 @@ function Dashboards() {
 
   return (
     <section id="dashboards" className="py-20 px-6 md:px-12 lg:px-24">
-      <div className="max-w-6xl mx-auto">
+      <Reveal className="max-w-6xl mx-auto">
         <h2 className="mb-4">Dashboards</h2>
         <p className="text-muted text-lg mb-8 max-w-2xl">
           Live, interactive recreations of dashboards I&apos;ve built — running right here with synthetic
@@ -99,7 +100,7 @@ function Dashboards() {
         <p className="text-muted-soft text-xs mt-3">
           Synthetic sample data for demonstration only — not real operational data.
         </p>
-      </div>
+      </Reveal>
     </section>
   )
 }
