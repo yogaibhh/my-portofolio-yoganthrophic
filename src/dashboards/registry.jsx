@@ -3,6 +3,9 @@ import { lazy, Suspense } from 'react'
 /* Map portfolio dashboard ids -> live interactive demo component.
    Lazy-loaded so Leaflet/Recharts only ship when a demo is opened. */
 const components = {
+  'fmcg-sales-performance': lazy(() => import('./FmcgSalesDashboard')),
+  'customer-churn-monitor': lazy(() => import('./ChurnMonitorDashboard')),
+  'seismic-activity-monitor': lazy(() => import('./SeismicDashboard')),
   'netra-security-monitoring': lazy(() => import('./NetraDashboard')),
   'national-stability-index': lazy(() => import('./NpiDashboard')),
   'karhutla-fire-risk': lazy(() => import('./FireRiskDashboard')),

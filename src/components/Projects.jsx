@@ -1,4 +1,7 @@
+import { useState } from 'react'
 import Reveal from './Reveal'
+
+const categories = ['All', 'AI & LLM', 'Machine Learning', 'Data Analysis', 'Data Engineering']
 
 const projects = [
   {
@@ -6,6 +9,7 @@ const projects = [
     description:
       'Trained and deployed a lightweight edge-inference classification model (PyTorch, TensorFlow Lite) for offline, on-device predictions in remote areas. Built the end-to-end Flutter mobile app, including an interactive geospatial tracking dashboard for the field engineering team.',
     tags: ['Flutter', 'PyTorch', 'TensorFlow Lite', 'Edge AI', 'Geospatial'],
+    category: 'Machine Learning',
     link: '#',
   },
   {
@@ -13,6 +17,7 @@ const projects = [
     description:
       'Electron/React desktop app integrating multiple LLM providers (Deepgram, Groq, OpenRouter) to read and interpret on-screen visual context automatically, with API credential handling across a compiled cross-platform executable.',
     tags: ['Electron', 'React', 'Deepgram', 'Groq', 'OpenRouter'],
+    category: 'AI & LLM',
     link: '#',
   },
   {
@@ -20,6 +25,7 @@ const projects = [
     description:
       'Configured Model Context Protocol (MCP) to connect a local PostgreSQL instance for real-time, natural-language querying of production tables — scoped to a strict read-only role to sandbox all AI operations. Public SQLite demo implementation on GitHub.',
     tags: ['MCP', 'PostgreSQL', 'AI Agent', 'Python'],
+    category: 'AI & LLM',
     link: 'https://github.com/yogaibhh/mcp-sqlite-analyst',
   },
   {
@@ -27,6 +33,7 @@ const projects = [
     description:
       'End-to-end churn analysis of 7,043 telecom customers: EDA of churn drivers, sklearn preprocessing pipelines, and a three-model comparison reaching 0.84 ROC-AUC — permutation importance points to tenure, fiber-optic service, and month-to-month contracts.',
     tags: ['Python', 'scikit-learn', 'Machine Learning', 'EDA'],
+    category: 'Machine Learning',
     link: 'https://github.com/yogaibhh/telco-churn-prediction',
   },
   {
@@ -34,6 +41,7 @@ const projects = [
     description:
       'Twelve business questions answered in pure SQL on the Chinook database — CTEs, window functions (LAG, ROW_NUMBER, running totals), and multi-table joins — surfacing revenue concentration, catalog dead stock, and customer lifetime value.',
     tags: ['SQL', 'SQLite', 'Window Functions', 'Data Analysis'],
+    category: 'Data Analysis',
     link: 'https://github.com/yogaibhh/chinook-sql-analytics',
   },
   {
@@ -41,6 +49,7 @@ const projects = [
     description:
       'Production-style ETL from the Open-Meteo API into a SQLite dim/fact warehouse for five Indonesian cities (4,560 daily rows): retry/backoff extraction, data-quality gates, idempotent upserts, logging, and 17 unit tests.',
     tags: ['Python', 'ETL', 'SQLite', 'Data Engineering'],
+    category: 'Data Engineering',
     link: 'https://github.com/yogaibhh/weather-etl-pipeline',
   },
   {
@@ -48,6 +57,7 @@ const projects = [
     description:
       'Geospatial EDA of 10,294 M4.5+ earthquakes from the USGS catalog (2015–2026): Gutenberg-Richter b-value fitting, depth profiling, and a spatial map tracing the Sunda subduction zone.',
     tags: ['Python', 'Geospatial', 'EDA', 'USGS API'],
+    category: 'Data Analysis',
     link: 'https://github.com/yogaibhh/indonesia-earthquake-analysis',
   },
   {
@@ -55,23 +65,50 @@ const projects = [
     description:
       'Interactive Excel dashboard built from cleaned FMCG transaction data — KPI cards, charts, and a real dropdown-driven filter wired to SUMIFS/AVERAGEIFS formulas, generated end-to-end with a reproducible Python workflow.',
     tags: ['Excel', 'Python', 'Data Visualization', 'BI'],
+    category: 'Data Analysis',
     link: 'https://github.com/yogaibhh/fmcg-dashboard-excel-testing',
   },
 ]
 
+const COLLAPSED_COUNT = 6
+
 export default function Projects() {
+  const [filter, setFilter] = useState('All')
+  const [showAll, setShowAll] = useState(false)
+
+  const filtered = filter === 'All' ? projects : projects.filter((p) => p.category === filter)
+  const collapsed = filter === 'All' && !showAll && filtered.length > COLLAPSED_COUNT
+  const visible = collapsed ? filtered.slice(0, COLLAPSED_COUNT) : filtered
+
   return (
     <section id="projects" className="bg-canvas py-24">
       <Reveal className="max-w-[1200px] mx-auto px-6">
         {/* Section heading */}
-        <div className="mb-12">
+        <div className="mb-8">
           <h2>Featured Projects</h2>
           <div className="w-16 h-[3px] bg-primary mt-4"></div>
         </div>
 
+        {/* Category filter */}
+        <div className="flex flex-wrap gap-2 mb-8">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setFilter(cat)}
+              className={`px-3.5 py-2 text-sm font-medium rounded-full border transition-all duration-200 cursor-pointer ${
+                filter === cat
+                  ? 'bg-primary text-on-primary border-primary'
+                  : 'bg-surface-soft text-body-strong border-hairline-soft hover:border-primary'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
         {/* Project cards grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project) => (
+          {visible.map((project) => (
             <div
               key={project.title}
               className="bg-surface-card rounded-xl p-8 flex flex-col gap-4 hover:shadow-lg transition-shadow"
@@ -120,6 +157,29 @@ export default function Projects() {
             </div>
           ))}
         </div>
+
+        {/* Expand / collapse — only relevant on the unfiltered view */}
+        {filter === 'All' && projects.length > COLLAPSED_COUNT && (
+          <div className="flex justify-center mt-10">
+            <button
+              onClick={() => setShowAll(!showAll)}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-hairline text-body font-medium hover:border-ink hover:text-ink transition-colors cursor-pointer"
+            >
+              {showAll ? 'Show fewer' : `Show all ${projects.length} projects`}
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className={showAll ? 'rotate-180' : ''}
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+          </div>
+        )}
       </Reveal>
     </section>
   )

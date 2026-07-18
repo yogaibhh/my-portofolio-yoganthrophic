@@ -21,7 +21,7 @@ function useInView(ref, rootMargin = '250px') {
 }
 
 function Dashboards() {
-  const [activeId, setActiveId] = useState('netra-security-monitoring')
+  const [activeId, setActiveId] = useState('fmcg-sales-performance')
   const active = dashboards.find((d) => d.id === activeId) ?? dashboards[0]
   const demoRef = useRef(null)
   const inView = useInView(demoRef)

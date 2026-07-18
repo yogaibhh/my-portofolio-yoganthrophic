@@ -1,5 +1,89 @@
 const dashboards = [
   {
+    id: 'fmcg-sales-performance',
+    name: 'FMCG Sales Performance',
+    description: 'Interactive BI dashboard for FMCG distribution across Java — trailing-12-month revenue, YoY growth, category mix, and top SKUs, with a region filter. Synthetic demo data; the web sibling of the author\'s FMCG Excel dashboard.',
+    tech: ['React', 'Recharts', 'BI', 'Data Visualization'],
+    pipeline: [
+      {
+        step: 1,
+        title: 'Transaction Data',
+        description: 'Sales transactions across 5 categories, 4 regions, and 24 months'
+      },
+      {
+        step: 2,
+        title: 'Aggregation',
+        description: 'Revenue, units, and order metrics rolled up per period and segment'
+      },
+      {
+        step: 3,
+        title: 'KPI & Trend Modeling',
+        description: 'Trailing-12-month KPIs and year-over-year comparison'
+      },
+      {
+        step: 4,
+        title: 'Interactive Dashboard',
+        description: 'Region-filterable React dashboard with live-recomputed charts'
+      }
+    ]
+  },
+  {
+    id: 'customer-churn-monitor',
+    name: 'Customer Churn Monitor',
+    description: 'Retention analytics dashboard for a telco subscriber base — churn by tenure, contract, and internet service, plus deployed-model performance and at-risk segments. Numbers echo the author\'s telco-churn-prediction study (ROC-AUC 0.84).',
+    tech: ['React', 'Recharts', 'Machine Learning', 'Analytics'],
+    pipeline: [
+      {
+        step: 1,
+        title: 'Customer Data',
+        description: '7,043 subscribers with tenure, contract, and service attributes'
+      },
+      {
+        step: 2,
+        title: 'Churn Modeling',
+        description: 'Logistic Regression scoring each customer\'s churn probability'
+      },
+      {
+        step: 3,
+        title: 'Segmentation',
+        description: 'Cohort and driver analysis surfacing high-risk segments'
+      },
+      {
+        step: 4,
+        title: 'Monitoring Dashboard',
+        description: 'Segment-filterable dashboard tracking churn drivers and model metrics'
+      }
+    ]
+  },
+  {
+    id: 'seismic-activity-monitor',
+    name: 'Seismic Activity Monitor',
+    description: 'Geospatial earthquake monitor for the Sunda Arc & Banda Sea — a Leaflet map of events colored by depth and sized by magnitude, with magnitude/depth distributions and strongest-event tracking. Companion to the author\'s indonesia-earthquake-analysis study.',
+    tech: ['React', 'Leaflet / OSM', 'Recharts', 'Geospatial'],
+    pipeline: [
+      {
+        step: 1,
+        title: 'Event Catalog',
+        description: 'USGS-style M4.5+ seismic catalog along the Sunda subduction zone'
+      },
+      {
+        step: 2,
+        title: 'Classification',
+        description: 'Events bucketed by depth class and Gutenberg-Richter magnitude bins'
+      },
+      {
+        step: 3,
+        title: 'Spatial Rendering',
+        description: 'Leaflet map with depth-colored, magnitude-scaled markers'
+      },
+      {
+        step: 4,
+        title: 'Interactive Monitor',
+        description: 'Magnitude-filterable dashboard with map, charts, and event ranking'
+      }
+    ]
+  },
+  {
     id: 'national-stability-index',
     name: 'National Stability Index (NPI)',
     description: 'National-scale predictive monitoring dashboard for stability index metrics',

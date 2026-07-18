@@ -1,0 +1,127 @@
+/* Seismic Activity Monitor — Sunda Arc & Banda Sea.
+   All rules scoped under .seis-dash (CSS nesting) so this dense dark UI never
+   leaks into the cream portfolio. Same surface/accent language as the other
+   command-center dashboards. @keyframes at TOP LEVEL (lightningcss rejects
+   nested @keyframes). */
+.seis-dash {
+  --bg: #080c16;
+  --s: #0f1629;
+  --s2: #161d30;
+  --bd: rgba(255, 255, 255, .08);
+  --tx: #e2e8f0;
+  --tx2: #94a3b8;
+  --tx3: #5a6478;
+  --ac: #22d3ee;
+
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--tx);
+  height: 760px;
+  border-radius: 14px;
+  border: 1px solid var(--bd);
+  overflow: hidden;
+  isolation: isolate;
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  button { font-family: inherit; }
+
+  /* Layout: header + KPI row full width, then map (left) + charts (right) */
+  .L {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    grid-template-rows: 46px auto 1fr;
+    grid-template-areas:
+      "header header"
+      "kpis   kpis"
+      "map    panel";
+    height: 100%;
+  }
+
+  /* Header */
+  .H { grid-area: header; background: var(--s); border-bottom: 1px solid var(--bd); display: flex; align-items: center; justify-content: space-between; padding: 0 14px; z-index: 10; }
+  .H h1 { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .H h1 .sub { font-size: 8px; color: var(--tx3); font-weight: 400; margin-left: 2px; }
+  .hr { display: flex; align-items: center; gap: 9px; font-size: 9px; color: var(--tx2); white-space: nowrap; }
+  .feed { background: rgba(34, 211, 238, .1); color: var(--ac); padding: 2px 7px; border-radius: 4px; font-size: 7px; font-weight: 700; display: flex; align-items: center; gap: 4px; }
+  .feed::before { content: ''; width: 5px; height: 5px; background: var(--ac); border-radius: 50%; animation: seisPulse 1.4s infinite; }
+
+  /* Magnitude filter buttons */
+  .fbar { display: flex; gap: 4px; }
+  .fbtn { font-size: 8px; font-weight: 600; letter-spacing: .3px; padding: 4px 9px; background: rgba(255, 255, 255, .03); border: 1px solid var(--bd); color: var(--tx2); cursor: pointer; border-radius: 5px; transition: all .15s; white-space: nowrap; }
+  .fbtn:hover { border-color: rgba(34, 211, 238, .4); color: var(--tx); background: rgba(255, 255, 255, .05); }
+  .fbtn.on { background: var(--ac); border-color: var(--ac); color: #06202a; font-weight: 700; }
+
+  /* KPI row */
+  .kpis { grid-area: kpis; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 10px; }
+  .kpi { position: relative; background: var(--s2); border: 1px solid var(--bd); border-radius: 9px; padding: 9px 12px 8px; overflow: hidden; transition: background .2s; }
+  .kpi:hover { background: #1a2238; }
+  .k-l { font-size: 7px; font-weight: 600; color: var(--tx3); text-transform: uppercase; letter-spacing: .6px; }
+  .k-v { font-size: 24px; font-weight: 900; line-height: 1.15; margin: 1px 0; font-variant-numeric: tabular-nums; }
+  .k-s { font-size: 7px; color: var(--tx3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Map */
+  .mp { grid-area: map; position: relative; border-top: 1px solid var(--bd); }
+  .seis-map { width: 100%; height: 100%; background: #0a0e18; }
+  .seis-map .leaflet-container { background: #0a0e18; font-family: 'Inter', sans-serif; }
+  .seis-map .leaflet-tile-pane { filter: invert(1) hue-rotate(190deg) brightness(0.9) contrast(0.9) saturate(0.5); }
+  .seis-map .leaflet-control-attribution { background: rgba(8, 12, 22, .7) !important; color: #5a6478 !important; font-size: 8px; }
+  .seis-map .leaflet-control-attribution a { color: #60a5fa !important; }
+  .seis-map .leaflet-control-zoom a { background: var(--s2) !important; color: var(--tx) !important; border-color: var(--bd) !important; }
+
+  /* Popups (rendered inside the map pane, so still under this scope) */
+  .seis-popup .leaflet-popup-content-wrapper { background: var(--s); color: var(--tx); border: 1px solid rgba(255, 255, 255, .12); border-radius: 6px; box-shadow: 0 6px 20px rgba(0, 0, 0, .5); }
+  .seis-popup .leaflet-popup-content { margin: 7px 10px; }
+  .seis-popup .leaflet-popup-tip { background: var(--s); border: 1px solid rgba(255, 255, 255, .12); }
+  .sp-t { font-size: 9px; font-weight: 700; margin-bottom: 2px; }
+  .sp-r { font-size: 8px; color: var(--tx2); line-height: 1.5; }
+
+  /* Map info overlay */
+  .mi { position: absolute; top: 8px; left: 48px; z-index: 405; display: flex; gap: 4px; }
+  .mc { background: rgba(15, 22, 41, .9); backdrop-filter: blur(10px); border: 1px solid var(--bd); border-radius: 4px; padding: 3px 8px; font-size: 8px; font-weight: 600; color: var(--tx2); }
+  .mc b { color: var(--tx); }
+
+  /* Map legend */
+  .ml { position: absolute; bottom: 10px; left: 8px; background: rgba(15, 22, 41, .94); backdrop-filter: blur(10px); border: 1px solid var(--bd); border-radius: 6px; padding: 7px 9px; z-index: 405; }
+  .mlt { font-size: 6px; font-weight: 700; color: var(--tx3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+  .mli { display: flex; align-items: center; gap: 5px; margin: 2px 0; font-size: 8px; color: var(--tx2); }
+  .mld { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .mlr { margin-left: auto; font-size: 7px; color: var(--tx3); padding-left: 10px; }
+  .ml-div { height: 1px; background: var(--bd); margin: 6px 0; }
+  .mls { display: flex; align-items: flex-end; gap: 10px; padding-top: 2px; }
+  .mls-i { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 7px; color: var(--tx2); }
+  .mlc { border-radius: 50%; background: rgba(148, 163, 184, .35); border: 1px solid var(--tx3); }
+
+  /* Right panel */
+  .rp { grid-area: panel; background: var(--s); border-left: 1px solid var(--bd); border-top: 1px solid var(--bd); overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+  .rp::-webkit-scrollbar { width: 3px; }
+  .rp::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, .08); border-radius: 2px; }
+
+  /* Cards */
+  .c { background: var(--s2); border: 1px solid var(--bd); border-radius: 9px; padding: 9px 10px; }
+  .ct { font-size: 7px; font-weight: 600; color: var(--tx3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; display: flex; align-items: center; gap: 4px; }
+  .ct .src { font-size: 6px; font-weight: 400; color: var(--tx3); margin-left: auto; font-style: italic; text-transform: none; letter-spacing: .3px; }
+
+  /* Depth-class distribution rows */
+  .dgrid { display: flex; flex-direction: column; gap: 7px; padding: 2px 0; }
+  .drow { display: flex; align-items: center; gap: 7px; }
+  .d-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .d-lab { font-size: 8px; font-weight: 600; color: var(--tx2); width: 96px; flex-shrink: 0; }
+  .d-rng { font-size: 6px; color: var(--tx3); font-weight: 400; }
+  .d-track { flex: 1; height: 6px; background: rgba(255, 255, 255, .05); border-radius: 3px; overflow: hidden; }
+  .d-fill { display: block; height: 100%; border-radius: 3px; transition: width .3s; }
+  .d-val { font-size: 10px; font-weight: 800; width: 24px; text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+
+  /* Strongest-events list */
+  .qlist { display: flex; flex-direction: column; gap: 3px; }
+  .qrow { display: flex; align-items: center; gap: 7px; padding: 5px 4px; border-radius: 6px; cursor: pointer; transition: background .12s; border: 1px solid transparent; }
+  .qrow:hover { background: rgba(255, 255, 255, .04); border-color: var(--bd); }
+  .q-rank { width: 17px; height: 17px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; flex-shrink: 0; }
+  .q-info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .q-reg { font-size: 8px; font-weight: 600; color: var(--tx); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .q-meta { font-size: 6px; color: var(--tx3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .q-mag { font-size: 11px; font-weight: 800; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+
+  .recharts-cartesian-axis-tick text { font-family: 'Inter', sans-serif; }
+}
+
+@keyframes seisPulse { 0%, 100% { opacity: 1; } 50% { opacity: .2; } }

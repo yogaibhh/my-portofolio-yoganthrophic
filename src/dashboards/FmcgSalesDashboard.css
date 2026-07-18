@@ -1,0 +1,105 @@
+/* FMCG Sales Performance — distributor BI dashboard.
+   All rules scoped under .fmcg-dash (CSS nesting) so this dense dark UI never
+   leaks into the cream portfolio. Same surface/accent language as the other
+   dashboards. @keyframes at TOP LEVEL (lightningcss rejects nested @keyframes). */
+.fmcg-dash {
+  --bg: #080c16;
+  --s: #0f1629;
+  --s2: #161d30;
+  --bd: rgba(255, 255, 255, .08);
+  --tx: #e2e8f0;
+  --tx2: #94a3b8;
+  --tx3: #5a6478;
+  --ac: #22d3ee;
+
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--tx);
+  height: 760px;
+  border-radius: 14px;
+  border: 1px solid var(--bd);
+  overflow: hidden;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  button { font-family: inherit; }
+
+  /* Header */
+  .H { height: 46px; flex-shrink: 0; background: var(--s); border-bottom: 1px solid var(--bd); display: flex; align-items: center; justify-content: space-between; padding: 0 14px; z-index: 10; }
+  .H h1 { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .H h1 .sub { font-size: 8px; color: var(--tx3); font-weight: 400; margin-left: 2px; }
+  .hr { display: flex; align-items: center; gap: 9px; font-size: 9px; color: var(--tx2); }
+  .hr-l { font-size: 7px; font-weight: 600; color: var(--tx3); text-transform: uppercase; letter-spacing: .6px; }
+  .live { background: rgba(52, 211, 153, .1); color: #34d399; padding: 2px 7px; border-radius: 4px; font-size: 7px; font-weight: 700; display: flex; align-items: center; gap: 4px; }
+  .live::before { content: ''; width: 5px; height: 5px; background: #34d399; border-radius: 50%; animation: fmcgPulse 1.4s infinite; }
+
+  /* Region filter chips */
+  .seg-chips { display: flex; gap: 4px; }
+  .seg-chip { font-size: 8px; font-weight: 600; letter-spacing: .4px; padding: 4px 9px; background: rgba(255, 255, 255, .03); border: 1px solid var(--bd); color: var(--tx2); cursor: pointer; border-radius: 5px; transition: all .15s; white-space: nowrap; }
+  .seg-chip:hover { border-color: rgba(34, 211, 238, .4); color: var(--tx); background: rgba(255, 255, 255, .05); }
+  .seg-chip.on { background: var(--ac); border-color: var(--ac); color: #06202a; font-weight: 700; }
+
+  /* Body */
+  .body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; padding: 10px; }
+
+  /* KPI row */
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; flex-shrink: 0; }
+  .kpi { position: relative; background: var(--s2); border: 1px solid var(--bd); border-radius: 9px; padding: 9px 12px 8px; overflow: hidden; transition: background .2s; }
+  .kpi:hover { background: #1a2238; }
+  .k-acc { position: absolute; top: 0; left: 0; right: 0; height: 2px; opacity: .9; }
+  .k-l { font-size: 7px; font-weight: 600; color: var(--tx3); text-transform: uppercase; letter-spacing: .6px; }
+  .k-v { font-size: 22px; font-weight: 900; line-height: 1.15; margin: 1px 0; font-variant-numeric: tabular-nums; }
+  .k-s { font-size: 7px; color: var(--tx3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Main 3-column grid */
+  .main { flex: 1; min-height: 0; display: grid; grid-template-columns: 1.2fr 1fr 1.05fr; gap: 8px; }
+  .main > * { min-width: 0; min-height: 0; }
+  .col { display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+
+  /* Cards */
+  .c { flex: 1; min-height: 0; background: var(--s2); border: 1px solid var(--bd); border-radius: 9px; padding: 10px; display: flex; flex-direction: column; }
+  .ct { font-size: 7px; font-weight: 600; color: var(--tx3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+  .ct .src { font-size: 6px; font-weight: 400; color: var(--tx3); margin-left: auto; font-style: italic; text-transform: none; letter-spacing: .3px; }
+  .ch { flex: 1; min-height: 0; }
+  .ch.donut { max-height: 130px; }
+
+  /* Recharts custom tooltip */
+  .fmcg-tip { background: var(--s); border: 1px solid rgba(255, 255, 255, .1); border-radius: 6px; padding: 6px 9px; box-shadow: 0 6px 20px rgba(0, 0, 0, .45); }
+  .t-l { font-size: 8px; color: var(--tx2); margin-bottom: 3px; }
+  .t-v { font-size: 10px; font-weight: 700; }
+
+  /* Donut legend */
+  .legend { display: flex; flex-direction: column; gap: 3px; margin-top: 6px; flex-shrink: 0; }
+  .lg { display: flex; align-items: center; gap: 6px; font-size: 8px; }
+  .lg-d { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+  .lg-n { color: var(--tx2); flex: 1; }
+  .lg-v { color: var(--tx); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  /* Category-growth stat rows */
+  .mgrid { display: flex; flex-direction: column; gap: 9px; flex: 1; justify-content: center; }
+  .mrow { display: flex; align-items: center; gap: 7px; }
+  .m-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .m-lab { font-size: 8px; font-weight: 600; color: var(--tx2); width: 74px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .m-track { flex: 1; height: 7px; background: rgba(255, 255, 255, .05); border-radius: 4px; overflow: hidden; }
+  .m-fill { display: block; height: 100%; border-radius: 4px; transition: width .3s; }
+  .m-val { font-size: 10px; font-weight: 800; width: 42px; text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+  .m-meta { font-size: 7px; color: var(--tx3); margin-top: 8px; padding-top: 7px; border-top: 1px solid var(--bd); flex-shrink: 0; }
+
+  /* Top-SKU list */
+  .sku-wrap { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+  .sku-wrap::-webkit-scrollbar { width: 3px; }
+  .sku-wrap::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, .08); border-radius: 2px; }
+  .sku { display: flex; align-items: center; gap: 7px; }
+  .sku-rank { width: 15px; height: 15px; border-radius: 4px; background: rgba(255, 255, 255, .05); color: var(--tx2); display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 800; flex-shrink: 0; }
+  .sku-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  .sku-n { font-size: 8px; font-weight: 600; color: var(--tx); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sku-bar { height: 4px; background: rgba(255, 255, 255, .05); border-radius: 2px; overflow: hidden; }
+  .sku-fill { display: block; height: 100%; border-radius: 2px; transition: width .3s; }
+  .sku-v { font-size: 9px; font-weight: 700; color: var(--tx2); flex-shrink: 0; font-variant-numeric: tabular-nums; }
+
+  .recharts-cartesian-axis-tick text { font-family: 'Inter', sans-serif; }
+}
+
+@keyframes fmcgPulse { 0%, 100% { opacity: 1; } 50% { opacity: .2; } }
