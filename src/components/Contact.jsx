@@ -8,7 +8,7 @@ export default function Contact() {
           <h2 className="text-on-primary mb-4">Let's Work Together</h2>
           <p className="text-on-primary/80 text-lg max-w-xl mx-auto mb-8">
             I'm always open to discussing new opportunities in AI engineering,
-            LLM integration, or applied ML and data systems. Let's connect!
+            data science, or data analytics. Let's connect!
           </p>
 
           {/* CTA Buttons */}

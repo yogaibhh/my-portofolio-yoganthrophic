@@ -18,7 +18,7 @@ export default function Hero() {
               <span className="absolute inline-flex h-full w-full rounded-full bg-accent-teal opacity-75 motion-safe:animate-ping"></span>
               <span className="relative inline-flex h-2 w-2 rounded-full bg-accent-teal"></span>
             </span>
-            <span className="text-xs font-medium text-body">Open to AI/ML engineering roles</span>
+            <span className="text-xs font-medium text-body">Open to AI/ML, Data Science &amp; Data Analyst roles</span>
           </Reveal>
 
           <Reveal delay={80} className="flex items-center gap-3">
@@ -37,7 +37,7 @@ export default function Hero() {
             delay={240}
             className="font-display text-primary text-[28px] md:text-[34px] leading-tight tracking-tight -mt-2"
           >
-            AI Engineer — Applied ML &amp; LLM Integration
+            AI Engineer &middot; Data Scientist &middot; Data Analyst
           </Reveal>
 
           <Reveal as="p" delay={320} className="text-body text-lg max-w-lg leading-relaxed">

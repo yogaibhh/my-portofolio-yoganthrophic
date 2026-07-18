@@ -38,8 +38,8 @@ export default function Footer() {
             Yoga Ibrahim
           </a>
           <p className="text-on-dark-soft text-sm mt-2 max-w-sm">
-            AI Engineer &middot; Applied ML &amp; LLM Integration. Based in Bogor,
-            Indonesia — building edge ML models and agentic LLM workflows.
+            AI Engineer &middot; Data Scientist &middot; Data Analyst. Based in Bogor,
+            Indonesia — building ML models, LLM workflows, and data-driven dashboards.
           </p>
         </div>
 
