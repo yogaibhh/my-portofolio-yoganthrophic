@@ -79,9 +79,9 @@ filename changes.
 
 ## Deployment
 
-Pushing to `main` triggers `.github/workflows/deploy.yml`, which builds the site and
-publishes it to GitHub Pages. Enable it once under **Settings → Pages → Build and
-deployment → Source: GitHub Actions**.
+Pushing to `main` triggers `.github/workflows/deploy.yml`, which lints, builds, and
+force-pushes `dist/` to the `gh-pages` branch — the branch GitHub Pages serves for
+this repo. No manual step is needed; `gh-pages` holds build output only.
 
 Routing uses `HashRouter` on purpose: GitHub Pages has no server-side rewrite, so a
 hard refresh on `/dashboard/…` would otherwise 404.
