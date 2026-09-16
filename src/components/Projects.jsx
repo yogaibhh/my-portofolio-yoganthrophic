@@ -1,186 +1,175 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import Icon from './Icon'
 import Reveal from './Reveal'
-
-const categories = ['All', 'AI & LLM', 'Machine Learning', 'Data Analysis', 'Data Engineering']
-
-const projects = [
-  {
-    title: 'Cloud Seeding Hunter',
-    description:
-      'Trained and deployed a lightweight edge-inference classification model (PyTorch, TensorFlow Lite) for offline, on-device predictions in remote areas. Built the end-to-end Flutter mobile app, including an interactive geospatial tracking dashboard for the field engineering team.',
-    tags: ['Flutter', 'PyTorch', 'TensorFlow Lite', 'Edge AI', 'Geospatial'],
-    category: 'Machine Learning',
-    link: '#',
-  },
-  {
-    title: 'AI Screen Reader',
-    description:
-      'Electron/React desktop app integrating multiple LLM providers (Deepgram, Groq, OpenRouter) to read and interpret on-screen visual context automatically, with API credential handling across a compiled cross-platform executable.',
-    tags: ['Electron', 'React', 'Deepgram', 'Groq', 'OpenRouter'],
-    category: 'AI & LLM',
-    link: '#',
-  },
-  {
-    title: 'MCP AI Data Analyst',
-    description:
-      'Configured Model Context Protocol (MCP) to connect a local PostgreSQL instance for real-time, natural-language querying of production tables — scoped to a strict read-only role to sandbox all AI operations. Public SQLite demo implementation on GitHub.',
-    tags: ['MCP', 'PostgreSQL', 'AI Agent', 'Python'],
-    category: 'AI & LLM',
-    link: 'https://github.com/yogaibhh/mcp-sqlite-analyst',
-  },
-  {
-    title: 'Telco Customer Churn Prediction',
-    description:
-      'End-to-end churn analysis of 7,043 telecom customers: EDA of churn drivers, sklearn preprocessing pipelines, and a three-model comparison reaching 0.84 ROC-AUC — permutation importance points to tenure, fiber-optic service, and month-to-month contracts.',
-    tags: ['Python', 'scikit-learn', 'Machine Learning', 'EDA'],
-    category: 'Machine Learning',
-    link: 'https://github.com/yogaibhh/telco-churn-prediction',
-  },
-  {
-    title: 'Music Store SQL Analytics',
-    description:
-      'Twelve business questions answered in pure SQL on the Chinook database — CTEs, window functions (LAG, ROW_NUMBER, running totals), and multi-table joins — surfacing revenue concentration, catalog dead stock, and customer lifetime value.',
-    tags: ['SQL', 'SQLite', 'Window Functions', 'Data Analysis'],
-    category: 'Data Analysis',
-    link: 'https://github.com/yogaibhh/chinook-sql-analytics',
-  },
-  {
-    title: 'Weather ETL Pipeline',
-    description:
-      'Production-style ETL from the Open-Meteo API into a SQLite dim/fact warehouse for five Indonesian cities (4,560 daily rows): retry/backoff extraction, data-quality gates, idempotent upserts, logging, and 17 unit tests.',
-    tags: ['Python', 'ETL', 'SQLite', 'Data Engineering'],
-    category: 'Data Engineering',
-    link: 'https://github.com/yogaibhh/weather-etl-pipeline',
-  },
-  {
-    title: 'Indonesia Earthquake Analysis',
-    description:
-      'Geospatial EDA of 10,294 M4.5+ earthquakes from the USGS catalog (2015–2026): Gutenberg-Richter b-value fitting, depth profiling, and a spatial map tracing the Sunda subduction zone.',
-    tags: ['Python', 'Geospatial', 'EDA', 'USGS API'],
-    category: 'Data Analysis',
-    link: 'https://github.com/yogaibhh/indonesia-earthquake-analysis',
-  },
-  {
-    title: 'FMCG Sales Dashboard (Excel)',
-    description:
-      'Interactive Excel dashboard built from cleaned FMCG transaction data — KPI cards, charts, and a real dropdown-driven filter wired to SUMIFS/AVERAGEIFS formulas, generated end-to-end with a reproducible Python workflow.',
-    tags: ['Excel', 'Python', 'Data Visualization', 'BI'],
-    category: 'Data Analysis',
-    link: 'https://github.com/yogaibhh/fmcg-dashboard-excel-testing',
-  },
-]
+import SectionHeading from './SectionHeading'
+import useSpotlight from '../hooks/useSpotlight'
+import { projects, projectCategories } from '../data/profile'
 
 const COLLAPSED_COUNT = 6
+
+function ProjectCard({ project, featured = false }) {
+  const spotlight = useSpotlight()
+  const hasLink = Boolean(project.link)
+
+  const Wrapper = hasLink ? 'a' : 'div'
+  const linkProps = hasLink
+    ? { href: project.link, target: '_blank', rel: 'noopener noreferrer' }
+    : {}
+
+  return (
+    <Wrapper
+      {...linkProps}
+      {...spotlight}
+      className={`card card-hover spotlight ring-gradient group flex h-full flex-col overflow-hidden p-6 ${
+        featured ? 'md:p-7' : ''
+      } ${hasLink ? 'cursor-pointer' : ''}`}
+    >
+      <div className="relative flex h-full flex-col">
+        <div className="mb-4 flex items-start justify-between gap-3">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/12 text-primary transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6">
+            <Icon name={project.icon} size={20} />
+          </span>
+
+          {project.metric && (
+            <span className="rounded-lg border border-hairline bg-canvas px-2.5 py-1.5 text-right">
+              <span className="block font-display text-base leading-none text-primary">
+                {project.metric.value}
+              </span>
+              <span className="mt-0.5 block font-mono text-[9px] uppercase tracking-wider text-muted-soft">
+                {project.metric.label}
+              </span>
+            </span>
+          )}
+        </div>
+
+        <h3
+          className={`mb-2 font-body font-semibold tracking-normal text-ink ${
+            featured ? 'text-xl' : 'text-[17px]'
+          }`}
+        >
+          {project.title}
+        </h3>
+
+        <p className="mb-4 flex-1 text-sm leading-relaxed text-muted">
+          {featured ? project.description : project.blurb}
+        </p>
+
+        <div className="mb-4 flex flex-wrap gap-1.5">
+          {project.tags.slice(0, featured ? 6 : 4).map((tag) => (
+            <span key={tag} className="chip px-2.5 py-1 text-[11px]">
+              {tag}
+            </span>
+          ))}
+        </div>
+
+        <div className="mt-auto flex items-center gap-1.5 border-t border-hairline-soft pt-4 text-sm font-medium">
+          {hasLink ? (
+            <span className="inline-flex items-center gap-1.5 text-primary">
+              View on GitHub
+              <Icon
+                name="arrowRight"
+                size={14}
+                className="transition-transform duration-300 group-hover:translate-x-1"
+              />
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 text-muted-soft">
+              <Icon name="briefcase" size={14} />
+              Private / client work
+            </span>
+          )}
+        </div>
+      </div>
+    </Wrapper>
+  )
+}
 
 export default function Projects() {
   const [filter, setFilter] = useState('All')
   const [showAll, setShowAll] = useState(false)
 
+  const counts = useMemo(() => {
+    const map = { All: projects.length }
+    projects.forEach((p) => {
+      map[p.category] = (map[p.category] ?? 0) + 1
+    })
+    return map
+  }, [])
+
+  const featured = projects.filter((p) => p.featured)
   const filtered = filter === 'All' ? projects : projects.filter((p) => p.category === filter)
   const collapsed = filter === 'All' && !showAll && filtered.length > COLLAPSED_COUNT
   const visible = collapsed ? filtered.slice(0, COLLAPSED_COUNT) : filtered
 
   return (
-    <section id="projects" className="bg-canvas py-24">
-      <Reveal className="max-w-[1200px] mx-auto px-6">
-        {/* Section heading */}
-        <div className="mb-8">
-          <h2>Featured Projects</h2>
-          <div className="w-16 h-[3px] bg-primary mt-4"></div>
-        </div>
+    <section id="projects" className="section-pad relative isolate overflow-hidden">
+      <div className="shell relative z-[1]">
+        <SectionHeading
+          eyebrow="Selected work"
+          title="Projects I've shipped"
+          lede="Edge-inference models, agentic tooling, analytics pipelines and BI dashboards — most of them open on GitHub."
+        />
 
-        {/* Category filter */}
-        <div className="flex flex-wrap gap-2 mb-8">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setFilter(cat)}
-              className={`px-3.5 py-2 text-sm font-medium rounded-full border transition-all duration-200 cursor-pointer ${
-                filter === cat
-                  ? 'bg-primary text-on-primary border-primary'
-                  : 'bg-surface-soft text-body-strong border-hairline-soft hover:border-primary'
-              }`}
-            >
-              {cat}
-            </button>
+        {/* Featured strip */}
+        <div className="mb-14 grid grid-cols-1 gap-5 md:grid-cols-3">
+          {featured.map((project, i) => (
+            <Reveal key={project.title} delay={i * 90} variant="scale" className="h-full">
+              <ProjectCard project={project} featured />
+            </Reveal>
           ))}
         </div>
 
-        {/* Project cards grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {visible.map((project) => (
-            <div
-              key={project.title}
-              className="bg-surface-card rounded-xl p-8 flex flex-col gap-4 hover:shadow-lg transition-shadow"
-            >
-              {/* Icon placeholder */}
-              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-primary">
-                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-                </svg>
-              </div>
-
-              <h3 className="text-ink text-xl font-body font-semibold">
-                {project.title}
-              </h3>
-
-              <p className="text-muted text-sm leading-relaxed flex-1">
-                {project.description}
-              </p>
-
-              {/* Tags */}
-              <div className="flex flex-wrap gap-2 mt-2">
-                {project.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-3 py-1 rounded-full bg-canvas text-muted text-xs font-medium border border-hairline"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-
-              {/* Link — hidden until a real URL is filled in */}
-              {project.link && project.link !== '#' && (
-                <a
-                  href={project.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-primary text-sm font-medium hover:text-primary-active transition-colors mt-2"
-                >
-                  Learn More
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M5 12h14M12 5l7 7-7 7" />
-                  </svg>
-                </a>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Expand / collapse — only relevant on the unfiltered view */}
-        {filter === 'All' && projects.length > COLLAPSED_COUNT && (
-          <div className="flex justify-center mt-10">
-            <button
-              onClick={() => setShowAll(!showAll)}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-hairline text-body font-medium hover:border-ink hover:text-ink transition-colors cursor-pointer"
-            >
-              {showAll ? 'Show fewer' : `Show all ${projects.length} projects`}
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                className={showAll ? 'rotate-180' : ''}
+        {/* Filter bar */}
+        <Reveal className="mb-8 flex flex-wrap items-center gap-2">
+          {projectCategories.map((cat) => {
+            const active = filter === cat
+            return (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setFilter(cat)}
+                aria-pressed={active}
+                className={`inline-flex cursor-pointer items-center gap-2 rounded-full border px-3.5 py-2 text-sm font-medium transition-all duration-300 ${
+                  active
+                    ? 'border-primary bg-primary text-on-primary shadow-[var(--shadow-sm)]'
+                    : 'border-hairline-soft bg-surface-soft text-body-strong hover:border-primary hover:text-primary'
+                }`}
               >
-                <path d="M6 9l6 6 6-6" />
-              </svg>
+                {cat}
+                <span
+                  className={`font-mono text-[10px] ${active ? 'text-on-primary/70' : 'text-muted-soft'}`}
+                >
+                  {counts[cat] ?? 0}
+                </span>
+              </button>
+            )
+          })}
+        </Reveal>
+
+        {/* Grid */}
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {visible.map((project, i) => (
+            /* key includes the filter so cards re-mount and replay their
+               entrance animation when the category changes */
+            <Reveal key={`${filter}-${project.title}`} delay={i * 60} className="h-full">
+              <ProjectCard project={project} />
+            </Reveal>
+          ))}
+        </div>
+
+        {filter === 'All' && projects.length > COLLAPSED_COUNT && (
+          <div className="mt-10 flex justify-center">
+            <button type="button" onClick={() => setShowAll((v) => !v)} className="btn btn-ghost">
+              {showAll ? 'Show fewer' : `Show all ${projects.length} projects`}
+              <Icon
+                name="chevronDown"
+                size={15}
+                className={`transition-transform duration-300 ${showAll ? 'rotate-180' : ''}`}
+              />
             </button>
           </div>
         )}
-      </Reveal>
+      </div>
     </section>
   )
 }

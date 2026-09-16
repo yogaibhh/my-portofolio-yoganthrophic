@@ -1,28 +1,18 @@
-import { lazy, Suspense } from 'react'
+import { Suspense } from 'react'
+import { demos } from './demoRegistry'
 
-/* Map portfolio dashboard ids -> live interactive demo component.
-   Lazy-loaded so Leaflet/Recharts only ship when a demo is opened. */
-const components = {
-  'fmcg-sales-performance': lazy(() => import('./FmcgSalesDashboard')),
-  'customer-churn-monitor': lazy(() => import('./ChurnMonitorDashboard')),
-  'seismic-activity-monitor': lazy(() => import('./SeismicDashboard')),
-  'netra-security-monitoring': lazy(() => import('./NetraDashboard')),
-  'national-stability-index': lazy(() => import('./NpiDashboard')),
-  'karhutla-fire-risk': lazy(() => import('./FireRiskDashboard')),
-  'geopolitical-simulation': lazy(() => import('./WhatIfDashboard')),
-  'weather-modification': lazy(() => import('./WeatherModDashboard')),
-  'dki-jakarta-air-quality': lazy(() => import('./AirQualityDashboard')),
-}
-
-export function hasDemo(id) {
-  return Boolean(components[id])
-}
-
-export function DashboardDemo({ id }) {
-  const Cmp = components[id]
+export default function DashboardDemo({ id }) {
+  const Cmp = demos[id]
   if (!Cmp) return null
+
   return (
-    <Suspense fallback={<div style={{ padding: 40, textAlign: 'center', color: '#9aa6be' }}>Loading live demo…</div>}>
+    <Suspense
+      fallback={
+        <div className="flex h-[760px] items-center justify-center rounded-xl bg-surface-soft text-sm text-muted-soft">
+          Loading live demo…
+        </div>
+      }
+    >
       <Cmp />
     </Suspense>
   )

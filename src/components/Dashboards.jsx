@@ -1,108 +1,105 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import dashboards from '../data/dashboards'
-import { DashboardDemo, hasDemo } from '../dashboards/registry'
+import Icon from './Icon'
 import Reveal from './Reveal'
+import SectionHeading from './SectionHeading'
+import useInView from '../hooks/useInView'
+import dashboards from '../data/dashboards'
+import DashboardDemo from '../dashboards/registry'
+import { hasDemo } from '../dashboards/demoRegistry'
 
-/* Render the heavy live demo only once its section scrolls into view,
-   so the top of the homepage stays fast. */
-function useInView(ref, rootMargin = '250px') {
-  const [seen, setSeen] = useState(false)
-  useEffect(() => {
-    if (seen || !ref.current) return
-    const ob = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setSeen(true); ob.disconnect() } },
-      { rootMargin },
-    )
-    ob.observe(ref.current)
-    return () => ob.disconnect()
-  }, [seen, ref, rootMargin])
-  return seen
-}
-
-function Dashboards() {
+export default function Dashboards() {
   const [activeId, setActiveId] = useState('fmcg-sales-performance')
   const active = dashboards.find((d) => d.id === activeId) ?? dashboards[0]
-  const demoRef = useRef(null)
-  const inView = useInView(demoRef)
+
+  /* Mount the heavy Leaflet/Recharts demo only once the section approaches the
+     viewport, so the top of the homepage stays fast. */
+  const [demoRef, demoInView] = useInView({ rootMargin: '300px' })
 
   return (
-    <section id="dashboards" className="py-20 px-6 md:px-12 lg:px-24">
-      <Reveal className="max-w-6xl mx-auto">
-        <h2 className="mb-4">Dashboards</h2>
-        <p className="text-muted text-lg mb-8 max-w-2xl">
-          Live, interactive recreations of dashboards I&apos;ve built — running right here with synthetic
-          sample data and free OpenStreetMap tiles. Pick one to explore it inline.
-        </p>
+    <section id="dashboards" className="section-pad relative isolate overflow-hidden">
+      <div className="dot-bg" aria-hidden="true" />
 
-        {/* tab selector */}
-        <div className="flex flex-wrap gap-2 mb-5">
-          {dashboards.map((d) => (
-            <button
-              key={d.id}
-              onClick={() => setActiveId(d.id)}
-              className={`px-3.5 py-2 text-sm font-medium rounded-full border transition-all duration-200 cursor-pointer ${
-                active.id === d.id
-                  ? 'bg-primary text-on-primary border-primary'
-                  : 'bg-surface-soft text-body-strong border-hairline-soft hover:border-primary'
-              }`}
-            >
-              {d.name}
-            </button>
-          ))}
-        </div>
+      <div className="shell relative z-[1]">
+        <SectionHeading
+          eyebrow="Live demos"
+          title="Dashboards, running right here"
+          lede="Interactive recreations of dashboards I've built — real React, synthetic data, free OpenStreetMap tiles. Pick one and poke at it."
+        />
 
-        {/* live demo frame */}
-        <div
-          ref={demoRef}
-          className="rounded-2xl border border-hairline bg-surface-dark/5 p-2 md:p-3 shadow-sm"
-        >
-          <div className="overflow-x-auto">
-            <div className="min-w-[1000px]">
-              {inView && hasDemo(active.id) ? (
-                <DashboardDemo id={active.id} key={active.id} />
-              ) : (
-                <div className="flex items-center justify-center h-[760px] text-muted-soft text-sm">
-                  Loading interactive demo…
-                </div>
-              )}
+        {/* Tab selector */}
+        <Reveal className="mb-5 flex flex-wrap gap-2">
+          {dashboards.map((d) => {
+            const isActive = active.id === d.id
+            return (
+              <button
+                key={d.id}
+                type="button"
+                onClick={() => setActiveId(d.id)}
+                aria-pressed={isActive}
+                className={`cursor-pointer rounded-full border px-3.5 py-2 text-sm font-medium transition-all duration-300 ${
+                  isActive
+                    ? 'border-primary bg-primary text-on-primary shadow-[var(--shadow-sm)]'
+                    : 'border-hairline-soft bg-surface-soft text-body-strong hover:border-primary hover:text-primary'
+                }`}
+              >
+                {d.name}
+              </button>
+            )
+          })}
+        </Reveal>
+
+        {/* Demo frame */}
+        <Reveal variant="scale">
+          <div
+            ref={demoRef}
+            className="rounded-2xl border border-hairline bg-surface-card p-2 shadow-[var(--shadow-lg)] md:p-3"
+          >
+            <div className="overflow-x-auto">
+              <div className="min-w-[1000px]">
+                {demoInView && hasDemo(active.id) ? (
+                  <DashboardDemo id={active.id} key={active.id} />
+                ) : (
+                  <div className="flex h-[760px] items-center justify-center rounded-xl bg-surface-soft text-sm text-muted-soft">
+                    Loading interactive demo…
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        </Reveal>
 
-        {/* active dashboard info + full-page link */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mt-5">
+        <p className="mt-2 text-center font-mono text-[11px] text-muted-soft md:hidden">
+          ← swipe the frame to pan across the dashboard →
+        </p>
+
+        {/* Active dashboard meta */}
+        <div className="mt-6 flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
           <div className="max-w-2xl">
-            <h3 className="text-xl text-ink mb-2" style={{ fontSize: '20px' }}>{active.name}</h3>
-            <p className="text-muted text-sm mb-3 leading-relaxed">{active.description}</p>
+            <h3 className="mb-2 font-body text-lg font-semibold tracking-normal text-ink">
+              {active.name}
+            </h3>
+            <p className="mb-3 text-sm leading-relaxed text-muted">{active.description}</p>
             <div className="flex flex-wrap gap-2">
               {active.tech.map((t) => (
-                <span
-                  key={t}
-                  className="px-2.5 py-1 text-xs font-medium rounded-full bg-surface-soft text-body-strong border border-hairline-soft"
-                >
+                <span key={t} className="chip text-[11px]">
                   {t}
                 </span>
               ))}
             </div>
           </div>
-          <Link
-            to={`/dashboard/${active.id}`}
-            className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-canvas border border-hairline text-ink text-sm font-medium hover:border-primary hover:text-primary transition-colors no-underline"
-          >
+
+          <Link to={`/dashboard/${active.id}`} className="btn btn-ghost shrink-0 no-underline">
             Open full page
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
+            <Icon name="arrowRight" size={15} />
           </Link>
         </div>
 
-        <p className="text-muted-soft text-xs mt-3">
+        <p className="mt-5 flex items-center gap-2 font-mono text-[11px] text-muted-soft">
+          <Icon name="spark" size={12} />
           Synthetic sample data for demonstration only — not real operational data.
         </p>
-      </Reveal>
+      </div>
     </section>
   )
 }
-
-export default Dashboards

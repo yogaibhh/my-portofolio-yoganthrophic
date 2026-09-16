@@ -1,115 +1,127 @@
+import Icon from './Icon'
 import Reveal from './Reveal'
-
-const certifications = [
-  'Associate Data Analyst in Python (DataCamp)',
-  'Associate Data Analyst in PowerBI (DataCamp)',
-  'Working with the OpenAI API (DataCamp, Oct 2025)',
-  'Associate Business Analyst in SQL (DataCamp, May 2025)',
-  'Associate Data Analyst in SQL (DataCamp, Apr 2025)',
-  'Data Analyst | Generasi Gigih 3.0 (GoTo Impact Foundation, 2023)',
-]
-
-const awards = [
-  { title: 'Finalist, National Infographic Competition', org: 'Agrocompetition', year: '2022' },
-  { title: 'Presenter, Indonesian Aerosol Association Conference', org: 'IAA', year: '2024' },
-  { title: 'Best Member, Special Team Division', org: 'PSN', year: '2021' },
-]
+import SectionHeading from './SectionHeading'
+import { education, certifications, awards } from '../data/profile'
 
 export default function Education() {
   return (
-    <section id="education" className="bg-canvas py-24">
-      <Reveal className="max-w-[1200px] mx-auto px-6">
-        {/* Section heading */}
-        <div className="mb-12">
-          <h2>Education & Certifications</h2>
-          <div className="w-16 h-[3px] bg-primary mt-4"></div>
-        </div>
+    <section id="education" className="section-pad relative isolate overflow-hidden">
+      <div className="shell relative z-[1]">
+        <SectionHeading
+          eyebrow="Background"
+          title="Education, certifications & awards"
+          lede="A meteorology degree explains the geospatial thread; the certifications are where the analytics stack got formalised."
+        />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Education */}
-          <div className="bg-surface-card rounded-xl p-8">
-            <div className="flex items-start gap-4 mb-6">
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-primary">
-                  <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-                  <path d="M6 12v5c3 3 9 3 12 0v-5" />
-                </svg>
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[0.95fr_1.05fr]">
+          {/* Degree */}
+          <Reveal variant="left">
+            <div className="card ring-gradient relative h-full overflow-hidden p-7">
+              <div className="mb-6 flex items-start gap-4">
+                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-primary/12 text-primary">
+                  <Icon name="book" size={22} />
+                </span>
+                <div>
+                  <h3 className="font-body text-xl font-semibold tracking-normal text-ink">
+                    {education.school}
+                  </h3>
+                  <p className="text-sm text-muted">{education.location}</p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-ink text-xl font-body font-semibold">IPB University</h3>
-                <p className="text-muted text-sm">Bogor, Indonesia</p>
+
+              <dl className="flex flex-col gap-3 text-sm">
+                <div className="flex items-baseline justify-between gap-4 border-b border-hairline-soft pb-3">
+                  <dt className="font-medium text-body-strong">{education.degree}</dt>
+                  <dd className="font-mono text-xs text-muted">{education.period}</dd>
+                </div>
+                <div className="flex items-baseline justify-between gap-4">
+                  <dt className="text-body">Grade point average</dt>
+                  <dd className="font-display text-lg text-primary">{education.gpa}</dd>
+                </div>
+              </dl>
+
+              <div className="mt-6 border-t border-hairline pt-5">
+                <h4 className="mb-3 font-mono text-[11px] uppercase tracking-[0.16em] text-muted-soft">
+                  Activities
+                </h4>
+                <ul className="flex flex-col gap-2.5">
+                  {education.activities.map((a) => (
+                    <li key={a} className="flex items-start gap-3 text-sm leading-relaxed text-muted">
+                      <span
+                        className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-accent-teal"
+                        aria-hidden="true"
+                      />
+                      {a}
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
+          </Reveal>
 
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between">
-                <span className="text-body font-medium">Applied Meteorology</span>
-                <span className="text-muted">2020 — 2024</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-body">GPA</span>
-                <span className="text-primary font-semibold">3.67 / 4.00</span>
-              </div>
-            </div>
-
-            <div className="mt-6 pt-6 border-t border-hairline">
-              <h4 className="text-ink text-sm font-semibold mb-3">Activities</h4>
-              <ul className="space-y-2">
-                <li className="flex items-start gap-2 text-muted text-sm">
-                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-accent-teal shrink-0"></span>
-                  Research Assistant & Presenter at international conferences
-                </li>
-                <li className="flex items-start gap-2 text-muted text-sm">
-                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-accent-teal shrink-0"></span>
-                  Treasurer & PKM team leader
-                </li>
-                <li className="flex items-start gap-2 text-muted text-sm">
-                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-accent-teal shrink-0"></span>
-                  Presented on AOD and PM Relationship in Jakarta
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Certifications & Awards */}
-          <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-5">
             {/* Certifications */}
-            <div className="bg-surface-card rounded-xl p-8">
-              <h3 className="text-ink text-xl font-body font-semibold mb-4">Certifications</h3>
-              <div className="flex flex-wrap gap-2">
-                {certifications.map((cert) => (
-                  <span
-                    key={cert}
-                    className="px-3 py-1.5 rounded-full bg-canvas text-muted text-xs font-medium border border-hairline"
-                  >
-                    {cert}
+            <Reveal variant="right" delay={80}>
+              <div className="card p-7">
+                <div className="mb-5 flex items-center gap-3">
+                  <span className="grid h-10 w-10 place-items-center rounded-xl bg-accent-teal/14 text-accent-teal">
+                    <Icon name="check" size={19} />
                   </span>
-                ))}
+                  <h3 className="font-body text-lg font-semibold tracking-normal text-ink">
+                    Certifications
+                  </h3>
+                  <span className="ml-auto font-mono text-xs text-muted-soft">
+                    {certifications.length}
+                  </span>
+                </div>
+
+                <ul className="flex flex-col divide-y divide-hairline-soft">
+                  {certifications.map((cert) => (
+                    <li key={cert.name} className="flex items-center gap-3 py-2.5">
+                      <Icon name="award" size={15} className="shrink-0 text-muted-soft" />
+                      <span className="text-sm text-body">{cert.name}</span>
+                      <span className="ml-auto whitespace-nowrap font-mono text-[10px] text-muted-soft">
+                        {cert.issuer}
+                        {cert.year ? ` · ${cert.year}` : ''}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            </div>
+            </Reveal>
 
             {/* Awards */}
-            <div className="bg-surface-card rounded-xl p-8">
-              <h3 className="text-ink text-xl font-body font-semibold mb-4">Awards & Recognition</h3>
-              <ul className="space-y-4">
-                {awards.map((award) => (
-                  <li key={award.title} className="flex items-start gap-3">
-                    <div className="mt-1 w-6 h-6 rounded-full bg-accent-amber/20 flex items-center justify-center shrink-0">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-accent-amber">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p className="text-body text-sm font-medium">{award.title}</p>
-                      <p className="text-muted text-xs">{award.org} · {award.year}</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <Reveal variant="right" delay={160}>
+              <div className="card p-7">
+                <div className="mb-5 flex items-center gap-3">
+                  <span className="grid h-10 w-10 place-items-center rounded-xl bg-accent-amber/16 text-accent-amber">
+                    <Icon name="star" size={19} />
+                  </span>
+                  <h3 className="font-body text-lg font-semibold tracking-normal text-ink">
+                    Awards & recognition
+                  </h3>
+                </div>
+
+                <ul className="flex flex-col gap-4">
+                  {awards.map((award) => (
+                    <li key={award.title} className="flex items-start gap-3">
+                      <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-accent-amber/20 text-accent-amber">
+                        <Icon name="star" size={11} />
+                      </span>
+                      <div>
+                        <p className="text-sm font-medium text-body-strong">{award.title}</p>
+                        <p className="text-xs text-muted">
+                          {award.org} · {award.year}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Reveal>
           </div>
         </div>
-      </Reveal>
+      </div>
     </section>
   )
 }

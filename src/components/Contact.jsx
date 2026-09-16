@@ -1,66 +1,127 @@
+import { useState } from 'react'
+import Icon from './Icon'
 import Reveal from './Reveal'
+import { profile, socials } from '../data/profile'
+
+const CV_URL = `${import.meta.env.BASE_URL}${profile.cvFile}`
+
+function CopyEmailButton() {
+  const [copied, setCopied] = useState(false)
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(profile.email)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      window.location.href = `mailto:${profile.email}`
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={copy}
+      className="group inline-flex w-full cursor-pointer items-center gap-3 rounded-xl border border-on-primary/25 bg-on-primary/5 px-4 py-3 text-left transition-colors hover:bg-on-primary/12 sm:w-auto"
+    >
+      <Icon name={copied ? 'check' : 'mail'} size={17} className="shrink-0 text-on-primary/80" />
+      <span className="font-mono text-sm text-on-primary">{profile.email}</span>
+      <span className="ml-auto pl-2 font-mono text-[10px] uppercase tracking-wider text-on-primary/60">
+        {copied ? 'Copied' : 'Copy'}
+      </span>
+    </button>
+  )
+}
 
 export default function Contact() {
   return (
-    <section id="contact" className="py-24">
-      <Reveal className="max-w-[1200px] mx-auto px-6">
-        <div className="bg-primary rounded-2xl px-8 py-16 md:px-16 md:py-20 text-center">
-          <h2 className="text-on-primary mb-4">Let's Work Together</h2>
-          <p className="text-on-primary/80 text-lg max-w-xl mx-auto mb-8">
-            I'm always open to discussing new opportunities in AI engineering,
-            data science, or data analytics. Let's connect!
-          </p>
+    <section id="contact" className="section-pad">
+      <div className="shell">
+        <Reveal variant="scale">
+          <div className="relative isolate grain overflow-hidden rounded-3xl bg-primary px-6 py-14 md:px-14 md:py-20">
+            {/* Ambient shapes inside the slab */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-on-primary/10 blur-3xl"
+            />
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -bottom-28 -left-16 h-80 w-80 rounded-full bg-accent-amber/20 blur-3xl"
+            />
 
-          {/* CTA Buttons */}
-          <div className="flex flex-wrap justify-center gap-4 mb-12">
-            <a
-              href="mailto:yoga.ibh205@gmail.com"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-canvas text-ink font-medium hover:bg-surface-soft transition-colors"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="2" y="4" width="20" height="16" rx="2" />
-                <path d="M22 7l-10 6L2 7" />
-              </svg>
-              Send Email
-            </a>
-            <a
-              href="https://linkedin.com/in/muhamadyogaibra"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-on-primary/30 text-on-primary font-medium hover:bg-on-primary/10 transition-colors"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-              </svg>
-              LinkedIn
-            </a>
-          </div>
+            <div className="relative z-[2] grid grid-cols-1 items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
+              <div>
+                <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-on-primary/25 px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.16em] text-on-primary/85">
+                  <span className="relative flex h-1.5 w-1.5" aria-hidden="true">
+                    <span className="absolute inline-flex h-full w-full rounded-full bg-on-primary opacity-70 motion-safe:animate-ping" />
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-on-primary" />
+                  </span>
+                  Available for new roles
+                </span>
 
-          {/* Contact info */}
-          <div className="flex flex-wrap justify-center gap-8 text-on-primary/70 text-sm">
-            <div className="flex items-center gap-2">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="2" y="4" width="20" height="16" rx="2" />
-                <path d="M22 7l-10 6L2 7" />
-              </svg>
-              yoga.ibh205@gmail.com
-            </div>
-            <div className="flex items-center gap-2">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z" />
-              </svg>
-              +62 812-9235-8420
-            </div>
-            <div className="flex items-center gap-2">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
-                <circle cx="12" cy="10" r="3" />
-              </svg>
-              Bogor, Indonesia
+                <h2 className="text-on-primary mb-4">Let&apos;s build something that ships</h2>
+
+                <p className="max-w-lg text-base leading-relaxed text-on-primary/85 md:text-lg">
+                  I&apos;m open to AI/ML engineering, data science, and data analyst roles —
+                  remote or hybrid. Send a message and I&apos;ll get back to you within a day or two.
+                </p>
+
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <a
+                    href={`mailto:${profile.email}?subject=Opportunity%20for%20Yoga`}
+                    className="btn bg-canvas text-ink hover:bg-surface-soft"
+                  >
+                    <Icon name="mail" size={17} />
+                    Send an email
+                  </a>
+                  <a
+                    href={CV_URL}
+                    download={profile.cvFile}
+                    className="btn border border-on-primary/30 text-on-primary hover:bg-on-primary/10"
+                  >
+                    <Icon name="download" size={16} />
+                    Download CV
+                  </a>
+                </div>
+              </div>
+
+              {/* Details card */}
+              <div className="flex flex-col gap-3 rounded-2xl border border-on-primary/20 bg-on-primary/8 p-5 backdrop-blur-sm">
+                <CopyEmailButton />
+
+                <a
+                  href={`tel:${profile.phone.replace(/[^+\d]/g, '')}`}
+                  className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-on-primary/90 transition-colors hover:bg-on-primary/10"
+                >
+                  <Icon name="phone" size={17} className="shrink-0 text-on-primary/80" />
+                  {profile.phone}
+                </a>
+
+                <p className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-on-primary/90">
+                  <Icon name="pin" size={17} className="shrink-0 text-on-primary/80" />
+                  {profile.location} · GMT+7
+                </p>
+
+                <div className="mt-1 flex gap-2 border-t border-on-primary/20 pt-4">
+                  {socials.map((s) => (
+                    <a
+                      key={s.label}
+                      href={s.href}
+                      target={s.href.startsWith('http') ? '_blank' : undefined}
+                      rel={s.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                      aria-label={s.label}
+                      title={s.label}
+                      className="grid h-10 w-10 place-items-center rounded-lg border border-on-primary/25 text-on-primary/85 transition-all duration-300 hover:-translate-y-0.5 hover:bg-on-primary/12"
+                    >
+                      <Icon name={s.icon} size={17} />
+                    </a>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </Reveal>
+        </Reveal>
+      </div>
     </section>
   )
 }

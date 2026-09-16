@@ -297,8 +297,8 @@ export default function FireRiskDashboard() {
   useEffect(() => {
     const m = mapRef.current, grp = spreadRef.current; if (!m || !grp) return
     grp.clearLayers()
-    if (!spread) { setSpreadStep(0); return }
-    const h = HS[spreadIdx % HS.length]; setSpreadStep(0)
+    if (!spread) return
+    const h = HS[spreadIdx % HS.length]
     m.flyTo([h.lat, h.lng], 10, { duration: 1 })
     const rings = genSpreadRings(h.lat, h.lng, h.wd, spreadIdx + 1)
     const timers = [1, 2, 3, 4, 5].map((step, i) => setTimeout(() => {
@@ -368,9 +368,9 @@ export default function FireRiskDashboard() {
           </div>
 
           <div className="spread-ctrl">
-            <button className={`spread-btn ${spread ? '' : 'off'}`} onClick={() => setSpread(!spread)}>{spread ? 'Stop Simulasi CA' : 'Cellular Automata (Spread)'}</button>
+            <button className={`spread-btn ${spread ? '' : 'off'}`} onClick={() => { setSpreadStep(0); setSpread(!spread) }}>{spread ? 'Stop Simulasi CA' : 'Cellular Automata (Spread)'}</button>
             {spread && <>
-              <button className="spread-btn" style={{ background: 'rgba(59,130,246,.8)', fontSize: 7 }} onClick={() => setSpreadIdx((i) => i + 1)}>Pindah Hotspot</button>
+              <button className="spread-btn" style={{ background: 'rgba(59,130,246,.8)', fontSize: 7 }} onClick={() => { setSpreadStep(0); setSpreadIdx((i) => i + 1) }}>Pindah Hotspot</button>
               <div className="spread-info">Simulasi CA (P_spread = P_base × F_wind × F_slope × F_fuel × F_moisture). T+1h hingga T+24h.</div>
             </>}
           </div>
