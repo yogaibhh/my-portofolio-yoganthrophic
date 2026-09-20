@@ -58,9 +58,11 @@ base path. Open that one, not bare `localhost`.
 Other scripts:
 
 ```bash
-npm run build     # production bundle into dist/, then the per-route HTML pass
-npm run preview   # serve the built bundle locally
-npm run lint      # eslint across the repo
+npm run build      # production bundle into dist/, then the per-route HTML pass
+npm run preview    # serve the built bundle locally
+npm run lint       # eslint across the repo
+npm run test       # vitest, once
+npm run test:watch # vitest, watching
 ```
 
 ## Project structure
@@ -81,7 +83,9 @@ src/
   hooks/           useTheme, useReveal, useInView, useCountUp, useSpotlight,
                    useTilt, useDocumentHead
   index.css        design tokens, base layer, component classes, motion
+  test/setup.js    jsdom gaps the app reads on mount (matchMedia)
 scripts/
+  routes.mjs       the published route list, shared by the build and its tests
   postbuild.mjs    writes one HTML file per route, plus 404.html and sitemap.xml
 ```
 
@@ -104,6 +108,35 @@ page so it cannot be forgotten.
 
 The CV is a static file in `public/`. Replace it and update `profile.cvFile` if
 the filename changes.
+
+## Tests
+
+The content is the product here, so that is what the tests guard. A project
+slug that drifts from its case-study key does not throw, it just serves a
+project page with no story on it, and nobody notices until a recruiter is
+already reading it.
+
+`npm run test` covers four things:
+
+- **Content integrity** (`src/data/content.test.js`): slugs are unique and
+  URL-safe, every project has a case study and every case study maps to a
+  real project, each study fills the sections the page renders, every
+  dashboard has a demo registered and vice versa. It also fails the build if
+  any published field contains placeholder wording, which is what keeps an
+  unmeasured figure off the live page.
+- **Published routes** (`scripts/routes.test.mjs`): the build writes one HTML
+  file per route, so the route list has to cover every project and dashboard,
+  with distinct titles and canonical URLs carrying the trailing slash Pages
+  actually serves.
+- **Chart theme** (`src/dashboards/ui/chartTheme.test.js`): slots are handed
+  out in fixed order and wrap at eight rather than inventing a ninth hue, no
+  status colour is ever used as a series colour, and the ordinal ramp stays
+  clear of the lightest sequential step.
+- **Projects section** (`src/components/Projects.test.jsx`): every card links
+  to a real case study, the filters count what they claim, and private work
+  is labelled rather than looking like a missing repository.
+
+CI runs lint, then the tests, then the build, before anything is published.
 
 ## The dashboard design system
 

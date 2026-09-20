@@ -19,12 +19,7 @@ import { fileURLToPath } from 'node:url'
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const dist = join(root, 'dist')
 
-const SITE = 'https://yogaibhh.github.io/my-portofolio-yoganthrophic'
-const NAME = 'Muhamad Yoga Ibrahim'
-
-const { default: dashboards } = await import('../src/data/dashboards.js')
-const { projects } = await import('../src/data/profile.js')
-const { default: caseStudies } = await import('../src/data/caseStudies.js')
+import { buildRoutes, canonical } from './routes.mjs'
 
 /* The shell is trusted build output, but route text comes from the data
    files, so it is escaped before going into an attribute. */
@@ -39,7 +34,10 @@ function escapeHtml(text) {
 /* Rewrite the head tags that differ per route. Everything else in the shell
    (fonts, theme boot script, icons, JSON-LD) is shared and left alone. */
 function renderRoute(shell, { path, title, description }) {
-  const url = `${SITE}${path}`
+  /* Pages serves a directory as `/path/` and 301s the bare form to it, so
+     the canonical and the sitemap point at the URL it actually returns
+     rather than at a redirect. */
+  const url = canonical(path)
   const safeTitle = escapeHtml(title)
   const safeDesc = escapeHtml(description)
 
@@ -77,27 +75,7 @@ function renderRoute(shell, { path, title, description }) {
 
 const shell = await readFile(join(dist, 'index.html'), 'utf8')
 
-const routes = [
-  {
-    path: '/',
-    title: `${NAME} · AI Engineer · Data Scientist · Data Analyst`,
-    description:
-      'AI Engineer, Data Scientist & Data Analyst in Bogor, Indonesia. Muhamad Yoga Ibrahim builds edge ML models, LLM-integrated tools, dashboards, and data pipelines.',
-    priority: '1.0',
-  },
-  ...projects.map((p) => ({
-    path: `/project/${p.slug}`,
-    title: `${p.title} · case study · ${NAME}`,
-    description: caseStudies[p.slug]?.tagline ?? p.description,
-    priority: '0.8',
-  })),
-  ...dashboards.map((d) => ({
-    path: `/dashboard/${d.id}`,
-    title: `${d.name} · live dashboard · ${NAME}`,
-    description: d.description,
-    priority: '0.7',
-  })),
-]
+const routes = buildRoutes()
 
 let written = 0
 for (const route of routes) {
@@ -120,7 +98,7 @@ const today = new Date().toISOString().slice(0, 10)
 const urls = routes
   .map(
     (r) =>
-      `  <url>\n    <loc>${SITE}${r.path}</loc>\n    <lastmod>${today}</lastmod>\n    <priority>${r.priority}</priority>\n  </url>`,
+      `  <url>\n    <loc>${canonical(r.path)}</loc>\n    <lastmod>${today}</lastmod>\n    <priority>${r.priority}</priority>\n  </url>`,
   )
   .join('\n')
 

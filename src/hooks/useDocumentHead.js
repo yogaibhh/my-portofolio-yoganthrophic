@@ -40,7 +40,9 @@ export default function useDocumentHead({ title, description, path = '/' } = {})
   useEffect(() => {
     const fullTitle = title ? `${title} · ${NAME}` : DEFAULT_TITLE
     const desc = description || DEFAULT_DESCRIPTION
-    const url = `${SITE}${path === '/' ? '/' : path}`
+    /* Pages serves these routes as directories, so the canonical carries the
+       trailing slash the server actually returns. */
+    const url = `${SITE}${path === '/' ? '/' : `${path}/`}`
 
     document.title = fullTitle
     setMeta('meta[name="description"]', 'content', desc)
