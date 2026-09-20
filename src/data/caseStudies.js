@@ -55,6 +55,67 @@ const caseStudies = {
   },
 
   /* ------------------------------------------------------------------ */
+  'powerbi-dashboard-skill': {
+    tagline:
+      'An MCP server and an agent skill that build a whole laid-out Power BI report from a semantic model, not one visual at a time.',
+    role: 'AI engineer',
+    context: [
+      'Microsoft’s Power BI Modeling MCP server is good at semantic models, meaning tables, measures and DAX, and it says plainly that it does not touch report metadata. The report-authoring skill alongside it edits reports that already exist, and the template it ships arrives with its charts unbound.',
+      'That leaves a gap in the middle. Something still has to decide which fields belong on a dashboard, what the JSON for each visual type looks like when it is actually bound to a query, and where every box sits on the canvas. This is that layer.',
+    ],
+    challenge:
+      'Produce a valid PBIR report from a model description alone, with every visual query-bound, laid out on a grid, themed, and provably correct before anyone opens Power BI.',
+    approach: [
+      {
+        title: 'Two front doors, neither depending on the other',
+        body: 'An MCP server whose tools take fields and build the JSON themselves, so the model never writes a `queryState`, and an agent skill that teaches the PBIR format directly with PowerShell helpers. The server needs Node, the scripts do not, and either one is enough on its own.',
+      },
+      {
+        title: 'Build the JSON server-side, because it fails quietly',
+        body: 'A caller says what goes on the page; every `queryState`, projection and literal encoding is assembled server-side. Those are the parts that break without complaining: a role name that does not exist, a literal missing its `L` suffix, `active: true` on the wrong projection. Power BI accepts all of it and renders an empty box.',
+      },
+      {
+        title: 'Rank layouts by what the model can actually fill',
+        body: 'Model discovery ranks measures and category columns and rejects the identifier-shaped ones, then `recommend_dashboard` scores every layout by how much of it this particular model can fill. The answer is a layout with its arguments already prepared, not a menu.',
+      },
+      {
+        title: 'Fourteen layouts on a 12-column grid',
+        body: 'Seven built in, across two deliberately different families, and seven harvested from real reports. `harvest_layout` infers what each visual is for from its type and bindings, rescales the page onto the 1280x720 canvas, snaps it to the grid, and reports how far anything moved. Every harvested layout records its source and licence.',
+      },
+      {
+        title: 'Themes that change more than the hue',
+        body: 'Seven presets vary radius, shadow, border weight and page tint together. `set_theme` also repaints every page canvas, because writing the theme alone leaves the page white the moment a different theme is loaded.',
+      },
+      {
+        title: 'See it, then prove it',
+        body: 'An HTML wireframe renderer shows the layout without opening Power BI, and validators check bindings, geometry, page indexing and field references. The worked example in the repository passes with zero findings.',
+      },
+    ],
+    results: [
+      { value: '16', label: 'MCP tools', note: 'Discovery, building, look, and checking' },
+      { value: '14', label: 'layouts', note: '7 built in, 7 harvested from real reports' },
+      { value: '7', label: 'themes', note: 'Radius, shadow, border and tint, not just hue' },
+      { value: '0', label: 'findings on the worked example', note: 'Every binding and field reference resolves' },
+    ],
+    lessons: [
+      'Power BI fails silently on bad report JSON. A wrong role name or a literal missing its suffix does not raise an error, it renders an empty box, which is the whole reason the tools build the JSON rather than asking a model to write it.',
+      'Attribution belongs in the tooling, not in a note afterwards. `harvest_layout` records the source repository and licence of every layout it lifts, because a template with no provenance becomes a problem the first time someone ships it.',
+    ],
+    stack: [
+      { group: 'Server', items: ['Model Context Protocol', 'TypeScript', 'Node 18+'] },
+      { group: 'Skill', items: ['Agent skill (SKILL.md)', 'PowerShell 5.1 / 7+'] },
+      { group: 'Target', items: ['Power BI PBIR / PBIP', 'Fabric workspace'] },
+    ],
+    links: [
+      {
+        label: 'Source on GitHub',
+        href: 'https://github.com/yogaibhh/skills-agent-dashboard-powerbi',
+        kind: 'github',
+      },
+    ],
+  },
+
+  /* ------------------------------------------------------------------ */
   'ai-screen-reader': {
     tagline:
       'A cross-platform desktop agent that reads what is on your screen and explains it.',

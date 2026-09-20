@@ -150,6 +150,18 @@ export const projects = [
     link: 'https://github.com/yogaibhh/mcp-sqlite-analyst',
   },
   {
+    slug: 'powerbi-dashboard-skill',
+    title: 'Power BI Dashboard Skill',
+    blurb: 'An MCP server and agent skill that build a whole bound Power BI report from a semantic model.',
+    description:
+      'Generates complete, field-bound Power BI dashboards in the open PBIR format from a semantic model: 16 MCP tools plus an agent skill with PowerShell helpers, 14 grid layouts, 7 themes, an HTML wireframe renderer, and validators that check every binding and field reference before the report is opened.',
+    tags: ['MCP', 'TypeScript', 'Power BI', 'Agent Skills', 'PowerShell'],
+    category: 'AI & LLM',
+    metric: { value: '16', label: 'MCP tools' },
+    icon: 'grid',
+    link: 'https://github.com/yogaibhh/skills-agent-dashboard-powerbi',
+  },
+  {
     slug: 'ai-screen-reader',
     title: 'AI Screen Reader',
     blurb: 'Cross-platform desktop agent that reads and explains on-screen context.',
