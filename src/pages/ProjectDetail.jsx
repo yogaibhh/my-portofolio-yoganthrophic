@@ -164,17 +164,18 @@ export default function ProjectDetail() {
                     <span className="mt-2 font-mono text-[10px] uppercase tracking-wider text-muted-soft">
                       {r.label}
                     </span>
-                    <span className="mt-2 text-sm leading-relaxed text-muted">
-                      {r.note}
-                      {r.needsInput && (
-                        <span className="mt-2 block font-mono text-[10px] uppercase tracking-wider text-accent-amber">
-                          Needs a real figure
-                        </span>
-                      )}
-                    </span>
+                    <span className="mt-2 text-sm leading-relaxed text-muted">{r.note}</span>
                   </Reveal>
                 ))}
               </div>
+
+              {/* A reminder to me, not to the reader: it renders on the dev
+                  server and is stripped from the production build. */}
+              {study.pendingMetric && import.meta.env.DEV && (
+                <p className="mt-4 rounded-xl border border-dashed border-accent-amber/50 bg-accent-amber/5 px-4 py-3 font-mono text-xs text-accent-amber">
+                  Still to measure: {study.pendingMetric}
+                </p>
+              )}
             </section>
 
             {/* Context */}

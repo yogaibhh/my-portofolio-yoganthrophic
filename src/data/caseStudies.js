@@ -3,8 +3,9 @@
    card, it just has no "Read the case study" link.
 
    Every figure below is sourced from the project's own repository README or
-   from the CV. Anything that still needs a real measurement is marked with
-   `needsInput: true` so it is obvious on the page and in review. */
+   from the CV. A study that is still waiting on a real measurement carries a
+   `pendingMetric` line, which renders only while running the dev server, so
+   the published page never advertises a gap. */
 
 const caseStudies = {
   /* ------------------------------------------------------------------ */
@@ -198,16 +199,20 @@ const caseStudies = {
       },
     ],
     results: [
-      {
-        value: 'Faster',
-        label: 'recurring engineering work',
-        note: 'Measured gain still to be filled in, see the note below',
-        needsInput: true,
-      },
       { value: 'Self-hosted', label: 'runtime', note: 'Internal infrastructure, no third-party cloud' },
       { value: '40+', label: 'tools available to the agent', note: 'Plus MCP servers for internal systems' },
       { value: 'Cross-session', label: 'memory', note: 'FTS5 session search with LLM summarisation' },
+      {
+        value: 'Any model',
+        label: 'provider-agnostic',
+        note: 'Switched with one command, no code change',
+      },
     ],
+    /* Shown only while running the dev server, so the live page never
+       advertises a gap. Replace it with a real figure and a results tile
+       once the speed-up has been measured. */
+    pendingMetric:
+      'Add the measured speed-up on recurring engineering work: which workflows, and how much time they save.',
     lessons: [
       'The interesting part of adopting an agent framework is not the install. It is working out which workflows repeat often enough to be worth turning into a skill.',
       'Self-hosting is what makes an agent usable on internal data. The moment an answer requires shipping context to an outside service, half the useful questions become unaskable.',
