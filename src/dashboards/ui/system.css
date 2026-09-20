@@ -153,6 +153,12 @@
 .dash-region { min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: var(--dash-gap); }
 .dash-region.is-scroll { overflow-y: auto; overscroll-behavior: contain; }
 
+/* A scrolling column owns the scrollbar, so its panels keep their natural
+   height. Without this they are flex items inside a fixed-height grid cell,
+   get squeezed below their content, and the content bleeds past the panel's
+   rounded border instead of scrolling. */
+.dash-region.is-scroll > * { flex: 0 0 auto; }
+
 .dash-region.is-scroll::-webkit-scrollbar { width: 6px; }
 .dash-region.is-scroll::-webkit-scrollbar-thumb {
   border-radius: 3px;
@@ -172,7 +178,13 @@
 }
 
 .dash-panel.is-flush { padding: 0; overflow: hidden; }
-.dash-panel.is-grow { flex: 1; }
+.dash-panel.is-grow { flex: 1; min-height: 0; }
+
+/* `grow` means "fill the leftover space" in a fixed column. In a scrolling
+   column there is no leftover space to fill, so the panel takes its natural
+   height and the column scrolls. Declared here, after `.is-grow`, because
+   the two rules have the same specificity. */
+.dash-region.is-scroll > .dash-panel.is-grow { flex: 0 0 auto; }
 
 .dash-panel-head {
   display: flex;
@@ -198,7 +210,7 @@
 
 .dash-panel-body { padding: 10px 12px 12px; min-height: 0; }
 .dash-panel-body.is-flush { padding: 0; }
-.dash-panel-body.is-fill { flex: 1; display: flex; flex-direction: column; }
+.dash-panel-body.is-fill { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 
 /* ── Stat tile ─────────────────────────────────────────────── */
 
@@ -395,6 +407,23 @@
   font-variant-numeric: tabular-nums;
   color: var(--dash-ink);
 }
+
+/* A row whose name is a sentence rather than a label. Event and signal feeds
+   wrap to two lines instead of being cut off mid-word, which is what a
+   single-line ellipsis was doing to every headline in the list. */
+.dash-row.is-block { align-items: flex-start; }
+.dash-row.is-block .dash-row-name {
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  line-height: 1.35;
+}
+.dash-row.is-block .dash-row-sub { margin-top: 2px; }
+.dash-row.is-block > .dash-row-rank,
+.dash-row.is-block > .dash-legend-swatch { margin-top: 2px; }
 
 /* ── Meter ─────────────────────────────────────────────────── */
 

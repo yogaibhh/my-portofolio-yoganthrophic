@@ -251,6 +251,9 @@ export default function WhatIfDashboard() {
   const mapEl = useRef(null)
   const mapRef = useRef(null)
   const layerRef = useRef(null)
+  /* The resize handler re-fits the path, so it needs the current scenario
+     without re-running the map effect. */
+  const pathRef = useRef(SCENARIOS[0].path)
 
   const scenario = useMemo(() => SCENARIOS.find((s) => s.id === selId), [selId])
   const accent = t.seriesAt(TYPE_SLOT[scenario.type])
@@ -289,9 +292,16 @@ export default function WhatIfDashboard() {
     mapRef.current = map
     layerRef.current = L.layerGroup().addTo(map)
 
-    const observer = new ResizeObserver(() => map.invalidateSize({ animate: false }))
+    /* A resize leaves the previous zoom in place, which pushes the outer
+       nodes off the panel. Re-fit whenever the box changes. */
+    const fit = () => {
+      map.invalidateSize({ animate: false })
+      const pts = pathRef.current.map((p) => [p.lat, p.lng])
+      map.fitBounds(L.latLngBounds(pts), { padding: [30, 30], maxZoom: 4, animate: false })
+    }
+    const observer = new ResizeObserver(fit)
     observer.observe(mapEl.current)
-    const settle = setTimeout(() => map.invalidateSize({ animate: false }), 80)
+    const settle = setTimeout(fit, 80)
 
     return () => {
       clearTimeout(settle)
@@ -308,6 +318,7 @@ export default function WhatIfDashboard() {
     if (!map || !group) return
     group.clearLayers()
 
+    pathRef.current = scenario.path
     const pts = scenario.path.map((p) => [p.lat, p.lng])
     L.polyline(pts, { color: accent, weight: 2.5, opacity: 0.85, dashArray: '6 5' }).addTo(group)
 
@@ -325,7 +336,10 @@ export default function WhatIfDashboard() {
         })
         .addTo(group)
     })
-    map.flyToBounds(L.latLngBounds(pts), { padding: [30, 30], duration: 0.9, maxZoom: 4 })
+    /* fitBounds rather than flyToBounds: the resize handler re-fits too, and
+       an in-flight animation and a fit racing each other left nodes outside
+       the panel when the scenario changed. */
+    map.fitBounds(L.latLngBounds(pts), { padding: [30, 30], maxZoom: 4, animate: false })
   }, [scenario, accent, t.surface])
 
   return (
@@ -341,212 +355,217 @@ export default function WhatIfDashboard() {
         </Status>
       </DashBar>
 
-      <DashBody columns="316px minmax(0, 1fr) 340px">
-        {/* ── Scenario library and controls ───────────────── */}
-        <Col scroll>
-          <Panel title="Shock intensity" note={`${intensity}% of base`}>
-            <input
-              type="range"
-              min="20"
-              max="120"
-              value={intensity}
-              onChange={(e) => setIntensity(Number(e.target.value))}
-              aria-label="Shock intensity"
-              style={{ width: '100%', accentColor: accent, cursor: 'pointer' }}
-            />
-            <div className="dash-note" style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>20%</span>
-              <span>120%</span>
-            </div>
+      <DashBody rows="auto minmax(0, 1fr)">
+        {/* The headline figures run across the full width, as they do on the
+            other demos. Inside the middle column each tile was down to about
+            100px and the labels were clipping. */}
+        <StatGrid columns="repeat(3, minmax(0, 1fr))">
+          <Stat label="Probability" value={`${Math.round(scenario.prob * 100)}%`} note="of occurrence" />
+          <Stat
+            label="Peak deviation"
+            value={`${peak.value?.scenario > 0 ? '+' : ''}${peak.value?.scenario ?? 0}`}
+            note={`at ${peak.label} · ${scenario.horizon}`}
+          />
+          <Stat label="Scenario type" value={scenario.type} note={scenario.country} />
+        </StatGrid>
 
-            <div className="dash-sep" style={{ margin: '12px 0 10px' }} />
+        <DashBody columns="316px minmax(0, 1fr) 340px" style={{ padding: 0 }}>
+          {/* ── Scenario library and controls ───────────────── */}
+          <Col scroll>
+            <Panel title="Shock intensity" note={`${intensity}% of base`}>
+              <input
+                type="range"
+                min="20"
+                max="120"
+                value={intensity}
+                onChange={(e) => setIntensity(Number(e.target.value))}
+                aria-label="Shock intensity"
+                style={{ width: '100%', accentColor: accent, cursor: 'pointer' }}
+              />
+              <div className="dash-note" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>20%</span>
+                <span>120%</span>
+              </div>
 
-            <span className="dash-panel-title" style={{ display: 'block', marginBottom: 6 }}>
-              Simulation horizon
-            </span>
-            <div style={{ display: 'flex', gap: 5 }}>
-              {HORIZONS.map((h) => (
+              <div className="dash-sep" style={{ margin: '12px 0 10px' }} />
+
+              <span className="dash-panel-title" style={{ display: 'block', marginBottom: 6 }}>
+                Simulation horizon
+              </span>
+              <div style={{ display: 'flex', gap: 5 }}>
+                {HORIZONS.map((h) => (
+                  <button
+                    key={h.value}
+                    type="button"
+                    className="dash-chip"
+                    aria-pressed={horizon === h.value}
+                    onClick={() => setHorizon(h.value)}
+                    style={{
+                      cursor: 'pointer',
+                      borderColor: horizon === h.value ? 'var(--dash-accent-line)' : undefined,
+                      background: horizon === h.value ? 'var(--dash-selected)' : undefined,
+                      color: horizon === h.value ? 'var(--dash-ink)' : undefined,
+                    }}
+                  >
+                    {h.label}
+                  </button>
+                ))}
+              </div>
+              <p className="dash-note" style={{ marginTop: 10 }}>
+                The projection recomputes as you change these. There is no run button because there
+                is nothing to wait for.
+              </p>
+            </Panel>
+
+            <Panel title="Scenario library" note={`${SCENARIOS.length} scenarios`} grow>
+              <List>
+                {SCENARIOS.map((s) => (
+                  <Row
+                    key={s.id}
+                    name={s.title}
+                    sub={`${s.type} · ${s.country} · P ${Math.round(s.prob * 100)}%`}
+                    selected={s.id === selId}
+                    onSelect={() => setSelId(s.id)}
+                  >
+                    <span
+                      className="dash-legend-swatch"
+                      style={{ background: t.seriesAt(TYPE_SLOT[s.type]) }}
+                      aria-hidden="true"
+                    />
+                  </Row>
+                ))}
+              </List>
+            </Panel>
+
+            <Panel title="Actors in play" note={`${scenario.actors.length}`}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                {scenario.actors.map((a) => (
+                  <span className="dash-chip" key={a}>
+                    {a}
+                  </span>
+                ))}
+              </div>
+            </Panel>
+          </Col>
+
+          {/* ── Projection and transmission path ────────────── */}
+          <Col scroll>
+            <Panel title="Selected scenario" note={scenario.horizon}>
+              <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--dash-ink)' }}>
+                {scenario.title}
+              </div>
+              <p className="dash-note" style={{ marginTop: 4 }}>
+                {scenario.origin}
+              </p>
+            </Panel>
+
+            <Panel title="Impact projection" note="scenario against baseline" bodyFill>
+              <div className="dash-chart">
+                <ResponsiveContainer width="100%" height={188}>
+                  <AreaChart data={chart} margin={{ top: 8, right: 10, left: -14, bottom: 4 }}>
+                    <defs>
+                      <linearGradient id="wfGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={accent} stopOpacity={0.28} />
+                        <stop offset="100%" stopColor={accent} stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid {...t.grid} />
+                    <XAxis dataKey="t" {...t.xAxis} interval={2} />
+                    <YAxis {...t.yAxis} width={34} />
+                    <Tooltip content={<ImpactTip />} cursor={t.cursor} />
+                    <ReferenceLine y={0} stroke={t.axis} />
+                    <Area
+                      type="monotone"
+                      dataKey="scenario"
+                      name="Scenario"
+                      stroke={accent}
+                      strokeWidth={2}
+                      fill="url(#wfGrad)"
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="baseline"
+                      name="Baseline"
+                      stroke={t.muted}
+                      strokeWidth={1.5}
+                      strokeDasharray="5 4"
+                      dot={false}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </Panel>
+
+            <Panel title="Transmission path" note="OpenStreetMap" grow bodyFill>
+              <div ref={mapEl} className="dash-map" style={{ minHeight: 210, borderRadius: 8 }} />
+            </Panel>
+          </Col>
+
+          {/* ── Impacts, assumptions, narrative ─────────────── */}
+          <Col scroll>
+            {/* Direction is shown with an arrow and the value in ink. A rise is
+                not always bad here, so colour would be asserting a judgement
+                the data does not make. */}
+            <Panel title="Projected impacts" note="at peak">
+              <table className="dash-table">
+                <tbody>
+                  {scenario.impacts.map((im) => (
+                    <tr key={im.k}>
+                      <td>{im.k}</td>
+                      <td className="num">
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                          <DashIcon
+                            name={im.dir === 'up' ? 'trendUp' : 'trendDown'}
+                            size={12}
+                            className="dash-muted"
+                          />
+                          <span style={{ color: 'var(--dash-ink)', fontWeight: 500 }}>{im.v}</span>
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </Panel>
+
+            <Panel
+              title="Assumptions"
+              note={
                 <button
-                  key={h.value}
                   type="button"
-                  className="dash-chip"
-                  aria-pressed={horizon === h.value}
-                  onClick={() => setHorizon(h.value)}
+                  onClick={() => setShowAssumptions((v) => !v)}
                   style={{
+                    border: 0,
+                    background: 'transparent',
+                    color: 'var(--dash-accent)',
                     cursor: 'pointer',
-                    borderColor: horizon === h.value ? 'var(--dash-accent-line)' : undefined,
-                    background: horizon === h.value ? 'var(--dash-selected)' : undefined,
-                    color: horizon === h.value ? 'var(--dash-ink)' : undefined,
+                    font: 'inherit',
+                    fontSize: 11,
                   }}
                 >
-                  {h.label}
+                  {showAssumptions ? 'Hide' : 'Show'}
                 </button>
-              ))}
-            </div>
-            <p className="dash-note" style={{ marginTop: 10 }}>
-              The projection recomputes as you change these. There is no run button because there
-              is nothing to wait for.
-            </p>
-          </Panel>
+              }
+            >
+              {showAssumptions && (
+                <ul style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {scenario.assumptions.map((a) => (
+                    <li key={a} className="dash-note" style={{ display: 'flex', gap: 7 }}>
+                      <DashIcon name="check" size={12} />
+                      <span>{a}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Panel>
 
-          <Panel title="Scenario library" note={`${SCENARIOS.length} scenarios`} grow>
-            <List>
-              {SCENARIOS.map((s) => (
-                <Row
-                  key={s.id}
-                  name={s.title}
-                  sub={`${s.type} · ${s.country} · P ${Math.round(s.prob * 100)}%`}
-                  selected={s.id === selId}
-                  onSelect={() => setSelId(s.id)}
-                >
-                  <span
-                    className="dash-legend-swatch"
-                    style={{ background: t.seriesAt(TYPE_SLOT[s.type]) }}
-                    aria-hidden="true"
-                  />
-                </Row>
-              ))}
-            </List>
-          </Panel>
-
-          <Panel title="Actors in play" note={`${scenario.actors.length}`}>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-              {scenario.actors.map((a) => (
-                <span className="dash-chip" key={a}>
-                  {a}
-                </span>
-              ))}
-            </div>
-          </Panel>
-        </Col>
-
-        {/* ── Projection and transmission path ────────────── */}
-        <Col scroll>
-          <StatGrid columns="repeat(3, minmax(0, 1fr))">
-            <Stat label="Probability" value={`${Math.round(scenario.prob * 100)}%`} note="of occurrence" />
-            <Stat
-              label="Peak deviation"
-              value={`${peak.value?.scenario > 0 ? '+' : ''}${peak.value?.scenario ?? 0}`}
-              note={`at ${peak.label}`}
-            />
-            <Stat label="Type" value={scenario.type} note={scenario.country} />
-          </StatGrid>
-
-          <Panel title="Selected scenario" note={scenario.horizon}>
-            <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--dash-ink)' }}>
-              {scenario.title}
-            </div>
-            <p className="dash-note" style={{ marginTop: 4 }}>
-              {scenario.origin}
-            </p>
-          </Panel>
-
-          <Panel title="Impact projection" note="scenario against baseline" bodyFill>
-            <div className="dash-chart">
-              <ResponsiveContainer width="100%" height={188}>
-                <AreaChart data={chart} margin={{ top: 8, right: 10, left: -14, bottom: 4 }}>
-                  <defs>
-                    <linearGradient id="wfGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={accent} stopOpacity={0.28} />
-                      <stop offset="100%" stopColor={accent} stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid {...t.grid} />
-                  <XAxis dataKey="t" {...t.xAxis} interval={2} />
-                  <YAxis {...t.yAxis} width={34} />
-                  <Tooltip content={<ImpactTip />} cursor={t.cursor} />
-                  <ReferenceLine y={0} stroke={t.axis} />
-                  <Area
-                    type="monotone"
-                    dataKey="scenario"
-                    name="Scenario"
-                    stroke={accent}
-                    strokeWidth={2}
-                    fill="url(#wfGrad)"
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="baseline"
-                    name="Baseline"
-                    stroke={t.muted}
-                    strokeWidth={1.5}
-                    strokeDasharray="5 4"
-                    dot={false}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </Panel>
-
-          <Panel title="Transmission path" note="OpenStreetMap" grow bodyFill>
-            <div ref={mapEl} className="dash-map" style={{ minHeight: 210, borderRadius: 8 }} />
-          </Panel>
-        </Col>
-
-        {/* ── Impacts, assumptions, narrative ─────────────── */}
-        <Col scroll>
-          {/* Direction is shown with an arrow and the value in ink. A rise is
-              not always bad here, so colour would be asserting a judgement
-              the data does not make. */}
-          <Panel title="Projected impacts" note="at peak">
-            <table className="dash-table">
-              <tbody>
-                {scenario.impacts.map((im) => (
-                  <tr key={im.k}>
-                    <td>{im.k}</td>
-                    <td className="num">
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-                        <DashIcon
-                          name={im.dir === 'up' ? 'trendUp' : 'trendDown'}
-                          size={12}
-                          className="dash-muted"
-                        />
-                        <span style={{ color: 'var(--dash-ink)', fontWeight: 500 }}>{im.v}</span>
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </Panel>
-
-          <Panel
-            title="Assumptions"
-            note={
-              <button
-                type="button"
-                onClick={() => setShowAssumptions((v) => !v)}
-                style={{
-                  border: 0,
-                  background: 'transparent',
-                  color: 'var(--dash-accent)',
-                  cursor: 'pointer',
-                  font: 'inherit',
-                  fontSize: 11,
-                }}
-              >
-                {showAssumptions ? 'Hide' : 'Show'}
-              </button>
-            }
-          >
-            {showAssumptions && (
-              <ul style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {scenario.assumptions.map((a) => (
-                  <li key={a} className="dash-note" style={{ display: 'flex', gap: 7 }}>
-                    <DashIcon name="check" size={12} />
-                    <span>{a}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Panel>
-
-          <Panel title="Scenario interpretation" note="pre-written, synthetic" grow>
-            <div className="dash-note" style={{ lineHeight: 1.6 }}>
-              {renderNarrative(scenario.narrative)}
-            </div>
-          </Panel>
-        </Col>
+            <Panel title="Scenario interpretation" note="pre-written, synthetic" grow>
+              <div className="dash-note" style={{ lineHeight: 1.6 }}>
+                {renderNarrative(scenario.narrative)}
+              </div>
+            </Panel>
+          </Col>
+        </DashBody>
       </DashBody>
     </DashFrame>
   )

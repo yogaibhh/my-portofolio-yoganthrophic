@@ -191,11 +191,11 @@ export function List({ children, style }) {
   )
 }
 
-export function Row({ rank, name, sub, value, selected = false, accent, onSelect, children }) {
+export function Row({ rank, name, sub, value, selected = false, accent, wrap = false, onSelect, children }) {
   return (
     <button
       type="button"
-      className="dash-row"
+      className={`dash-row${wrap ? ' is-block' : ''}`}
       aria-selected={selected}
       onClick={onSelect}
     >

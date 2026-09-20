@@ -181,9 +181,21 @@ export default function WeatherModDashboard() {
     sortieGroup.addTo(map)
     sortieRef.current = sortieGroup
 
-    const observer = new ResizeObserver(() => map.invalidateSize({ animate: false }))
+    /* Fit the tasking area rather than a fixed zoom, so the base and every
+       sortie stay inside the panel whatever width it ends up. */
+    const pts = [
+      ...sorties.map((s) => [s.lat, s.lng]),
+      [target.lat, target.lng],
+      [BASE.lat, BASE.lng],
+    ]
+    const bounds = L.latLngBounds(pts)
+    const fit = () => {
+      map.invalidateSize({ animate: false })
+      map.fitBounds(bounds, { padding: [26, 26], animate: false })
+    }
+    const observer = new ResizeObserver(fit)
     observer.observe(mapEl.current)
-    const settle = setTimeout(() => map.invalidateSize({ animate: false }), 80)
+    const settle = setTimeout(fit, 80)
 
     return () => {
       clearTimeout(settle)
@@ -212,8 +224,15 @@ export default function WeatherModDashboard() {
     const map = mapRef.current
     if (!map) return
     if (selected) map.flyTo([selected.lat, selected.lng], 10, { duration: 0.8 })
-    else map.flyTo([-6.6, 107.15], 9, { duration: 0.8 })
-  }, [selected])
+    else {
+      const pts = [
+        ...sorties.map((s) => [s.lat, s.lng]),
+        [target.lat, target.lng],
+        [BASE.lat, BASE.lng],
+      ]
+      map.flyToBounds(L.latLngBounds(pts), { padding: [26, 26], duration: 0.8 })
+    }
+  }, [selected, sorties, target])
 
   const toggleLayer = (key) => setLayers((p) => ({ ...p, [key]: !p[key] }))
 

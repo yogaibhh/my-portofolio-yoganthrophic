@@ -323,7 +323,7 @@ export default function ChurnMonitorDashboard() {
           </Col>
 
           {/* ── Model and at-risk segments ──────────────────── */}
-          <Col>
+          <Col scroll>
             <Panel title="Model performance" note="holdout test set" grow>
               <Meters>
                 {MODEL.map((m) => (

@@ -148,7 +148,7 @@ export default function SeismicDashboard() {
 
     const map = L.map(mapEl.current, {
       center: [-2.5, 118],
-      zoom: 5,
+      zoom: 4,
       zoomControl: true,
       attributionControl: true,
     })
@@ -159,12 +159,23 @@ export default function SeismicDashboard() {
     mapRef.current = map
     quakeRef.current = L.layerGroup().addTo(map)
 
+    /* The catalog spans about 35 degrees of longitude, so a fixed zoom
+       showed a patch of empty sea with most events off screen. Fit the view
+       to the events instead, twice, because the panel is still settling when
+       the first measurement runs. */
+    const bounds = L.latLngBounds(EVENTS.map((e) => [e.lat, e.lng]))
+    const fit = () => {
+      map.invalidateSize({ animate: false })
+      map.fitBounds(bounds, { padding: [20, 20], animate: false })
+    }
     const observer = new ResizeObserver(() => map.invalidateSize({ animate: false }))
     observer.observe(mapEl.current)
-    const settle = setTimeout(() => map.invalidateSize({ animate: false }), 80)
+    const settle = setTimeout(fit, 80)
+    const resettle = setTimeout(fit, 400)
 
     return () => {
       clearTimeout(settle)
+      clearTimeout(resettle)
       observer.disconnect()
       map.remove()
       mapRef.current = null

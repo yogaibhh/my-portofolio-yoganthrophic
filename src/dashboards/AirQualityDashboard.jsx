@@ -113,9 +113,16 @@ export default function AirQualityDashboard() {
     })
     markersRef.current = markers
 
-    const observer = new ResizeObserver(() => map.invalidateSize({ animate: false }))
+    /* Fit the station network rather than trusting a fixed zoom: the panel
+       is narrow and the outermost stations were landing off the edge. */
+    const bounds = L.latLngBounds(air.stations.map((s) => [s.lat, s.lng]))
+    const fit = () => {
+      map.invalidateSize({ animate: false })
+      map.fitBounds(bounds, { padding: [26, 26], animate: false })
+    }
+    const observer = new ResizeObserver(fit)
     observer.observe(mapEl.current)
-    const settle = setTimeout(() => map.invalidateSize({ animate: false }), 80)
+    const settle = setTimeout(fit, 80)
 
     return () => {
       clearTimeout(settle)
@@ -164,7 +171,7 @@ export default function AirQualityDashboard() {
 
       <DashBody columns="286px minmax(0, 1fr) 330px">
         {/* ── Left: city index and station ranking ─────────── */}
-        <Region scroll>
+        <Region>
           <Panel title="Current city index" note="Composite">
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
               <span
@@ -208,29 +215,31 @@ export default function AirQualityDashboard() {
             </div>
           </Panel>
 
-          <Panel title="Stations" note={`${sorted.length} · AQI desc`} grow>
-            <List>
-              {sorted.map((station, i) => {
-                const b = band(station.aqi)
-                return (
-                  <Row
-                    key={station.name}
-                    rank={i + 1}
-                    name={station.name}
-                    sub={b.label}
-                    value={station.aqi}
-                    selected={selected.name === station.name}
-                    onSelect={() => setSelected(station)}
-                  >
-                    <span
-                      className="dash-legend-swatch"
-                      style={{ background: b.color }}
-                      aria-hidden="true"
-                    />
-                  </Row>
-                )
-              })}
-            </List>
+          <Panel title="Stations" note={`${sorted.length} · AQI desc`} grow bodyFill>
+            <div className="dash-scroll" style={{ flex: 1, minHeight: 0 }}>
+              <List>
+                {sorted.map((station, i) => {
+                  const b = band(station.aqi)
+                  return (
+                    <Row
+                      key={station.name}
+                      rank={i + 1}
+                      name={station.name}
+                      sub={b.label}
+                      value={station.aqi}
+                      selected={selected.name === station.name}
+                      onSelect={() => setSelected(station)}
+                    >
+                      <span
+                        className="dash-legend-swatch"
+                        style={{ background: b.color }}
+                        aria-hidden="true"
+                      />
+                    </Row>
+                  )
+                })}
+              </List>
+            </div>
           </Panel>
 
           <Panel title="AQI bands" note="µg/m³ composite">

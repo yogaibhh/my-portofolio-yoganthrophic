@@ -234,7 +234,7 @@ export default function FmcgSalesDashboard() {
           {/* ── Trend and regions ───────────────────────────── */}
           <Col>
             <Panel title="Revenue trend" note="this year vs last year" grow bodyFill>
-              <div className="dash-chart" style={{ flex: 1, minHeight: 150 }}>
+              <div className="dash-chart" style={{ flex: 1, minHeight: 118 }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={trendData} margin={{ top: 8, right: 10, left: -8, bottom: 0 }}>
                     <defs>
@@ -278,7 +278,7 @@ export default function FmcgSalesDashboard() {
                 The active filter is marked by opacity and an outline, not a
                 different hue. */}
             <Panel title="Revenue by region" note="click a bar to filter" grow bodyFill>
-              <div className="dash-chart" style={{ flex: 1, minHeight: 130 }}>
+              <div className="dash-chart" style={{ flex: 1, minHeight: 104 }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={regionData} layout="vertical" margin={{ top: 4, right: 58, left: 6, bottom: 4 }}>
                     <CartesianGrid stroke={t.grid.stroke} horizontal={false} />
@@ -316,7 +316,7 @@ export default function FmcgSalesDashboard() {
           {/* ── Category mix ────────────────────────────────── */}
           <Col>
             <Panel title="Revenue mix" note="by category · 12 mo" grow bodyFill>
-              <div className="dash-chart" style={{ flex: 1, minHeight: 140 }}>
+              <div className="dash-chart" style={{ flex: 1, minHeight: 112 }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -350,7 +350,7 @@ export default function FmcgSalesDashboard() {
             </Panel>
 
             <Panel title="Units sold" note="by category · 12 mo" grow bodyFill>
-              <div className="dash-chart" style={{ flex: 1, minHeight: 130 }}>
+              <div className="dash-chart" style={{ flex: 1, minHeight: 104 }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={categoryData} layout="vertical" margin={{ top: 4, right: 48, left: 6, bottom: 4 }}>
                     <CartesianGrid stroke={t.grid.stroke} horizontal={false} />
@@ -395,7 +395,7 @@ export default function FmcgSalesDashboard() {
             </Panel>
 
             <Panel title="Top SKUs" note="by revenue · 12 mo" grow>
-              <div className="dash-scroll" style={{ maxHeight: 210 }}>
+              <div className="dash-scroll" style={{ maxHeight: 168 }}>
                 <table className="dash-table">
                   <thead>
                     <tr>

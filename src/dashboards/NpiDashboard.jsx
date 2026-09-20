@@ -168,12 +168,22 @@ export default function NpiDashboard() {
     mapRef.current = map
     markersRef.current = L.layerGroup().addTo(map)
 
+    /* Events run from Aceh to Papua, so a fixed zoom left most of them off
+       screen in this column. Fit to the events, twice, because the panel is
+       still settling when the first measurement runs. */
+    const bounds = L.latLngBounds(EVENTS.map((e) => [e.lat, e.lng]))
+    const fit = () => {
+      map.invalidateSize({ animate: false })
+      map.fitBounds(bounds, { padding: [20, 20], animate: false })
+    }
     const observer = new ResizeObserver(() => map.invalidateSize({ animate: false }))
     observer.observe(mapEl.current)
-    const settle = setTimeout(() => map.invalidateSize({ animate: false }), 80)
+    const settle = setTimeout(fit, 80)
+    const resettle = setTimeout(fit, 400)
 
     return () => {
       clearTimeout(settle)
+      clearTimeout(resettle)
       observer.disconnect()
       map.remove()
       mapRef.current = null
@@ -212,7 +222,11 @@ export default function NpiDashboard() {
     const map = mapRef.current
     if (!map) return
     if (selected) map.flyTo([selected.lat, selected.lng], 7, { duration: 1 })
-    else map.flyTo([-2.5, 118], 5, { duration: 1 })
+    else
+      map.flyToBounds(L.latLngBounds(EVENTS.map((e) => [e.lat, e.lng])), {
+        padding: [20, 20],
+        duration: 1,
+      })
   }, [selected])
 
   return (
@@ -275,37 +289,38 @@ export default function NpiDashboard() {
               </div>
             </Panel>
 
+            {/* The bar and the filter control are the same row. They used to be
+                a meter list with a duplicate row of filter chips underneath,
+                which said everything twice. */}
             <Panel title="Category breakdown" note="click to filter">
-              <Meters>
-                {CATS.map((c) => (
-                  <Meter
-                    key={c}
-                    label={c}
-                    value={stats.catCount[c]}
-                    max={stats.maxCat}
-                    color={filterCat && filterCat !== c ? t.grid.stroke : t.seriesAt(0)}
-                    display={stats.catCount[c]}
-                  />
-                ))}
-              </Meters>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 10 }}>
-                {CATS.map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    className="dash-chip"
-                    aria-pressed={filterCat === c}
-                    onClick={() => setFilterCat(filterCat === c ? '' : c)}
-                    style={{
-                      cursor: 'pointer',
-                      borderColor: filterCat === c ? 'var(--dash-accent-line)' : undefined,
-                      background: filterCat === c ? 'var(--dash-selected)' : undefined,
-                      color: filterCat === c ? 'var(--dash-ink)' : undefined,
-                    }}
-                  >
-                    {c}
-                  </button>
-                ))}
+              <div className="dash-list">
+                {CATS.map((c) => {
+                  const active = filterCat === c
+                  const dimmed = filterCat && !active
+                  return (
+                    <button
+                      key={c}
+                      type="button"
+                      className="dash-row"
+                      aria-selected={active}
+                      onClick={() => setFilterCat(active ? '' : c)}
+                    >
+                      <span className="dash-row-main" style={{ gap: 4 }}>
+                        <span className="dash-row-name">{c}</span>
+                        <span className="dash-meter-track">
+                          <span
+                            className="dash-meter-fill"
+                            style={{
+                              width: `${(stats.catCount[c] / stats.maxCat) * 100}%`,
+                              background: dimmed ? t.grid.stroke : t.seriesAt(0),
+                            }}
+                          />
+                        </span>
+                      </span>
+                      <span className="dash-row-value">{stats.catCount[c]}</span>
+                    </button>
+                  )
+                })}
               </div>
             </Panel>
 
@@ -374,8 +389,8 @@ export default function NpiDashboard() {
           </Col>
 
           {/* ── Event feed ──────────────────────────────────── */}
-          <Col scroll>
-            <Panel title="Event feed" note={`${filtered.length} shown`} grow>
+          <Col>
+            <Panel title="Event feed" note={`${filtered.length} shown`} grow bodyFill>
               <label style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 9 }}>
                 <span className="sr-only">Search events</span>
                 <DashIcon name="filter" size={13} />
@@ -453,30 +468,35 @@ export default function NpiDashboard() {
                 </div>
               )}
 
-              <List>
-                {filtered.map((e) => (
-                  <Row
-                    key={e.id}
-                    name={e.title}
-                    sub={`${e.place} · ${e.cat} · ${e.time}`}
-                    value={e.npi}
-                    selected={selected?.id === e.id}
-                    onSelect={() => setSelected(selected?.id === e.id ? null : e)}
-                  >
-                    <span
-                      className="dash-legend-swatch"
-                      style={{ background: sevColor[e.sev] }}
-                      aria-hidden="true"
-                    />
-                  </Row>
-                ))}
-              </List>
+              {/* The list scrolls, not the column, so the search field and
+                  the selected-event card stay visible while you browse. */}
+              <div className="dash-scroll" style={{ flex: 1, minHeight: 0 }}>
+                <List>
+                  {filtered.map((e) => (
+                    <Row
+                      key={e.id}
+                      wrap
+                      name={e.title}
+                      sub={`${e.place} · ${e.cat} · ${e.time}`}
+                      value={e.npi}
+                      selected={selected?.id === e.id}
+                      onSelect={() => setSelected(selected?.id === e.id ? null : e)}
+                    >
+                      <span
+                        className="dash-legend-swatch"
+                        style={{ background: sevColor[e.sev] }}
+                        aria-hidden="true"
+                      />
+                    </Row>
+                  ))}
+                </List>
 
-              {filtered.length === 0 && (
-                <p className="dash-note" style={{ padding: '18px 0', textAlign: 'center' }}>
-                  No events match the current filter.
-                </p>
-              )}
+                {filtered.length === 0 && (
+                  <p className="dash-note" style={{ padding: '18px 0', textAlign: 'center' }}>
+                    No events match the current filter.
+                  </p>
+                )}
+              </div>
             </Panel>
           </Col>
         </DashBody>

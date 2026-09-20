@@ -208,6 +208,13 @@ function calcD(d, i) {
 const ZONES = DR.map((d, i) => calcD(d, i)).sort((a, b) => b.score - a.score)
 const KABLIST = [...new Set(ZONES.map((d) => d.k))].sort()
 
+/* Everything the map has to show, so the view is fitted to the data rather
+   than to a hand-picked centre and zoom. */
+const MAP_POINTS = [
+  ...ZONES.map((d) => [d.lat, d.lng]),
+  ...HS.map((h) => [h.lat, h.lng]),
+]
+
 /* Rule-based assessment. The original called an LLM; this is its offline
    fallback, kept so the demo never makes a network request. */
 function assess(z) {
@@ -284,6 +291,10 @@ export default function FireRiskDashboard() {
   const hsRef = useRef(null)
   const spreadRef = useRef(null)
   const animRef = useRef(null)
+  const didMoveRef = useRef(false)
+  /* Read by the resize handler, which must not re-fit while the visitor is
+     looking at a specific zone. */
+  const hasSelectionRef = useRef(false)
 
   const [selected, setSelected] = useState(null)
   const [spread, setSpread] = useState(false)
@@ -331,6 +342,10 @@ export default function FireRiskDashboard() {
     if (filterPeat) list = list.filter((d) => d.p)
     return list
   }, [filterKab, filterRisk, filterPeat])
+
+  useEffect(() => {
+    hasSelectionRef.current = Boolean(selected)
+  }, [selected])
 
   const analysis = useMemo(() => (selected ? assess(selected) : null), [selected])
   const getTimeScore = (d, offset) =>
@@ -486,15 +501,22 @@ export default function FireRiskDashboard() {
       if (canvas.dataset.on === 'true') canvas.style.opacity = '1'
     })
 
+    const bounds = L.latLngBounds(MAP_POINTS)
+    const fit = () => {
+      map.invalidateSize({ animate: false })
+      if (!hasSelectionRef.current) map.fitBounds(bounds, { padding: [24, 24], animate: false })
+    }
     const observer = new ResizeObserver(() => {
       resize()
-      map.invalidateSize({ animate: false })
+      fit()
     })
     observer.observe(canvas)
-    const settle = setTimeout(() => map.invalidateSize({ animate: false }), 80)
+    const settle = setTimeout(fit, 80)
+    const resettle = setTimeout(fit, 400)
 
     return () => {
       clearTimeout(settle)
+      clearTimeout(resettle)
       observer.disconnect()
       if (animRef.current) cancelAnimationFrame(animRef.current)
       map.remove()
@@ -536,8 +558,15 @@ export default function FireRiskDashboard() {
       const isSel = selected && l.feature.properties.id === selected.id
       l.setStyle({ weight: isSel ? 3.5 : 1.2, fillOpacity: isSel ? 0.14 : 0.32 })
     })
+    /* Skip the very first run. Flying on mount raced the initial
+       invalidateSize and left the map stranded at the zoom the animation
+       happened to be passing through, with every marker in one clump. */
+    if (!didMoveRef.current) {
+      didMoveRef.current = true
+      return
+    }
     if (selected) map.flyTo([selected.lat, selected.lng], 10, { duration: 1 })
-    else map.flyTo([0.6, 101.8], 7, { duration: 1 })
+    else map.flyToBounds(L.latLngBounds(MAP_POINTS), { padding: [24, 24], duration: 0.9 })
   }, [selected])
 
   /* Cellular-automata spread overlay. */
@@ -613,7 +642,7 @@ export default function FireRiskDashboard() {
           style={{ padding: 0 }}
         >
           {/* ── Filters and zone list ───────────────────────── */}
-          <Col scroll>
+          <Col>
             <Panel title="Filter zones">
               <select
                 value={filterKab}
@@ -692,26 +721,35 @@ export default function FireRiskDashboard() {
               </div>
             </Panel>
 
-            <Panel title="Zone ranking" note={`${filtered.length} zones`} grow>
-              <List>
-                {filtered.slice(0, 25).map((d, i) => (
-                  <Row
-                    key={d.id}
-                    rank={i + 1}
-                    name={`Desa ${d.n}`}
-                    sub={`Kec. ${d.kc} · ${d.cls}`}
-                    value={d.score}
-                    selected={selected?.id === d.id}
-                    onSelect={() => setSelected(selected?.id === d.id ? null : d)}
-                  >
-                    <span
-                      className="dash-legend-swatch"
-                      style={{ background: scoreColor(d.score) }}
-                      aria-hidden="true"
-                    />
-                  </Row>
-                ))}
-              </List>
+            <Panel
+              title="Zone ranking"
+              note={filtered.length > 12 ? `top 12 of ${filtered.length}` : `${filtered.length} zones`}
+              grow
+              bodyFill
+            >
+              {/* The ranking scrolls inside its panel, so the filter controls
+                  above it stay on screen. */}
+              <div className="dash-scroll" style={{ flex: 1, minHeight: 0 }}>
+                <List>
+                  {filtered.slice(0, 12).map((d, i) => (
+                    <Row
+                      key={d.id}
+                      rank={i + 1}
+                      name={`Desa ${d.n}`}
+                      sub={`Kec. ${d.kc} · ${d.cls}`}
+                      value={d.score}
+                      selected={selected?.id === d.id}
+                      onSelect={() => setSelected(selected?.id === d.id ? null : d)}
+                    >
+                      <span
+                        className="dash-legend-swatch"
+                        style={{ background: scoreColor(d.score) }}
+                        aria-hidden="true"
+                      />
+                    </Row>
+                  ))}
+                </List>
+              </div>
             </Panel>
           </Col>
 

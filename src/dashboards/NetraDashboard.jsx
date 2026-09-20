@@ -157,6 +157,10 @@ export default function NetraDashboard() {
   const [tab, setTab] = useState('strategy')
   const [legend, setLegend] = useState({ critical: true, high: true, elevated: true, monitoring: true })
 
+  /* The resize handler needs the current selection without re-running the
+     map effect, so it reads it from a ref. */
+  const hasSelectionRef = useRef(false)
+
   const sevColor = useMemo(
     () => ({
       critical: t.status.critical,
@@ -166,6 +170,10 @@ export default function NetraDashboard() {
     }),
     [t],
   )
+
+  useEffect(() => {
+    hasSelectionRef.current = Boolean(selEvent || selCountry)
+  }, [selEvent, selCountry])
 
   /* Infrastructure classes are identities, so each takes a fixed slot. */
   const infraColor = useMemo(
@@ -216,7 +224,10 @@ export default function NetraDashboard() {
       zoom: 3,
       zoomControl: false,
       worldCopyJump: true,
-      minZoom: 2,
+      /* The events run from Marseille to Jakarta. Fitting that span into this
+         column needs a zoom just below 2, so a minZoom of 2 clamped the fit
+         and parked the outermost events on the panel edge. */
+      minZoom: 1,
       scrollWheelZoom: true,
       doubleClickZoom: true,
       zoomDelta: 0.5,
@@ -305,10 +316,19 @@ export default function NetraDashboard() {
        layout the container is not sized yet, which leaves empty bands, so
        re-measure once layout settles and on every resize. */
     const pts = EVENTS.map((e) => [e.lat, e.lng])
+    /* Padding in pixels, not as a fraction of the bounds: a fractional pad
+       is absorbed by Leaflet's integer zoom steps and left markers sitting on
+       the edge of the panel. */
     const fitAll = () => {
-      if (pts.length) map.fitBounds(L.latLngBounds(pts).pad(0.25), { animate: false })
+      if (pts.length) map.fitBounds(L.latLngBounds(pts), { padding: [24, 24], animate: false })
     }
-    const observer = new ResizeObserver(() => map.invalidateSize({ animate: false }))
+    const observer = new ResizeObserver(() => {
+      map.invalidateSize({ animate: false })
+      /* A resize after the initial fit leaves the old zoom in place, which
+         pushes events off the edge when the panel gets smaller. Re-fit,
+         unless the visitor has zoomed to something specific. */
+      if (!hasSelectionRef.current) fitAll()
+    })
     observer.observe(mapEl.current)
     const t1 = setTimeout(() => {
       map.invalidateSize({ animate: false })
@@ -359,7 +379,10 @@ export default function NetraDashboard() {
       didFitRef.current = true
       return
     }
-    map.flyToBounds(L.latLngBounds(EVENTS.map((e) => [e.lat, e.lng])).pad(0.25), { duration: 0.9 })
+    map.flyToBounds(L.latLngBounds(EVENTS.map((e) => [e.lat, e.lng])), {
+      padding: [24, 24],
+      duration: 0.9,
+    })
   }, [selEvent, selCountry])
 
   const toggleLayer = (k) => setLayers((s) => ({ ...s, [k]: !s[k] }))
@@ -404,9 +427,11 @@ export default function NetraDashboard() {
           ))}
         </StatGrid>
 
-        <DashBody columns="330px minmax(0, 1fr) 340px" style={{ padding: 0 }}>
+        {/* The map carries a global picture, so it gets the width the two
+            rails can spare. */}
+        <DashBody columns="296px minmax(0, 1fr) 316px" style={{ padding: 0 }}>
           {/* ── Filters and signal list ─────────────────────── */}
-          <Col scroll>
+          <Col>
             <Panel title="Severity filter" note="click to toggle">
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
                 {SEV_ORDER.map((k) => (
@@ -432,7 +457,7 @@ export default function NetraDashboard() {
               </div>
             </Panel>
 
-            <Panel title="Signals" note={`${visibleEvents.length} shown`} grow>
+            <Panel title="Signals" note={`${visibleEvents.length} shown`} grow bodyFill>
               <label style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 9 }}>
                 <span className="sr-only">Search signals</span>
                 <DashIcon name="filter" size={13} />
@@ -453,32 +478,37 @@ export default function NetraDashboard() {
                 />
               </label>
 
-              <List>
-                {visibleEvents.map((e) => (
-                  <Row
-                    key={e.id}
-                    name={e.title}
-                    sub={`${e.cat} · ${e.loc} · ${e.ts}`}
-                    selected={selEvent?.id === e.id}
-                    onSelect={() => {
-                      setSelEvent(selEvent?.id === e.id ? null : e)
-                      setSelCountry(null)
-                    }}
-                  >
-                    <span
-                      className="dash-legend-swatch"
-                      style={{ background: sevColor[e.sev] }}
-                      aria-hidden="true"
-                    />
-                  </Row>
-                ))}
-              </List>
+              {/* The list owns the scrollbar rather than the whole column,
+                  so the search box above it stays put while you scroll. */}
+              <div className="dash-scroll" style={{ flex: 1, minHeight: 0 }}>
+                <List>
+                  {visibleEvents.map((e) => (
+                    <Row
+                      key={e.id}
+                      wrap
+                      name={e.title}
+                      sub={`${e.cat} · ${e.loc} · ${e.ts}`}
+                      selected={selEvent?.id === e.id}
+                      onSelect={() => {
+                        setSelEvent(selEvent?.id === e.id ? null : e)
+                        setSelCountry(null)
+                      }}
+                    >
+                      <span
+                        className="dash-legend-swatch"
+                        style={{ background: sevColor[e.sev] }}
+                        aria-hidden="true"
+                      />
+                    </Row>
+                  ))}
+                </List>
 
-              {visibleEvents.length === 0 && (
-                <p className="dash-note" style={{ padding: '18px 0', textAlign: 'center' }}>
-                  No signals match the current filters.
-                </p>
-              )}
+                {visibleEvents.length === 0 && (
+                  <p className="dash-note" style={{ padding: '18px 0', textAlign: 'center' }}>
+                    No signals match the current filters.
+                  </p>
+                )}
+              </div>
             </Panel>
           </Col>
 
