@@ -174,6 +174,30 @@ export const projects = [
     link: '',
   },
   {
+    slug: 'clean-data-skill',
+    title: 'Clean Data Skill',
+    blurb: 'An agent skill that turns "clean this dataset" into a reproducible pipeline, for almost any format.',
+    description:
+      'A Claude Code agent skill that profiles an input, picks cleaning rules from documented catalogs, researches the format on the web when no catalog covers it, then generates and runs a reproducible Python script and writes a report explaining every decision. Handles tabular, image, geospatial, video and audio data, and never touches the raw files.',
+    tags: ['Agent Skills', 'Python', 'Data Cleaning', 'Geospatial', 'Reproducibility'],
+    category: 'Data Engineering',
+    metric: { value: '20+', label: 'formats handled' },
+    icon: 'pipeline',
+    link: 'https://github.com/yogaibhh/claude-clean-data-skill',
+  },
+  {
+    slug: 'build-dashboard-skill',
+    title: 'Build Dashboard Skill',
+    blurb: 'An agent skill that builds genuinely interactive Excel dashboards, verified against pandas.',
+    description:
+      'A Claude Code agent skill that profiles a dataset, proposes a dashboard plan and waits for confirmation, then generates a reproducible script producing an Excel workbook with KPI cards, native charts and a real dropdown filter driving SUMIFS formulas. Optionally publishes to Google Sheets, and the filter engine was verified by driving Excel through COM automation.',
+    tags: ['Agent Skills', 'Python', 'Excel', 'Google Sheets', 'Data Visualization'],
+    category: 'Data Analysis',
+    metric: { value: '2', label: 'output targets' },
+    icon: 'chart',
+    link: 'https://github.com/yogaibhh/claude-build-dashboard-skill',
+  },
+  {
     slug: 'telco-churn-prediction',
     title: 'Telco Customer Churn Prediction',
     blurb: 'Three-model churn comparison on 7,043 subscribers, 0.84 ROC-AUC.',

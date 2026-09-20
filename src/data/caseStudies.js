@@ -290,6 +290,128 @@ const caseStudies = {
   },
 
   /* ------------------------------------------------------------------ */
+  'clean-data-skill': {
+    tagline:
+      'An agent skill that turns "clean this dataset" into a finished, reproducible pipeline, for almost any kind of data.',
+    role: 'AI engineer',
+    context: [
+      'Data cleaning is the part of the job that never generalises. Every dataset arrives with its own encoding quirk, its own idea of a missing value, its own corrupt file halfway through, and the knowledge of how to handle each one lives in whoever happened to clean that format last.',
+      'This skill writes that knowledge down. It profiles the input, chooses rules from documented catalogs, and when it meets a format no catalog covers, it researches the format rather than refusing.',
+    ],
+    challenge:
+      'Clean an arbitrary dataset without supervision, while leaving a reviewer able to see exactly what was changed and why, and without ever putting the original files at risk.',
+    approach: [
+      {
+        title: 'Profile before deciding anything',
+        body: 'Deterministic profilers measure the input first: encoding, delimiters, missing values, duplicates and outliers for tabular data, and corruption, blur, silence, exposure, EXIF and GPS, or GeoTIFF tags for media. Measurement is always the same maths, so it is bundled as plain Python rather than left to a model.',
+      },
+      {
+        title: 'Decide from a written catalog',
+        body: 'Each data family has its own rule catalog, with thresholds and defaults spelled out in the repository. The rules are reviewable on their own, separately from any run.',
+      },
+      {
+        title: 'Research the formats nobody wrote down',
+        body: 'An unfamiliar format, LiDAR, DICOM, GPX tracks, a sensor log, triggers a research track instead of a refusal: official documentation first, then standards bodies, then engineering blogs, with the sources cited in the report.',
+      },
+      {
+        title: 'Emit a script, not just a result',
+        body: 'The output is a clean_<name>.py that applies every decision explicitly and runs standalone afterwards. Anyone can read what happened, change one rule, and run it again.',
+      },
+      {
+        title: 'Draw a hard line around the raw data',
+        body: 'It runs unsupervised, with no confirmation step per decision, and stays safe because of one rule: the raw input is never modified, moved or deleted. Everything produced lands in a new folder beside it.',
+      },
+      {
+        title: 'Flag what should never be automatic',
+        body: 'Every catalog carries a "never automatic" list: imputing missing values, dropping statistical outliers, fuzzy-merging mistyped categories, stripping EXIF and GPS, re-encoding media. Those are reported for a person to decide rather than quietly applied.',
+      },
+    ],
+    results: [
+      { value: '20+', label: 'formats handled', note: 'Tabular, image, geospatial, video and audio' },
+      { value: '5', label: 'rule catalogs', note: 'Plus a research protocol for everything else' },
+      { value: '0', label: 'raw files touched', note: 'Output always lands in a new folder' },
+      { value: 'Re-runnable', label: 'output', note: 'A standalone script, a report and the profile' },
+    ],
+    lessons: [
+      'Splitting the work by what is judgement and what is arithmetic is what made this generalise. The profilers are bundled because their measurements never change; rule selection and script generation are left to the model, because that is where each dataset differs.',
+      'An automatic cleaner earns trust from what it refuses to do. Imputation and outlier removal change the meaning of the data, so they get flagged rather than applied, and that line is what makes running it unsupervised reasonable.',
+    ],
+    stack: [
+      { group: 'Skill', items: ['Claude Code agent skill', 'SKILL.md router', 'Rule catalogs'] },
+      { group: 'Profiling', items: ['Python', 'pandas', 'Media and GeoTIFF profilers'] },
+      { group: 'Output', items: ['Generated Python script', 'Markdown report', 'profile.json'] },
+    ],
+    links: [
+      {
+        label: 'Source on GitHub',
+        href: 'https://github.com/yogaibhh/claude-clean-data-skill',
+        kind: 'github',
+      },
+    ],
+  },
+
+  /* ------------------------------------------------------------------ */
+  'build-dashboard-skill': {
+    tagline:
+      'An agent skill that builds a genuinely interactive Excel dashboard, with the filter engine checked against pandas.',
+    role: 'AI engineer',
+    context: [
+      'Most generated dashboards are pictures of dashboards. The charts are baked, the numbers are fixed, and the moment someone wants last quarter instead of this one, the whole thing has to be built again.',
+      'This skill is the sibling of the cleaning one, and it takes the opposite end of the same pipeline: a dataset in, a workbook out that still works after the Python process has exited.',
+    ],
+    challenge:
+      'Produce a dashboard whose filter actually recomputes, in a format the audience already uses, and prove the recomputation is right rather than assuming it.',
+    approach: [
+      {
+        title: 'Classify every column by the role it can play',
+        body: 'The profiler sorts columns into date, categorical with cardinality, numeric measure or identifier, then ranks which dimensions would make a good filter. That ranking is what lets the skill work on a dataset it has never seen.',
+      },
+      {
+        title: 'Propose the plan and stop',
+        body: 'It posts the KPI cards, the charts, which dimension becomes the filter and which charts stay as a whole-period overview, then waits for confirmation. Composition is a matter of taste, so unlike the cleaning skill this one is deliberately not unsupervised.',
+      },
+      {
+        title: 'Choose a filter mechanism that survives the trip',
+        body: 'A data-validation dropdown driving SUMIFS and AVERAGEIFS, rather than native Slicers and PivotTables. Slicers need a real installed Excel driven over COM, are Windows-only, and do not reliably survive conversion to Google Sheets. Dropdowns and formulas do, so one mechanism serves both output targets.',
+      },
+      {
+        title: 'Generate the workbook from a script',
+        body: 'The output is a build_dashboard_<name>.py that writes the KPI cards, the native charts, the filter engine, and a sanity check reconciling chart-source sums against the headline KPIs.',
+      },
+      {
+        title: 'Publish without a second integration',
+        body: 'Optional publishing goes through a Drive upload, which converts the workbook into a native Google Sheet, so there is no separate Sheets API setup to maintain.',
+      },
+      {
+        title: 'Verify the thing that is easy to fake',
+        body: 'The filter engine was checked by driving Excel through COM automation: building a real dashboard, moving the dropdown across three values, forcing recalculation, and confirming every KPI card and chart-source cell matched an independent pandas computation exactly.',
+      },
+    ],
+    results: [
+      { value: '2', label: 'output targets', note: 'Excel workbook, and a native Google Sheet' },
+      { value: 'Exact', label: 'match against pandas', note: 'Verified by driving Excel over COM' },
+      { value: '2', label: 'datasets it generalised to', note: 'FMCG sales and an unrelated helpdesk set' },
+      { value: 'Reproducible', label: 'build', note: 'A standalone script per dashboard' },
+    ],
+    lessons: [
+      'The constraint that decided the design was portability, not capability. Slicers are the better Excel feature and the wrong choice here, because they do not survive the conversion to Sheets, and one mechanism working in both places beats two that each work in one.',
+      'Testing generated output means testing it where it runs. Reading the formulas would have looked fine; driving Excel and comparing every cell against pandas is what actually showed the filter was correct.',
+    ],
+    stack: [
+      { group: 'Skill', items: ['Claude Code agent skill', 'SKILL.md router', 'Column-role profiler'] },
+      { group: 'Build', items: ['Python', 'pandas', 'XlsxWriter', 'openpyxl'] },
+      { group: 'Delivery', items: ['Excel', 'Google Sheets via Drive', 'SUMIFS / AVERAGEIFS'] },
+    ],
+    links: [
+      {
+        label: 'Source on GitHub',
+        href: 'https://github.com/yogaibhh/claude-build-dashboard-skill',
+        kind: 'github',
+      },
+    ],
+  },
+
+  /* ------------------------------------------------------------------ */
   'telco-churn-prediction': {
     tagline:
       'Ranking 7,043 subscribers by churn risk, and finding out a regularised linear model beats both ensembles.',
