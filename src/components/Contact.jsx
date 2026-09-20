@@ -62,7 +62,7 @@ export default function Contact() {
                 <h2 className="text-on-primary mb-4">Let&apos;s build something that ships</h2>
 
                 <p className="max-w-lg text-base leading-relaxed text-on-primary/85 md:text-lg">
-                  I&apos;m open to AI/ML engineering, data science, and data analyst roles —
+                  I&apos;m open to AI/ML engineering, data science, and data analyst roles,
                   remote or hybrid. Send a message and I&apos;ll get back to you within a day or two.
                 </p>
 

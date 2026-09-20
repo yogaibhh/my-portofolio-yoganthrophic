@@ -252,7 +252,7 @@ export default function GitHub() {
         <SectionHeading
           eyebrow="Open source"
           title="What I've been pushing"
-          lede="Pulled live from the GitHub API — contribution graph and the six repositories I touched most recently."
+          lede="Pulled live from the GitHub API: contribution graph and the six repositories I touched most recently."
         >
           <Reveal delay={160}>
             <a
@@ -282,7 +282,7 @@ export default function GitHub() {
 
         {reposError ? (
           <div className="card p-8 text-center text-sm text-muted">
-            Couldn&apos;t load repositories right now — browse them directly on{' '}
+            Couldn&apos;t load repositories right now. Browse them directly on{' '}
             <a
               href={GH_URL}
               target="_blank"

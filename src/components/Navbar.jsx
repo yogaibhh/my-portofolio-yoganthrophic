@@ -20,7 +20,7 @@ export default function Navbar({ onOpenPalette }) {
   }, [])
 
   /* Scroll-spy: highlight the section currently filling most of the viewport.
-     Only meaningful on Home — the derived value below blanks it elsewhere. */
+     Only meaningful on Home; the derived value below blanks it elsewhere. */
   useEffect(() => {
     if (!isHome) return
     const ratios = new Map()
@@ -54,9 +54,9 @@ export default function Navbar({ onOpenPalette }) {
 
   const currentActive = isHome ? activeId : ''
 
-  /* HashRouter owns "#", so a plain <a href="#about"> would overwrite the route
-     hash and land on a blank, unmatched route. Scroll manually instead,
-     navigating home first when we're on another page. */
+  /* Scroll manually rather than letting the browser jump to the anchor, so
+     the sticky header offset is respected. When the visitor is on a detail
+     page, go home first and scroll once layout settles. */
   const goToSection = (id) => (e) => {
     e.preventDefault()
     setMobileOpen(false)
@@ -82,7 +82,7 @@ export default function Navbar({ onOpenPalette }) {
             href="#"
             onClick={goToSection('hero')}
             className="group flex shrink-0 items-center gap-2.5"
-            aria-label={`${profile.shortName} — back to top`}
+            aria-label={`${profile.shortName}, back to top`}
           >
             <span
               aria-hidden="true"
@@ -95,7 +95,7 @@ export default function Navbar({ onOpenPalette }) {
             </span>
           </a>
 
-          {/* Desktop links — sliding pill marks the active section */}
+          {/* Desktop links, with a sliding pill marking the active section */}
           <div className="hidden items-center gap-1 rounded-full border border-hairline-soft bg-surface-soft/60 p-1 lg:flex">
             {primaryNav.map((link) => {
               const active = currentActive === link.id

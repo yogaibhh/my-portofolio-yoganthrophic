@@ -1,5 +1,8 @@
 /* Single source of truth for every piece of personal content on the site.
-   Edit here — components only handle presentation. */
+   Edit here, components only handle presentation.
+
+   Long-form case studies live in src/data/caseStudies.js, keyed by the `slug`
+   on each project below. */
 
 export const profile = {
   name: 'Muhamad Yoga Ibrahim',
@@ -15,14 +18,15 @@ export const profile = {
   cvFile: 'Muhamad_Yoga_Ibrahim_CV_AI_Engineer.pdf',
   githubUser: 'yogaibhh',
   summary:
-    'AI/ML engineer building edge-inference models, integrating LLM providers (OpenAI, Groq, OpenRouter, Deepgram) into production tooling, and shipping agentic workflows with the Model Context Protocol — backed by a data engineering foundation in Python, Elasticsearch, and PostgreSQL.',
+    'AI/ML engineer building edge-inference models, integrating LLM providers (OpenAI, Groq, OpenRouter, Deepgram) into production tooling, and shipping agentic workflows with the Model Context Protocol, backed by a data engineering foundation in Python, Elasticsearch and PostgreSQL.',
   bio: [
-    "I'm an AI/ML-focused engineer based in Bogor, Indonesia, with hands-on experience training and deploying edge-inference models (PyTorch, TensorFlow Lite), integrating multiple LLM providers into production tooling, and building agentic data workflows with the Model Context Protocol (MCP).",
-    'I currently own full-stack scope — frontend, backend, and database — in an AI Native engineering track, having shipped a standardized full-stack boilerplate that replaced a fragmented internal dashboard system. My background in data engineering (Python ETL pipelines, Elasticsearch, PostgreSQL) gives me a practical foundation for building the data layer that AI systems depend on.',
+    "I'm an AI/ML-focused engineer based in Bogor, Indonesia. I train and deploy edge-inference models (PyTorch, TensorFlow Lite), integrate multiple LLM providers into production tooling, and build agentic data workflows with the Model Context Protocol.",
+    'Right now I own full-stack scope, frontend through database, in an AI Native engineering track. I shipped a standardised full-stack boilerplate that replaced a fragmented internal dashboard system, and my background in data engineering (Python ETL pipelines, Elasticsearch, PostgreSQL) gives me a practical foundation for building the data layer that AI systems depend on.',
   ],
   now: [
     'Migrating a fragmented internal BI system onto one AI-generated full-stack boilerplate',
-    'Researching multi-format data cleaning — documents, spreadsheets, audio, satellite imagery',
+    'Running a self-hosted Hermes Agent deployment that turns recurring engineering work into reusable skills',
+    'Researching multi-format data cleaning across documents, spreadsheets, audio and satellite imagery',
     'Building MCP servers that let agents query production data under strict read-only scope',
   ],
 }
@@ -34,7 +38,7 @@ export const socials = [
 ]
 
 export const stats = [
-  { value: 3, suffix: '+', label: 'Years of experience', hint: 'Data analyst → data scientist → AI native engineer' },
+  { value: 3, suffix: '+', label: 'Years of experience', hint: 'Data analyst, data scientist, AI native engineer' },
   { value: 40, suffix: '%', label: 'Faster reporting', hint: 'Automated meteorological data workflows' },
   { value: 4, suffix: '', label: 'LLM providers integrated', hint: 'OpenAI · Groq · OpenRouter · Deepgram' },
   { value: 9, suffix: '', label: 'Live dashboards shipped', hint: 'Interactive demos you can open on this site' },
@@ -45,12 +49,13 @@ export const experiences = [
     role: 'AI Native Engineer',
     company: 'PT Pixel Digital (PT Ebdesk Teknologi)',
     location: 'Tangerang',
-    period: 'Jun 2026 — Present',
+    period: 'Jun 2026 to Present',
     current: true,
     stack: ['React', 'Python', 'LLM APIs', 'PostgreSQL'],
     bullets: [
       'Own full-stack scope (frontend, backend, database) building applied-AI "skills" that automate internal engineering workflows, moving beyond a data-scientist-only remit',
-      'Migrating a fragmented internal BI-style dashboard system into a standardized full-stack boilerplate built through AI-assisted code generation, making bug handling faster and more consistent across dashboards',
+      'Deployed and integrated a self-hosted Hermes Agent so recurring engineering work is captured as reusable agent skills, with internal data reachable through read-only MCP servers instead of a third-party cloud',
+      'Migrating a fragmented internal BI-style dashboard system into a standardised full-stack boilerplate built through AI-assisted code generation, making bug handling faster and more consistent across dashboards',
       'Researching additional applied-AI capabilities: multi-format data cleaning (documents, spreadsheets, video, audio, satellite imagery), handwritten-document extraction from scanned PDFs, and Google Earth Engine code generation',
     ],
   },
@@ -58,23 +63,23 @@ export const experiences = [
     role: 'Data Scientist',
     company: 'PT Pixel Digital (PT Ebdesk Teknologi)',
     location: 'Tangerang',
-    period: 'Oct 2025 — Jun 2026',
+    period: 'Oct 2025 to Jun 2026',
     stack: ['Python', 'Elasticsearch', 'Mapbox GL', 'Google Earth Engine'],
     bullets: [
-      'Engineered Python-based ETL pipelines to parse and normalize high-volume unstructured data feeding the National Stability Index and NPI predictive models',
+      'Engineered Python-based ETL pipelines to parse and normalise high-volume unstructured data feeding the National Stability Index and NPI predictive models',
       'Built React-based geospatial monitoring dashboards backed by Elasticsearch/Lucene queries and Mapbox GL, rendering real-time spatial and network-flow (Sankey) data for security operations',
       'Developed a fire-risk prediction model (Karhutla) using Google Earth Engine and NASA POWER meteorological data',
-      'Prototyped AI-agent-assisted dashboard and template generation for internal ERP tooling — an early version of the full-stack standardization work later formalized in the AI Native role',
+      'Prototyped AI-agent-assisted dashboard and template generation for internal ERP tooling, an early version of the full-stack standardisation work later formalised in the AI Native role',
     ],
   },
   {
     role: 'Data Analyst',
     company: 'PT Pixel Digital (PT Ebdesk Teknologi)',
     location: 'Tangerang',
-    period: 'May — Oct 2025',
+    period: 'May to Oct 2025',
     stack: ['PostgreSQL', 'Python', 'BI'],
     bullets: [
-      'Integrated multi-agent simulation outputs into PostgreSQL, connecting raw simulation logs to downstream visualization layers',
+      'Integrated multi-agent simulation outputs into PostgreSQL, connecting raw simulation logs to downstream visualisation layers',
       'Built dashboards tracking trade patterns and geopolitical trends for stakeholder use',
     ],
   },
@@ -82,10 +87,10 @@ export const experiences = [
     role: 'Data Analyst',
     company: 'Anugerah Wisesa Selaras (weathermod.id)',
     location: 'Bandung',
-    period: 'Oct — Dec 2024',
+    period: 'Oct to Dec 2024',
     stack: ['Python', 'Google Colab', 'Excel'],
     bullets: [
-      'Processed and analyzed 480+ hours of weather data in Python (Google Colab) and Excel, automating cleaning and visualization workflows',
+      'Processed and analysed 480+ hours of weather data in Python (Google Colab) and Excel, automating cleaning and visualisation workflows',
       'Cut reporting time by 40% through automated data processing workflows for large meteorological datasets',
     ],
   },
@@ -93,10 +98,10 @@ export const experiences = [
     role: 'Research Assistant',
     company: 'PIAREA Environment & Technology',
     location: 'Bogor',
-    period: 'Sep — Oct 2023',
+    period: 'Sep to Oct 2023',
     stack: ['Excel', 'ArcGIS'],
     bullets: [
-      'Processed 175,000+ hourly weather data points (10 years, rainfall & temperature) in Excel',
+      'Processed 175,000+ hourly weather data points (10 years of rainfall and temperature) in Excel',
       'Compiled the 2023 DKI Jakarta Air Quality Monitoring Map Album across 20+ monitoring locations',
     ],
   },
@@ -106,10 +111,24 @@ export const projectCategories = ['All', 'AI & LLM', 'Machine Learning', 'Data A
 
 export const projects = [
   {
-    title: 'Cloud Seeding Hunter',
-    blurb: 'Offline edge-ML classifier + Flutter field app for cloud-seeding crews.',
+    slug: 'hermes-agent',
+    title: 'Hermes Agent Deployment',
+    blurb: 'Self-hosted autonomous agent, wired into a real engineering team’s week.',
     description:
-      'Trained and deployed a lightweight edge-inference classification model (PyTorch, TensorFlow Lite) for offline, on-device predictions in remote areas. Built the end-to-end Flutter mobile app, including an interactive geospatial tracking dashboard for the field engineering team.',
+      'Deployed Nous Research’s open-source Hermes Agent on internal infrastructure and integrated it into day-to-day engineering work. Self-hosted so internal data never leaves, extended with read-only MCP servers, and set up so recurring workflows get captured as reusable agent skills instead of re-prompted every week.',
+    tags: ['Hermes Agent', 'MCP', 'Self-hosted', 'Agent Skills', 'LLM Ops'],
+    category: 'AI & LLM',
+    metric: { value: 'Self-hosted', label: 'agent runtime' },
+    featured: true,
+    icon: 'spark',
+    link: '',
+  },
+  {
+    slug: 'cloud-seeding-hunter',
+    title: 'Cloud Seeding Hunter',
+    blurb: 'Offline edge-ML classifier and Flutter field app for cloud-seeding crews.',
+    description:
+      'Trained and deployed a lightweight edge-inference classification model (PyTorch, TensorFlow Lite) for offline, on-device predictions in remote areas. Built the Flutter mobile app end to end, including an interactive geospatial tracking dashboard for the field engineering team.',
     tags: ['Flutter', 'PyTorch', 'TensorFlow Lite', 'Edge AI', 'Geospatial'],
     category: 'Machine Learning',
     metric: { value: '100%', label: 'offline inference' },
@@ -118,6 +137,20 @@ export const projects = [
     link: '',
   },
   {
+    slug: 'mcp-ai-data-analyst',
+    title: 'MCP AI Data Analyst',
+    blurb: 'Natural-language SQL over a live database, sandboxed to read-only.',
+    description:
+      'Configured the Model Context Protocol to connect a local PostgreSQL instance for real-time, natural-language querying of production tables, scoped to a strict read-only role so every AI operation is sandboxed. The public SQLite demo proves the sandbox by attacking it.',
+    tags: ['MCP', 'PostgreSQL', 'AI Agent', 'Python'],
+    category: 'AI & LLM',
+    metric: { value: '13/13', label: 'sandbox checks' },
+    featured: true,
+    icon: 'terminal',
+    link: 'https://github.com/yogaibhh/mcp-sqlite-analyst',
+  },
+  {
+    slug: 'ai-screen-reader',
     title: 'AI Screen Reader',
     blurb: 'Cross-platform desktop agent that reads and explains on-screen context.',
     description:
@@ -125,27 +158,15 @@ export const projects = [
     tags: ['Electron', 'React', 'Deepgram', 'Groq', 'OpenRouter'],
     category: 'AI & LLM',
     metric: { value: '3', label: 'LLM providers' },
-    featured: true,
     icon: 'eye',
     link: '',
   },
   {
-    title: 'MCP AI Data Analyst',
-    blurb: 'Natural-language SQL over a live database, sandboxed to read-only.',
-    description:
-      'Configured Model Context Protocol (MCP) to connect a local PostgreSQL instance for real-time, natural-language querying of production tables — scoped to a strict read-only role to sandbox all AI operations. Public SQLite demo implementation on GitHub.',
-    tags: ['MCP', 'PostgreSQL', 'AI Agent', 'Python'],
-    category: 'AI & LLM',
-    metric: { value: 'read-only', label: 'agent scope' },
-    featured: true,
-    icon: 'terminal',
-    link: 'https://github.com/yogaibhh/mcp-sqlite-analyst',
-  },
-  {
+    slug: 'telco-churn-prediction',
     title: 'Telco Customer Churn Prediction',
     blurb: 'Three-model churn comparison on 7,043 subscribers, 0.84 ROC-AUC.',
     description:
-      'End-to-end churn analysis of 7,043 telecom customers: EDA of churn drivers, sklearn preprocessing pipelines, and a three-model comparison reaching 0.84 ROC-AUC — permutation importance points to tenure, fiber-optic service, and month-to-month contracts.',
+      'End-to-end churn analysis of 7,043 telecom customers: EDA of churn drivers, leak-free sklearn preprocessing pipelines, and a three-model comparison reaching 0.84 ROC-AUC. Permutation importance points at tenure, fiber-optic service and month-to-month contracts.',
     tags: ['Python', 'scikit-learn', 'Machine Learning', 'EDA'],
     category: 'Machine Learning',
     metric: { value: '0.84', label: 'ROC-AUC' },
@@ -153,10 +174,11 @@ export const projects = [
     link: 'https://github.com/yogaibhh/telco-churn-prediction',
   },
   {
+    slug: 'chinook-sql-analytics',
     title: 'Music Store SQL Analytics',
-    blurb: 'Twelve business questions answered in pure SQL — CTEs and window functions.',
+    blurb: 'Twelve business questions answered in pure SQL, CTEs and window functions.',
     description:
-      'Twelve business questions answered in pure SQL on the Chinook database — CTEs, window functions (LAG, ROW_NUMBER, running totals), and multi-table joins — surfacing revenue concentration, catalog dead stock, and customer lifetime value.',
+      'Twelve business questions answered in pure SQL on the Chinook database, using CTEs, window functions (LAG, ROW_NUMBER, running totals) and multi-table joins, surfacing revenue concentration, catalog dead stock and customer lifetime value.',
     tags: ['SQL', 'SQLite', 'Window Functions', 'Data Analysis'],
     category: 'Data Analysis',
     metric: { value: '12', label: 'business questions' },
@@ -164,10 +186,11 @@ export const projects = [
     link: 'https://github.com/yogaibhh/chinook-sql-analytics',
   },
   {
+    slug: 'weather-etl-pipeline',
     title: 'Weather ETL Pipeline',
     blurb: 'Idempotent API-to-warehouse pipeline with data-quality gates and 17 tests.',
     description:
-      'Production-style ETL from the Open-Meteo API into a SQLite dim/fact warehouse for five Indonesian cities (4,560 daily rows): retry/backoff extraction, data-quality gates, idempotent upserts, logging, and 17 unit tests.',
+      'Production-style ETL from the Open-Meteo API into a SQLite dim/fact warehouse for five Indonesian cities (4,560 daily rows): retry and backoff on extraction, data-quality gates, idempotent upserts, structured logging and 17 unit tests.',
     tags: ['Python', 'ETL', 'SQLite', 'Data Engineering'],
     category: 'Data Engineering',
     metric: { value: '17', label: 'unit tests' },
@@ -175,10 +198,11 @@ export const projects = [
     link: 'https://github.com/yogaibhh/weather-etl-pipeline',
   },
   {
+    slug: 'indonesia-earthquake-analysis',
     title: 'Indonesia Earthquake Analysis',
     blurb: 'Gutenberg-Richter b-value fitting across 10,294 M4.5+ events.',
     description:
-      'Geospatial EDA of 10,294 M4.5+ earthquakes from the USGS catalog (2015–2026): Gutenberg-Richter b-value fitting, depth profiling, and a spatial map tracing the Sunda subduction zone.',
+      'Geospatial EDA of 10,294 M4.5+ earthquakes from the USGS catalog (2015 to 2026): Gutenberg-Richter b-value fitting, depth profiling, and a spatial map that traces the Sunda subduction zone from epicentres alone.',
     tags: ['Python', 'Geospatial', 'EDA', 'USGS API'],
     category: 'Data Analysis',
     metric: { value: '10,294', label: 'events analysed' },
@@ -186,10 +210,11 @@ export const projects = [
     link: 'https://github.com/yogaibhh/indonesia-earthquake-analysis',
   },
   {
+    slug: 'fmcg-excel-dashboard',
     title: 'FMCG Sales Dashboard (Excel)',
-    blurb: 'Excel BI dashboard generated end-to-end by a reproducible Python workflow.',
+    blurb: 'Excel BI dashboard generated end to end by a reproducible Python workflow.',
     description:
-      'Interactive Excel dashboard built from cleaned FMCG transaction data — KPI cards, charts, and a real dropdown-driven filter wired to SUMIFS/AVERAGEIFS formulas, generated end-to-end with a reproducible Python workflow.',
+      'Interactive Excel dashboard built from cleaned FMCG transaction data: KPI cards, native charts, and a real dropdown-driven filter wired to SUMIFS and AVERAGEIFS formulas, generated end to end by a reproducible Python workflow.',
     tags: ['Excel', 'Python', 'Data Visualization', 'BI'],
     category: 'Data Analysis',
     metric: { value: '1 script', label: 'fully reproducible' },
@@ -206,7 +231,8 @@ export const skillGroups = [
     skills: [
       { name: 'LLM API integration', detail: 'OpenAI · Groq · OpenRouter · Deepgram', level: 90 },
       { name: 'Model Context Protocol', detail: 'Agentic tool servers, read-only scoping', level: 85 },
-      { name: 'PyTorch & TensorFlow Lite', detail: 'Training → quantised edge inference', level: 78 },
+      { name: 'Agent deployment', detail: 'Self-hosted Hermes Agent, skills, cron', level: 80 },
+      { name: 'PyTorch & TensorFlow Lite', detail: 'Training through quantised edge inference', level: 78 },
       { name: 'scikit-learn', detail: 'Pipelines, model comparison, explainability', level: 82 },
     ],
   },
@@ -240,7 +266,7 @@ export const skillGroups = [
       { name: 'Google Earth Engine', detail: 'Satellite composites, fire-risk modelling', level: 80 },
       { name: 'Mapbox GL & Leaflet', detail: 'Real-time spatial monitoring layers', level: 82 },
       { name: 'ArcGIS', detail: 'Cartography and map album production', level: 65 },
-      { name: 'NASA POWER / USGS APIs', detail: 'Meteorological & seismic feeds', level: 78 },
+      { name: 'NASA POWER / USGS APIs', detail: 'Meteorological and seismic feeds', level: 78 },
     ],
   },
 ]
@@ -248,21 +274,21 @@ export const skillGroups = [
 /* Flat list used by the tech marquee */
 export const techMarquee = [
   'Python', 'PyTorch', 'TensorFlow Lite', 'scikit-learn', 'Pandas', 'NumPy',
-  'PostgreSQL', 'Elasticsearch', 'SQL', 'MCP', 'OpenAI', 'Groq', 'OpenRouter',
-  'Deepgram', 'React', 'Recharts', 'Flutter', 'Electron', 'Google Earth Engine',
-  'Mapbox GL', 'Leaflet', 'Vite', 'Git',
+  'PostgreSQL', 'Elasticsearch', 'SQL', 'MCP', 'Hermes Agent', 'OpenAI', 'Groq',
+  'OpenRouter', 'Deepgram', 'React', 'Recharts', 'Flutter', 'Electron',
+  'Google Earth Engine', 'Mapbox GL', 'Leaflet', 'Vite', 'Git',
 ]
 
 export const education = {
   school: 'IPB University',
   location: 'Bogor, Indonesia',
   degree: 'Applied Meteorology',
-  period: '2020 — 2024',
+  period: '2020 to 2024',
   gpa: '3.67 / 4.00',
   activities: [
     'Research assistant and presenter at international conferences',
     'Treasurer and PKM team leader',
-    'Presented on the AOD–PM relationship in Jakarta',
+    'Presented on the AOD and PM relationship in Jakarta',
   ],
 }
 
@@ -272,7 +298,7 @@ export const certifications = [
   { name: 'Working with the OpenAI API', issuer: 'DataCamp', year: '2025' },
   { name: 'Associate Business Analyst in SQL', issuer: 'DataCamp', year: '2025' },
   { name: 'Associate Data Analyst in SQL', issuer: 'DataCamp', year: '2025' },
-  { name: 'Data Analyst — Generasi Gigih 3.0', issuer: 'GoTo Impact Foundation', year: '2023' },
+  { name: 'Data Analyst, Generasi Gigih 3.0', issuer: 'GoTo Impact Foundation', year: '2023' },
 ]
 
 export const awards = [

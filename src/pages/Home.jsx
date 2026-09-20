@@ -1,3 +1,4 @@
+import useDocumentHead from '../hooks/useDocumentHead'
 import Hero from '../components/Hero'
 import TechMarquee from '../components/TechMarquee'
 import About from '../components/About'
@@ -10,6 +11,8 @@ import Education from '../components/Education'
 import Contact from '../components/Contact'
 
 export default function Home() {
+  useDocumentHead({ path: '/' })
+
   return (
     <>
       <Hero />

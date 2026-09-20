@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom'
 import Icon from '../components/Icon'
 import Reveal from '../components/Reveal'
+import useDocumentHead from '../hooks/useDocumentHead'
 import dashboards from '../data/dashboards'
 import DashboardDemo from '../dashboards/registry'
 import { hasDemo } from '../dashboards/demoRegistry'
@@ -25,6 +26,16 @@ export default function DashboardDetail() {
   const { id } = useParams()
   const index = dashboards.findIndex((d) => d.id === id)
   const dashboard = dashboards[index]
+
+  useDocumentHead(
+    dashboard
+      ? {
+          title: `${dashboard.name} · live dashboard`,
+          description: dashboard.description,
+          path: `/dashboard/${id}`,
+        }
+      : { title: 'Dashboard not found', path: `/dashboard/${id}` },
+  )
 
   if (!dashboard) return <NotFoundState />
 
@@ -84,7 +95,7 @@ export default function DashboardDetail() {
             </div>
 
             <p className="mt-3 font-mono text-[11px] text-muted-soft">
-              All figures are synthetic sample data for demonstration only — not real
+              All figures are synthetic sample data for demonstration only, not real
               operational intelligence.
             </p>
           </section>
@@ -102,7 +113,7 @@ export default function DashboardDetail() {
                 delay={i * 80}
                 className="relative flex h-full flex-col rounded-2xl border border-hairline bg-surface-card p-5"
               >
-                {/* Connector — desktop only, never after the last card */}
+                {/* Connector: desktop only, never after the last card */}
                 {i < dashboard.pipeline.length - 1 && (
                   <span
                     aria-hidden="true"

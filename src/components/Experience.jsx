@@ -85,7 +85,7 @@ export default function Experience() {
         />
 
         <div className="relative">
-          {/* Timeline rail — fades out at the bottom so it doesn't just stop */}
+          {/* Timeline rail, faded out at the bottom so it doesn't just stop */}
           <div
             aria-hidden="true"
             className="absolute bottom-0 left-[19px] top-2 w-px bg-gradient-to-b from-primary/50 via-hairline to-transparent md:left-[35px]"

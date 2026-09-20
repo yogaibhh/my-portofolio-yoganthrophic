@@ -8,8 +8,8 @@ export default function Footer() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  /* HashRouter owns "#", so plain anchors would blank the route — scroll
-     manually, navigating home first when we're on a dashboard page. */
+  /* Scroll manually rather than letting the browser jump, and navigate home
+     first when the visitor is on a detail page. */
   const goToSection = (id) => (e) => {
     e.preventDefault()
     if (location.pathname !== '/') {
@@ -49,7 +49,7 @@ export default function Footer() {
             </a>
 
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-on-dark-soft">
-              {profile.tagline}. Based in {profile.location} — building ML models, LLM workflows,
+              {profile.tagline}. Based in {profile.location}, building ML models, LLM workflows,
               and data-driven dashboards.
             </p>
 

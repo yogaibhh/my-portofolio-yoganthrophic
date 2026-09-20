@@ -19,7 +19,7 @@ const focusAreas = [
   {
     icon: 'pipeline',
     title: 'Data foundations',
-    body: 'Python ETL with retries, quality gates and idempotent loads — the unglamorous layer every AI system quietly depends on.',
+    body: 'Python ETL with retries, quality gates and idempotent loads, the unglamorous layer every AI system quietly depends on.',
   },
 ]
 
@@ -55,7 +55,7 @@ export default function About() {
         <SectionHeading
           eyebrow="About"
           title="Engineer first, data scientist by training"
-          lede="I build the whole path — from raw, messy sources through models, to the interface a stakeholder actually clicks."
+          lede="I build the whole path, from raw, messy sources through models, to the interface a stakeholder actually clicks."
         />
 
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14">
@@ -70,7 +70,7 @@ export default function About() {
               <Reveal as="p" delay={160} className="text-base leading-relaxed text-body md:text-lg">
                 I graduated from{' '}
                 <span className="font-medium text-ink">{education.school}</span> with a degree in{' '}
-                {education.degree} (GPA {education.gpa}) — which is where the meteorology,
+                {education.degree} (GPA {education.gpa}), which is where the meteorology,
                 geospatial and remote-sensing thread in my work comes from.
               </Reveal>
             </div>

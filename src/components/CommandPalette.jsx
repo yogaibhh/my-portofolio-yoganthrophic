@@ -4,7 +4,7 @@ import Icon from './Icon'
 import useTheme from '../hooks/useTheme'
 import { sections, scrollToId } from '../data/nav'
 import dashboards from '../data/dashboards'
-import { profile, socials } from '../data/profile'
+import { profile, projects, socials } from '../data/profile'
 
 const CV_URL = `${import.meta.env.BASE_URL}${profile.cvFile}`
 
@@ -60,6 +60,15 @@ export default function CommandPalette({ onClose }) {
         icon: s.icon,
         run: () => go(s.id),
       })),
+      ...projects.map((pr) => ({
+        group: 'Projects',
+        label: pr.title,
+        icon: pr.icon,
+        run: () => {
+          onClose()
+          navigate(`/project/${pr.slug}`)
+        },
+      })),
       ...dashboards.map((d) => ({
         group: 'Dashboards',
         label: d.name,
@@ -80,7 +89,7 @@ export default function CommandPalette({ onClose }) {
       },
       {
         group: 'Actions',
-        label: copied ? 'Email copied!' : `Copy email — ${profile.email}`,
+        label: copied ? 'Email copied!' : `Copy email · ${profile.email}`,
         icon: copied ? 'check' : 'copy',
         keepOpen: true,
         run: async () => {
@@ -120,7 +129,7 @@ export default function CommandPalette({ onClose }) {
   }, [query, theme, toggle, copied, go, navigate, onClose])
 
   /* The parent mounts this component only while the palette is open, so state
-     starts clean every time — no reset effects needed. */
+     starts clean every time, so no reset effects are needed. */
   useEffect(() => {
     const id = requestAnimationFrame(() => inputRef.current?.focus())
     document.body.classList.add('no-scroll')

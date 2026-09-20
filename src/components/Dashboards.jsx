@@ -24,7 +24,7 @@ export default function Dashboards() {
         <SectionHeading
           eyebrow="Live demos"
           title="Dashboards, running right here"
-          lede="Interactive recreations of dashboards I've built — real React, synthetic data, free OpenStreetMap tiles. Pick one and poke at it."
+          lede="Interactive recreations of dashboards I've built: real React, synthetic data, free OpenStreetMap tiles. Pick one and poke at it."
         />
 
         {/* Tab selector */}
@@ -97,7 +97,7 @@ export default function Dashboards() {
 
         <p className="mt-5 flex items-center gap-2 font-mono text-[11px] text-muted-soft">
           <Icon name="spark" size={12} />
-          Synthetic sample data for demonstration only — not real operational data.
+          Synthetic sample data for demonstration only, not real operational data.
         </p>
       </div>
     </section>
