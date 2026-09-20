@@ -1,7 +1,12 @@
-/* Geopolitical What-If / Scenario Simulation — faithful React port of
-   erpdesign/whatif.jsx (styled-components + ReactMarkdown + axios).
-   Mapbox -> free Leaflet/OSM (transmission-path overlay). Live API + LLM ->
-   embedded synthetic scenarios + pre-written narrative. All data synthetic. */
+/* Geopolitical What-If — scenario simulation.
+
+   A React port of an internal scenario tool: Mapbox became Leaflet with
+   OpenStreetMap tiles for the transmission path, and the live API and LLM
+   call became embedded scenarios with a pre-written narrative. Everything
+   here is synthetic.
+
+   Presentation comes from the shared dashboard system in ./ui. */
+
 import { useState, useEffect, useRef, useMemo } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -9,30 +14,37 @@ import {
   ResponsiveContainer, AreaChart, Area, Line, XAxis, YAxis,
   CartesianGrid, Tooltip, ReferenceLine,
 } from 'recharts'
-import './whatif.css'
+import useChartTheme from './ui/chartTheme'
+import { chartTooltip } from './ui/chartTooltip'
+import {
+  DashFrame, DashBar, DashBody, Region as Col, Panel, Stat, StatGrid,
+  Chip, Status, List, Row, DashIcon,
+} from './ui'
 
-/* ---- scenario-type accent gradients (from original survey) ---- */
-const TYPE = {
-  Economic: { a: '#f59e0b', b: '#ea580c', label: 'ECONOMIC' },
-  Security: { a: '#f43f5e', b: '#db2777', label: 'SECURITY' },
-  Diplomatic: { a: '#3b82f6', b: '#2563eb', label: 'DIPLOMATIC' },
-  Technology: { a: '#14b8a6', b: '#0d9488', label: 'TECHNOLOGY' },
+/* Scenario type is an identity, so each one holds a fixed palette slot. */
+const TYPE_SLOT = { Economic: 1, Security: 7, Diplomatic: 0, Technology: 2 }
+
+/* Severity is a state, so it uses the reserved status vocabulary. */
+const SEVERITY = {
+  CRITICAL: { level: 'critical', label: 'Critical' },
+  HIGH: { level: 'serious', label: 'High' },
+  MODERATE: { level: 'warning', label: 'Moderate' },
+  LOW: { level: 'good', label: 'Low' },
 }
 
-/* ---- synthetic scenario library ---- */
 const SCENARIOS = [
   {
     id: 'hormuz',
     type: 'Security',
     title: 'Strait of Hormuz Closure',
     origin: 'Naval escalation forces a 21-day closure of the Strait of Hormuz',
-    country: { name: 'Iran', code: 'ir' },
+    country: 'Iran',
     severity: 'CRITICAL',
     prob: 0.27,
     horizon: 'T+0 to T+30 days',
     actors: ['IRGC Navy', 'GCC States', 'US Fifth Fleet', 'OPEC+'],
     impacts: [
-      { k: 'Brent Crude', v: '+38%', dir: 'up' },
+      { k: 'Brent crude', v: '+38%', dir: 'up' },
       { k: 'Global LNG flow', v: '-21%', dir: 'down' },
       { k: 'Tanker insurance', v: '+410%', dir: 'up' },
       { k: 'Asia refiner margin', v: '-14%', dir: 'down' },
@@ -41,7 +53,7 @@ const SCENARIOS = [
       'Closure holds 21 days before mediated de-escalation.',
       'No direct strike on GCC export terminals.',
       'Coordinated IEA stock release of 1.2M bbl/day.',
-      'Cape reroute adds 9-14 days transit on affected cargo.',
+      'Cape reroute adds 9 to 14 days transit on affected cargo.',
     ],
     series: [0, 5, 12, 21, 34, 52, 68, 74, 71, 66, 58, 47, 39, 33, 28],
     path: [
@@ -56,7 +68,7 @@ const SCENARIOS = [
       'A simulated 21-day closure removes roughly **17 million barrels/day** of seaborne crude from the market. The shock front propagates through three coupled channels.\n' +
       '- **Price channel:** Brent gaps higher on day 2 and peaks near **+38%** around T+7 as floating storage is exhausted.\n' +
       '- **Insurance channel:** war-risk premia for Gulf transits spike **+410%**, pricing marginal cargoes out before physical scarcity binds.\n' +
-      '- **Reroute channel:** Cape-of-Good-Hope diversions add 9-14 days, tightening Q3 product balances in Northeast Asia.\n' +
+      '- **Reroute channel:** Cape-of-Good-Hope diversions add 9 to 14 days, tightening Q3 product balances in Northeast Asia.\n' +
       '**Stakeholders most exposed:** import-dependent Asian refiners, GCC sovereign budgets, and bunker-fuel-sensitive container lines.\n' +
       'Reversal indicators: tanker AIS resuming eastbound, war-risk quotes easing below 2.5%, and a coordinated IEA stock-draw statement.',
   },
@@ -65,7 +77,7 @@ const SCENARIOS = [
     type: 'Technology',
     title: 'Advanced Semiconductor Export Curb',
     origin: 'Tightened export controls cut sub-5nm tooling and HBM to key fabs',
-    country: { name: 'Taiwan', code: 'tw' },
+    country: 'Taiwan',
     severity: 'HIGH',
     prob: 0.41,
     horizon: 'T+0 to T+30 days',
@@ -80,7 +92,7 @@ const SCENARIOS = [
       'Controls apply to sub-5nm logic and HBM3E only.',
       'Grandfathering of in-transit tools for 60 days.',
       'No retaliatory rare-earth restriction in the window.',
-      'Hyperscaler capex re-timed, not cancelled.',
+      'Hyperscaler capex re-timed rather than cancelled.',
     ],
     series: [0, 3, 6, 11, 17, 24, 30, 35, 38, 40, 41, 41, 40, 39, 38],
     path: [
@@ -104,7 +116,7 @@ const SCENARIOS = [
     type: 'Economic',
     title: 'Black Sea Grain Corridor Disruption',
     origin: 'Renewed blockade halts the Black Sea grain export corridor',
-    country: { name: 'Ukraine', code: 'ua' },
+    country: 'Ukraine',
     severity: 'HIGH',
     prob: 0.34,
     horizon: 'T+0 to T+30 days',
@@ -117,7 +129,7 @@ const SCENARIOS = [
     ],
     assumptions: [
       'Corridor throughput falls 63% for the window.',
-      'Danube barge + rail capture only ~40% of diverted volume.',
+      'Danube barge and rail capture only about 40% of diverted volume.',
       'No simultaneous Northern-Hemisphere harvest failure.',
       'WFP emergency procurement front-loaded by 30 days.',
     ],
@@ -133,7 +145,7 @@ const SCENARIOS = [
       '## Black Sea Grain Corridor Disruption\n' +
       'A renewed blockade strips **~63%** of corridor throughput. Because grain demand is inelastic, the price response is sharp and the humanitarian tail is long.\n' +
       '- **Price channel:** wheat futures climb **+22%**; sunflower oil, with thinner substitution, runs to **+31%**.\n' +
-      '- **Logistics channel:** Danube barge and rail recapture only ~40% of volume, so MENA inventories draw down within three weeks.\n' +
+      '- **Logistics channel:** Danube barge and rail recapture only about 40% of volume, so MENA inventories draw down within three weeks.\n' +
       '- **Fiscal channel:** MENA food-import bills rise **+8%**, pressuring subsidy regimes running thin buffers.\n' +
       '**Stakeholders most exposed:** WFP relief pipelines, MENA importers, and smallholder margins facing input-cost passthrough.\n' +
       'Reversal indicators: corridor inspections resuming, Bosphorus vessel queues clearing, and futures backwardation re-establishing.',
@@ -143,7 +155,7 @@ const SCENARIOS = [
     type: 'Diplomatic',
     title: 'Surprise Normalisation Accord',
     origin: 'Two rival powers announce a phased normalisation framework',
-    country: { name: 'Saudi Arabia', code: 'sa' },
+    country: 'Saudi Arabia',
     severity: 'MODERATE',
     prob: 0.22,
     horizon: 'T+0 to T+30 days',
@@ -155,10 +167,10 @@ const SCENARIOS = [
       { k: 'Tourism bookings', v: '+11%', dir: 'up' },
     ],
     assumptions: [
-      'Framework is phased; full implementation beyond the window.',
+      'Framework is phased, with full implementation beyond the window.',
       'No spoiler veto from third-party regional actors.',
       'Sanctions relief sequenced against verification milestones.',
-      'Markets price ~60% accord-durability in the base case.',
+      'Markets price about 60% accord-durability in the base case.',
     ],
     series: [0, -3, -7, -11, -14, -16, -17, -18, -18, -17, -16, -15, -14, -13, -12],
     path: [
@@ -170,7 +182,7 @@ const SCENARIOS = [
     ],
     narrative:
       '## Surprise Normalisation Accord\n' +
-      'A phased normalisation framework compresses the **regional risk premium by ~18%**. The impulse is benign and front-loaded, then partially fades as durability is repriced.\n' +
+      'A phased normalisation framework compresses the **regional risk premium by about 18%**. The impulse is benign and front-loaded, then partially fades as durability is repriced.\n' +
       '- **Risk channel:** sovereign CDS and freight war-risk both ease; capital rotates toward regional equities.\n' +
       '- **Investment channel:** FDI announcements jump **+24%** as project pipelines paused on tail-risk reactivate.\n' +
       '- **Sector rotation:** defence indices give back **-7%** while tourism and logistics re-rate higher.\n' +
@@ -179,251 +191,363 @@ const SCENARIOS = [
   },
 ]
 
-/* tiny inline markdown -> JSX (synthetic narrative; replaces ReactMarkdown) */
-function renderNarrative(md, accent) {
+const HORIZONS = [
+  { value: '14', label: 'T+14 days' },
+  { value: '30', label: 'T+30 days' },
+  { value: '60', label: 'T+60 days' },
+]
+
+/* Small inline markdown renderer, standing in for ReactMarkdown. */
+function renderNarrative(md) {
   const out = []
   md.split('\n').forEach((raw, i) => {
     const line = raw.trim()
     if (!line) return
-    if (line.startsWith('## ')) out.push(<h3 key={i} style={{ color: accent }}>{line.slice(3)}</h3>)
-    else if (line.startsWith('- ')) out.push(<li key={i}>{fmtInline(line.slice(2), accent)}</li>)
-    else out.push(<p key={i}>{fmtInline(line, accent)}</p>)
+    if (line.startsWith('## ')) {
+      out.push(
+        <h4 key={i} style={{ fontSize: 13, fontWeight: 600, color: 'var(--dash-ink)', margin: '0 0 6px' }}>
+          {line.slice(3)}
+        </h4>,
+      )
+    } else if (line.startsWith('- ')) {
+      out.push(
+        <li key={i} style={{ marginLeft: 14, listStyle: 'disc', marginBottom: 4 }}>
+          {fmtInline(line.slice(2))}
+        </li>,
+      )
+    } else {
+      out.push(
+        <p key={i} style={{ marginBottom: 6 }}>
+          {fmtInline(line)}
+        </p>,
+      )
+    }
   })
   return out
 }
-function fmtInline(text, accent) {
+
+function fmtInline(text) {
   return text.split(/(\*\*[^*]+\*\*)/g).map((p, i) =>
-    p.startsWith('**') && p.endsWith('**')
-      ? <strong key={i} style={{ color: accent }}>{p.slice(2, -2)}</strong>
-      : <span key={i}>{p}</span>,
+    p.startsWith('**') && p.endsWith('**') ? (
+      <strong key={i} style={{ color: 'var(--dash-ink)', fontWeight: 600 }}>
+        {p.slice(2, -2)}
+      </strong>
+    ) : (
+      <span key={i}>{p}</span>
+    ),
   )
 }
 
-const SEV_BG = { CRITICAL: '#dc2626', HIGH: '#ea580c', MODERATE: '#d97706', LOW: '#16a34a' }
+const ImpactTip = chartTooltip({ format: (v) => `${v > 0 ? '+' : ''}${v}` })
 
 export default function WhatIfDashboard() {
+  const t = useChartTheme()
+
   const [selId, setSelId] = useState(SCENARIOS[0].id)
-  const [country, setCountry] = useState('')
   const [intensity, setIntensity] = useState(70)
   const [horizon, setHorizon] = useState('30')
-  const [showAssump, setShowAssump] = useState(true)
+  const [showAssumptions, setShowAssumptions] = useState(true)
+
   const mapEl = useRef(null)
   const mapRef = useRef(null)
   const layerRef = useRef(null)
 
-  const sel = useMemo(() => SCENARIOS.find((s) => s.id === selId), [selId])
-  const accent = TYPE[sel.type]
+  const scenario = useMemo(() => SCENARIOS.find((s) => s.id === selId), [selId])
+  const accent = t.seriesAt(TYPE_SLOT[scenario.type])
 
   const chart = useMemo(() => {
     const mul = intensity / 70
-    return sel.series.map((v, i) => ({
-      t: `T+${Math.round((i / (sel.series.length - 1)) * Number(horizon))}`,
+    return scenario.series.map((v, i) => ({
+      t: `T+${Math.round((i / (scenario.series.length - 1)) * Number(horizon))}`,
       scenario: +(v * mul).toFixed(1),
       baseline: 0,
     }))
-  }, [sel, intensity, horizon])
+  }, [scenario, intensity, horizon])
 
-  // Leaflet init (guard StrictMode double-mount)
+  const peak = useMemo(() => {
+    const values = chart.map((c) => c.scenario)
+    const max = Math.max(...values.map(Math.abs))
+    const at = chart.find((c) => Math.abs(c.scenario) === max)
+    return { value: chart[values.findIndex((v) => Math.abs(v) === max)], label: at?.t ?? '', max }
+  }, [chart])
+
+  /* Map init, guarded against StrictMode's double effect. */
   useEffect(() => {
     if (mapRef.current || !mapEl.current) return
-    const m = L.map(mapEl.current, {
-      center: [25, 55], zoom: 2, zoomControl: true, attributionControl: true, scrollWheelZoom: false,
+
+    const map = L.map(mapEl.current, {
+      center: [25, 55],
+      zoom: 2,
+      zoomControl: true,
+      attributionControl: true,
+      scrollWheelZoom: false,
     })
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap', maxZoom: 12,
-    }).addTo(m)
-    mapRef.current = m
-    layerRef.current = L.layerGroup().addTo(m)
-    const ro = new ResizeObserver(() => m.invalidateSize({ animate: false })); ro.observe(mapEl.current)
-    const t = setTimeout(() => m.invalidateSize({ animate: false }), 80)
-    return () => { clearTimeout(t); ro.disconnect(); m.remove(); mapRef.current = null }
+      attribution: '&copy; OpenStreetMap',
+      maxZoom: 12,
+    }).addTo(map)
+    mapRef.current = map
+    layerRef.current = L.layerGroup().addTo(map)
+
+    const observer = new ResizeObserver(() => map.invalidateSize({ animate: false }))
+    observer.observe(mapEl.current)
+    const settle = setTimeout(() => map.invalidateSize({ animate: false }), 80)
+
+    return () => {
+      clearTimeout(settle)
+      observer.disconnect()
+      map.remove()
+      mapRef.current = null
+    }
   }, [])
 
-  // redraw transmission path for selected scenario
+  /* Redraw the transmission path for the selected scenario. */
   useEffect(() => {
-    const m = mapRef.current, grp = layerRef.current
-    if (!m || !grp) return
-    grp.clearLayers()
-    const pts = sel.path.map((p) => [p.lat, p.lng])
-    L.polyline(pts, { color: accent.a, weight: 2.5, opacity: 0.85, dashArray: '6 5' }).addTo(grp)
-    sel.path.forEach((p, i) => {
+    const map = mapRef.current
+    const group = layerRef.current
+    if (!map || !group) return
+    group.clearLayers()
+
+    const pts = scenario.path.map((p) => [p.lat, p.lng])
+    L.polyline(pts, { color: accent, weight: 2.5, opacity: 0.85, dashArray: '6 5' }).addTo(group)
+
+    scenario.path.forEach((p, i) => {
       const isOrigin = i === 0
       L.circleMarker([p.lat, p.lng], {
-        radius: isOrigin ? 7 : 5, color: '#fff', weight: 1.5,
-        fillColor: isOrigin ? accent.b : accent.a, fillOpacity: 1,
-      }).bindTooltip(`<b>${p.n}</b><br/>${isOrigin ? 'Shock origin' : 'Transmission node ' + i}`, { sticky: true }).addTo(grp)
+        radius: isOrigin ? 7 : 5,
+        color: t.surface,
+        weight: 2,
+        fillColor: accent,
+        fillOpacity: isOrigin ? 1 : 0.75,
+      })
+        .bindTooltip(`<b>${p.n}</b><br/>${isOrigin ? 'Shock origin' : `Transmission node ${i}`}`, {
+          sticky: true,
+        })
+        .addTo(group)
     })
-    m.flyToBounds(L.latLngBounds(pts), { padding: [30, 30], duration: 0.9, maxZoom: 4 })
-  }, [sel, accent])
+    map.flyToBounds(L.latLngBounds(pts), { padding: [30, 30], duration: 0.9, maxZoom: 4 })
+  }, [scenario, accent, t.surface])
 
   return (
-    <div className="whatif-dash">
-      <div className="wf-wrap">
-        {/* LEFT — Scenario Engine */}
-        <div className="wf-panel wf-left">
-          <div className="wf-head">
-            <div className="wf-tg">
-              <div className="wf-ic" style={{ color: accent.a }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>
-              </div>
-              <div>
-                <h2 className="wf-title">Scenario Engine</h2>
-                <div className="wf-sub">Scenario Injection Parameters</div>
-              </div>
-            </div>
-            <button className="wf-iconbtn" title="Settings">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
-            </button>
-          </div>
+    <DashFrame>
+      <DashBar
+        icon="target"
+        title="Geopolitical What-If"
+        subtitle="Scenario simulation · synthetic library · no live API"
+      >
+        <Chip icon="clock">{scenario.horizon}</Chip>
+        <Status level={SEVERITY[scenario.severity].level}>
+          {SEVERITY[scenario.severity].label}
+        </Status>
+      </DashBar>
 
-          <div className="wf-scroll">
-            <div className="wf-badges">
-              <div className="wf-badge" style={{ color: accent.a, background: accent.a + '1a', borderColor: accent.a + '4d' }}>
-                <span className="wf-dot" style={{ background: accent.a }} /> {accent.label}
-              </div>
-              <div className="wf-badge wf-badge-blue">
-                <img src={`https://flagcdn.com/w20/${sel.country.code}.png`} alt="" style={{ width: 12, borderRadius: 2 }} /> {sel.country.name}
-              </div>
-              <div className="wf-badge wf-badge-blue">Strategic Persona</div>
+      <DashBody columns="316px minmax(0, 1fr) 340px">
+        {/* ── Scenario library and controls ───────────────── */}
+        <Col scroll>
+          <Panel title="Shock intensity" note={`${intensity}% of base`}>
+            <input
+              type="range"
+              min="20"
+              max="120"
+              value={intensity}
+              onChange={(e) => setIntensity(Number(e.target.value))}
+              aria-label="Shock intensity"
+              style={{ width: '100%', accentColor: accent, cursor: 'pointer' }}
+            />
+            <div className="dash-note" style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>20%</span>
+              <span>120%</span>
             </div>
 
-            <label className="wf-label">Target Country</label>
-            <select className="wf-select" value={country} onChange={(e) => setCountry(e.target.value)}>
-              <option value="">Inherit from scenario ({sel.country.name})</option>
-              {['Iran', 'Taiwan', 'Ukraine', 'Saudi Arabia', 'United States', 'China', 'Germany'].map((c) => (
-                <option key={c} value={c}>{c}</option>
+            <div className="dash-sep" style={{ margin: '12px 0 10px' }} />
+
+            <span className="dash-panel-title" style={{ display: 'block', marginBottom: 6 }}>
+              Simulation horizon
+            </span>
+            <div style={{ display: 'flex', gap: 5 }}>
+              {HORIZONS.map((h) => (
+                <button
+                  key={h.value}
+                  type="button"
+                  className="dash-chip"
+                  aria-pressed={horizon === h.value}
+                  onClick={() => setHorizon(h.value)}
+                  style={{
+                    cursor: 'pointer',
+                    borderColor: horizon === h.value ? 'var(--dash-accent-line)' : undefined,
+                    background: horizon === h.value ? 'var(--dash-selected)' : undefined,
+                    color: horizon === h.value ? 'var(--dash-ink)' : undefined,
+                  }}
+                >
+                  {h.label}
+                </button>
               ))}
-            </select>
-
-            <label className="wf-label" style={{ marginTop: 14 }}>Shock Intensity · {intensity}%</label>
-            <input className="wf-range" type="range" min="20" max="120" value={intensity}
-              style={{ accentColor: accent.a }}
-              onChange={(e) => setIntensity(Number(e.target.value))} />
-
-            <label className="wf-label" style={{ marginTop: 14 }}>Simulation Horizon</label>
-            <select className="wf-select" value={horizon} onChange={(e) => setHorizon(e.target.value)}>
-              <option value="14">T+0 → T+14 days</option>
-              <option value="30">T+0 → T+30 days</option>
-              <option value="60">T+0 → T+60 days</option>
-            </select>
-
-            <label className="wf-label" style={{ marginTop: 16 }}>Scenario Library</label>
-            <div className="wf-scn-list">
-              {SCENARIOS.map((s) => {
-                const t = TYPE[s.type]
-                const on = s.id === selId
-                return (
-                  <div key={s.id} className={`wf-scn${on ? ' on' : ''}`}
-                    style={on ? { borderColor: t.a, background: `linear-gradient(135deg, ${t.a}1f, transparent)` } : {}}
-                    onClick={() => setSelId(s.id)}>
-                    <div className="wf-scn-bar" style={{ background: `linear-gradient(${t.a}, ${t.b})` }} />
-                    <div className="wf-scn-body">
-                      <div className="wf-scn-top">
-                        <span className="wf-scn-type" style={{ color: t.a }}>{t.label}</span>
-                        <span className="wf-sev" style={{ background: SEV_BG[s.severity] }}>{s.severity}</span>
-                      </div>
-                      <div className="wf-scn-title">{s.title}</div>
-                      <div className="wf-scn-meta">P(occurrence) {Math.round(s.prob * 100)}% · {s.actors.length} actors</div>
-                    </div>
-                  </div>
-                )
-              })}
             </div>
+            <p className="dash-note" style={{ marginTop: 10 }}>
+              The projection recomputes as you change these. There is no run button because there
+              is nothing to wait for.
+            </p>
+          </Panel>
 
-            <button className="wf-exec" style={{ background: `linear-gradient(135deg, ${accent.a}, ${accent.b})` }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
-              EXECUTE SIMULATION
-            </button>
-          </div>
-        </div>
+          <Panel title="Scenario library" note={`${SCENARIOS.length} scenarios`} grow>
+            <List>
+              {SCENARIOS.map((s) => (
+                <Row
+                  key={s.id}
+                  name={s.title}
+                  sub={`${s.type} · ${s.country} · P ${Math.round(s.prob * 100)}%`}
+                  selected={s.id === selId}
+                  onSelect={() => setSelId(s.id)}
+                >
+                  <span
+                    className="dash-legend-swatch"
+                    style={{ background: t.seriesAt(TYPE_SLOT[s.type]) }}
+                    aria-hidden="true"
+                  />
+                </Row>
+              ))}
+            </List>
+          </Panel>
 
-        {/* RIGHT — Output */}
-        <div className="wf-panel wf-right">
-          <div className="wf-head">
-            <div className="wf-tg">
-              <div className="wf-ic" style={{ color: accent.b }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5" /><path d="M8.5 8.5a4 4 0 0 0 0 5.66" /><path d="M15.5 8.5a4 4 0 0 1 0 5.66" /></svg>
-              </div>
-              <div>
-                <h2 className="wf-title">Impact Simulation Output</h2>
-                <div className="wf-sub">Projected Strategic Transmission · {sel.horizon}</div>
-              </div>
+          <Panel title="Actors in play" note={`${scenario.actors.length}`}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+              {scenario.actors.map((a) => (
+                <span className="dash-chip" key={a}>
+                  {a}
+                </span>
+              ))}
             </div>
-            <div className="wf-prob" style={{ color: accent.a }}>P {Math.round(sel.prob * 100)}%</div>
-          </div>
+          </Panel>
+        </Col>
 
-          <div className="wf-scroll">
-            <div className="wf-card" style={{ background: `linear-gradient(135deg, ${accent.a}14, transparent)`, borderColor: accent.a + '33' }}>
-              <div className="wf-ct">Selected Scenario</div>
-              <div className="wf-scn-hl">{sel.title}</div>
-              <div className="wf-origin">{sel.origin}</div>
-              <div className="wf-actors">{sel.actors.map((a) => <span key={a} className="wf-chip">{a}</span>)}</div>
+        {/* ── Projection and transmission path ────────────── */}
+        <Col scroll>
+          <StatGrid columns="repeat(3, minmax(0, 1fr))">
+            <Stat label="Probability" value={`${Math.round(scenario.prob * 100)}%`} note="of occurrence" />
+            <Stat
+              label="Peak deviation"
+              value={`${peak.value?.scenario > 0 ? '+' : ''}${peak.value?.scenario ?? 0}`}
+              note={`at ${peak.label}`}
+            />
+            <Stat label="Type" value={scenario.type} note={scenario.country} />
+          </StatGrid>
+
+          <Panel title="Selected scenario" note={scenario.horizon}>
+            <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--dash-ink)' }}>
+              {scenario.title}
             </div>
+            <p className="dash-note" style={{ marginTop: 4 }}>
+              {scenario.origin}
+            </p>
+          </Panel>
 
-            <div className="wf-card">
-              <div className="wf-ct">Projected Impacts</div>
-              <div className="wf-impacts">
-                {sel.impacts.map((im) => (
-                  <div key={im.k} className="wf-impact">
-                    <div className="wf-imk">{im.k}</div>
-                    <div className="wf-imv" style={{ color: im.dir === 'up' ? '#f43f5e' : '#22c55e' }}>{im.dir === 'up' ? '▲' : '▼'} {im.v}</div>
-                  </div>
+          <Panel title="Impact projection" note="scenario against baseline" bodyFill>
+            <div className="dash-chart">
+              <ResponsiveContainer width="100%" height={188}>
+                <AreaChart data={chart} margin={{ top: 8, right: 10, left: -14, bottom: 4 }}>
+                  <defs>
+                    <linearGradient id="wfGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={accent} stopOpacity={0.28} />
+                      <stop offset="100%" stopColor={accent} stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid {...t.grid} />
+                  <XAxis dataKey="t" {...t.xAxis} interval={2} />
+                  <YAxis {...t.yAxis} width={34} />
+                  <Tooltip content={<ImpactTip />} cursor={t.cursor} />
+                  <ReferenceLine y={0} stroke={t.axis} />
+                  <Area
+                    type="monotone"
+                    dataKey="scenario"
+                    name="Scenario"
+                    stroke={accent}
+                    strokeWidth={2}
+                    fill="url(#wfGrad)"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="baseline"
+                    name="Baseline"
+                    stroke={t.muted}
+                    strokeWidth={1.5}
+                    strokeDasharray="5 4"
+                    dot={false}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </Panel>
+
+          <Panel title="Transmission path" note="OpenStreetMap" grow bodyFill>
+            <div ref={mapEl} className="dash-map" style={{ minHeight: 210, borderRadius: 8 }} />
+          </Panel>
+        </Col>
+
+        {/* ── Impacts, assumptions, narrative ─────────────── */}
+        <Col scroll>
+          {/* Direction is shown with an arrow and the value in ink. A rise is
+              not always bad here, so colour would be asserting a judgement
+              the data does not make. */}
+          <Panel title="Projected impacts" note="at peak">
+            <table className="dash-table">
+              <tbody>
+                {scenario.impacts.map((im) => (
+                  <tr key={im.k}>
+                    <td>{im.k}</td>
+                    <td className="num">
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                        <DashIcon
+                          name={im.dir === 'up' ? 'trendUp' : 'trendDown'}
+                          size={12}
+                          className="dash-muted"
+                        />
+                        <span style={{ color: 'var(--dash-ink)', fontWeight: 500 }}>{im.v}</span>
+                      </span>
+                    </td>
+                  </tr>
                 ))}
-              </div>
-            </div>
+              </tbody>
+            </table>
+          </Panel>
 
-            <div className="wf-card">
-              <div className="wf-ct">Impact Projection <span className="wf-src">scenario vs baseline · {sel.horizon}</span></div>
-              <div style={{ width: '100%', height: 180 }}>
-                <ResponsiveContainer>
-                  <AreaChart data={chart} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="wfGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor={accent.a} stopOpacity={0.45} />
-                        <stop offset="100%" stopColor={accent.a} stopOpacity={0.02} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.12)" />
-                    <XAxis dataKey="t" tick={{ fontSize: 8, fill: '#64748b' }} interval={2} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 8, fill: '#64748b' }} axisLine={false} tickLine={false} />
-                    <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid rgba(148,163,184,0.2)', borderRadius: 8, fontSize: 11, color: '#e2e8f0' }} />
-                    <ReferenceLine y={0} stroke="rgba(148,163,184,0.35)" />
-                    <Area type="monotone" dataKey="scenario" stroke={accent.a} strokeWidth={2} fill="url(#wfGrad)" />
-                    <Line type="monotone" dataKey="baseline" stroke="#475569" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
+          <Panel
+            title="Assumptions"
+            note={
+              <button
+                type="button"
+                onClick={() => setShowAssumptions((v) => !v)}
+                style={{
+                  border: 0,
+                  background: 'transparent',
+                  color: 'var(--dash-accent)',
+                  cursor: 'pointer',
+                  font: 'inherit',
+                  fontSize: 11,
+                }}
+              >
+                {showAssumptions ? 'Hide' : 'Show'}
+              </button>
+            }
+          >
+            {showAssumptions && (
+              <ul style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {scenario.assumptions.map((a) => (
+                  <li key={a} className="dash-note" style={{ display: 'flex', gap: 7 }}>
+                    <DashIcon name="check" size={12} />
+                    <span>{a}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Panel>
 
-            <div className="wf-card">
-              <div className="wf-ct">Transmission Path <span className="wf-src">OpenStreetMap</span></div>
-              <div ref={mapEl} className="wf-map" />
+          <Panel title="Scenario interpretation" note="pre-written, synthetic" grow>
+            <div className="dash-note" style={{ lineHeight: 1.6 }}>
+              {renderNarrative(scenario.narrative)}
             </div>
-
-            <div className="wf-card">
-              <div className="wf-ct wf-ct-row">
-                <span>Scenario Assumptions</span>
-                <button className="wf-toggle" onClick={() => setShowAssump((v) => !v)}>{showAssump ? 'Hide' : 'Show'}</button>
-              </div>
-              {showAssump && <ul className="wf-assump">{sel.assumptions.map((a, i) => <li key={i}>{a}</li>)}</ul>}
-            </div>
-
-            <div className="wf-ai" style={{ borderColor: accent.a + '26', background: `linear-gradient(135deg, ${accent.a}0d, rgba(59,130,246,0.04))` }}>
-              <div className="wf-ai-head" style={{ color: accent.a }}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3Z" /></svg>
-                AI STRATEGIC INTERPRETATION
-                <span className="wf-ai-tag">Synthetic narrative</span>
-              </div>
-              <div className="wf-md">{renderNarrative(sel.narrative, accent.a)}</div>
-            </div>
-          </div>
-
-          <div className="wf-foot">
-            <span>SCENARIO <b style={{ color: accent.a }}>{SCENARIOS.findIndex((s) => s.id === selId) + 1}</b> OF <b style={{ color: accent.a }}>{SCENARIOS.length}</b></span>
-            <span className="wf-foot-r">Portfolio demo · synthetic data · no live API</span>
-          </div>
-        </div>
-      </div>
-    </div>
+          </Panel>
+        </Col>
+      </DashBody>
+    </DashFrame>
   )
 }

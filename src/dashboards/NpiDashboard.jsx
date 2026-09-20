@@ -1,24 +1,35 @@
-/* National Stability Index (NPI) — faithful React port of the RETS national-scale
-   monitoring map dashboard (erpdesign/RETS_FINAL/MAPS.jsx).
-   Mapbox -> free Leaflet/OSM. Live API + echarts -> embedded synthetic sample data
-   + recharts. styled-components -> scoped CSS. All data is SYNTHETIC. */
+/* National Stability Index (NPI) — national-scale monitoring.
+
+   A React port of an internal RETS monitoring dashboard: Mapbox became
+   Leaflet with OpenStreetMap tiles, and the live API became embedded
+   synthetic sample data. Every event, score and keyword below is synthetic.
+
+   Presentation comes from the shared dashboard system in ./ui. */
+
 import { useState, useEffect, useRef, useMemo } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts'
-import './npi.css'
+import {
+  ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
+} from 'recharts'
+import useChartTheme from './ui/chartTheme'
+import { chartTooltip } from './ui/chartTooltip'
+import {
+  DashFrame, DashBar, DashBody, Region as Col, Panel, Stat, StatGrid,
+  Chip, Status, List, Row, Meters, Meter, MapOverlay, DashIcon,
+} from './ui'
 
-/* ── Severity palette (from MAPS.jsx :root) ── */
+/* Severity maps onto the shared status vocabulary, so a level always arrives
+   with an icon and a word rather than a colour by itself. */
 const SEV = {
-  CRIT: { c: '#f43f5e', label: 'CRITICAL' },
-  HIGH: { c: '#fb923c', label: 'HIGH' },
-  ELEV: { c: '#facc15', label: 'ELEVATED' },
-  MON: { c: '#22d3ee', label: 'MONITOR' },
-  OK: { c: '#22c55e', label: 'STABLE' },
+  CRIT: { label: 'Critical', level: 'critical' },
+  HIGH: { label: 'High', level: 'serious' },
+  ELEV: { label: 'Elevated', level: 'warning' },
+  MON: { label: 'Monitor', level: 'good' },
+  OK: { label: 'Stable', level: 'good' },
 }
-const sevColor = (s) => SEV[s]?.c || '#94a3b8'
+const SEV_ORDER = ['CRIT', 'HIGH', 'ELEV', 'MON', 'OK']
 
-/* ── Synthetic national-scale stability events across Indonesia (provinces) ── */
 const EVENTS = [
   { id: 'E01', title: 'Demonstrasi tolak kenaikan harga BBM di Jakarta', place: 'DKI Jakarta', prov: 'DKI Jakarta', lat: -6.2088, lng: 106.8456, sev: 'CRIT', cat: 'Sosial', npi: 84, time: '12m', src: 'Antara', n: 412 },
   { id: 'E02', title: 'Aksi buruh terkait UMP di kawasan industri Bekasi', place: 'Bekasi', prov: 'Jawa Barat', lat: -6.2383, lng: 106.9756, sev: 'HIGH', cat: 'Ekonomi', npi: 71, time: '34m', src: 'Detik', n: 287 },
@@ -40,27 +51,24 @@ const EVENTS = [
   { id: 'E18', title: 'Kondisi kondusif dilaporkan di Manado', place: 'Manado', prov: 'Sulawesi Utara', lat: 1.4748, lng: 124.8421, sev: 'OK', cat: 'Sosial', npi: 19, time: '9j', src: 'Antara', n: 24 },
   { id: 'E19', title: 'Demonstrasi guru honorer di Pontianak', place: 'Pontianak', prov: 'Kalimantan Barat', lat: -0.0263, lng: 109.3425, sev: 'MON', cat: 'Sosial', npi: 43, time: '10j', src: 'Tribun', n: 58 },
   { id: 'E20', title: 'Aksi tolak relokasi pasar tradisional di Mataram', place: 'Mataram', prov: 'NTB', lat: -8.5833, lng: 116.1167, sev: 'ELEV', cat: 'Sosial', npi: 50, time: '11j', src: 'Antara', n: 69 },
-  { id: 'E21', title: 'Stabilitas harga sembako membaik di Kupang', place: 'Kupang', prov: 'NTT', lat: -10.1772, lng: 123.6070, sev: 'OK', cat: 'Ekonomi', npi: 25, time: '12j', src: 'Pos Kupang', n: 28 },
+  { id: 'E21', title: 'Stabilitas harga sembako membaik di Kupang', place: 'Kupang', prov: 'NTT', lat: -10.1772, lng: 123.607, sev: 'OK', cat: 'Ekonomi', npi: 25, time: '12j', src: 'Pos Kupang', n: 28 },
   { id: 'E22', title: 'Friksi komunitas adat soal izin tambang di Maluku', place: 'Ambon', prov: 'Maluku', lat: -3.6954, lng: 128.1814, sev: 'HIGH', cat: 'Konflik', npi: 64, time: '13j', src: 'Mongabay', n: 141 },
 ]
 
 const CATS = ['Sosial', 'Ekonomi', 'Politik', 'Konflik', 'Keamanan', 'Bencana']
-const CAT_COLOR = { Sosial: '#f43f5e', Ekonomi: '#fb923c', Politik: '#facc15', Konflik: '#8e44ad', Keamanan: '#22d3ee', Bencana: '#22c55e' }
-const SEV_ORDER = ['CRIT', 'HIGH', 'ELEV', 'MON', 'OK']
 
-/* ── Tactical word cloud terms (synthetic, weighted) ── */
+/* Keywords ranked by weight. This replaced a word cloud: a cloud encodes
+   magnitude as font size, which is the hardest channel to compare, and it
+   cannot be read back as numbers. A ranked bar list answers the same
+   question and carries its values. */
 const TERMS = [
-  { text: 'subsidi', value: 98 }, { text: 'demonstrasi', value: 91 }, { text: 'inflasi', value: 84 },
-  { text: 'pemilu', value: 77 }, { text: 'BBM', value: 88 }, { text: 'buruh', value: 72 },
-  { text: 'agraria', value: 64 }, { text: 'separatisme', value: 59 }, { text: 'pangan', value: 68 },
-  { text: 'tambang', value: 61 }, { text: 'UMP', value: 55 }, { text: 'sembako', value: 52 },
-  { text: 'reklamasi', value: 44 }, { text: 'honorer', value: 41 }, { text: 'mediasi', value: 38 },
-  { text: 'pilkada', value: 49 }, { text: 'logistik', value: 46 }, { text: 'sawit', value: 57 },
-  { text: 'keamanan', value: 63 }, { text: 'adat', value: 36 }, { text: 'distribusi', value: 42 },
-  { text: 'anggaran', value: 48 }, { text: 'konflik', value: 70 }, { text: 'stabilitas', value: 75 },
+  { text: 'subsidi', value: 98 }, { text: 'demonstrasi', value: 91 }, { text: 'BBM', value: 88 },
+  { text: 'inflasi', value: 84 }, { text: 'pemilu', value: 77 }, { text: 'stabilitas', value: 75 },
+  { text: 'buruh', value: 72 }, { text: 'konflik', value: 70 }, { text: 'pangan', value: 68 },
+  { text: 'agraria', value: 64 }, { text: 'keamanan', value: 63 }, { text: 'tambang', value: 61 },
 ]
 
-/* ── 30-day national stability index trend (synthetic) ── */
+/* 30-day national stability index trend (synthetic, deterministic). */
 const TREND = (() => {
   let s = 47
   const out = []
@@ -74,31 +82,15 @@ const TREND = (() => {
   return out
 })()
 
-/* Tactical word cloud (font-size scaled by weight, like the original). */
-function WordCloud({ terms }) {
-  const vals = terms.map((d) => d.value)
-  const min = Math.min(...vals), max = Math.max(...vals)
-  return (
-    <div className="kw-cloud">
-      {terms.map((t, i) => {
-        const r = max === min ? 0 : (t.value - min) / (max - min)
-        const fs = 10 + r * 13
-        const op = 0.4 + r * 0.6
-        const hot = r > 0.8
-        return (
-          <span key={i} className={`kw-tag${hot ? ' hot' : ''}`} title={`${t.text}: ${t.value}`}
-            style={{ fontSize: `${fs}px`, fontWeight: hot ? 700 : 500, color: hot ? '#f43f5e' : `rgba(154,138,138,${op})` }}>
-            {t.text.toLowerCase()}
-          </span>
-        )
-      })}
-    </div>
-  )
-}
+const NpiTip = chartTooltip({ format: (v) => v })
 
 export default function NpiDashboard() {
-  const mapEl = useRef(null), mapRef = useRef(null), markersRef = useRef(null)
-  const [sel, setSel] = useState(null)
+  const t = useChartTheme()
+  const mapEl = useRef(null)
+  const mapRef = useRef(null)
+  const markersRef = useRef(null)
+
+  const [selected, setSelected] = useState(null)
   const [filterSev, setFilterSev] = useState('')
   const [filterCat, setFilterCat] = useState('')
   const [search, setSearch] = useState('')
@@ -107,10 +99,19 @@ export default function NpiDashboard() {
     const totalNews = EVENTS.reduce((a, e) => a + e.n, 0)
     const sources = new Set(EVENTS.map((e) => e.src)).size
     const avg = Math.round(EVENTS.reduce((a, e) => a + e.npi, 0) / EVENTS.length)
-    const sevCount = {}; SEV_ORDER.forEach((k) => (sevCount[k] = EVENTS.filter((e) => e.sev === k).length))
-    const catCount = {}; CATS.forEach((c) => (catCount[c] = EVENTS.filter((e) => e.cat === c).length))
-    const maxCat = Math.max(...CATS.map((c) => catCount[c]))
-    return { totalNews, sources, events: EVENTS.length, avg, sevCount, catCount, maxCat }
+    const sevCount = {}
+    SEV_ORDER.forEach((k) => (sevCount[k] = EVENTS.filter((e) => e.sev === k).length))
+    const catCount = {}
+    CATS.forEach((c) => (catCount[c] = EVENTS.filter((e) => e.cat === c).length))
+    return {
+      totalNews,
+      sources,
+      events: EVENTS.length,
+      avg,
+      sevCount,
+      catCount,
+      maxCat: Math.max(...CATS.map((c) => catCount[c])),
+    }
   }, [])
 
   const filtered = useMemo(() => {
@@ -119,207 +120,367 @@ export default function NpiDashboard() {
     if (filterCat) list = list.filter((e) => e.cat === filterCat)
     if (search.trim()) {
       const q = search.toLowerCase()
-      list = list.filter((e) => e.title.toLowerCase().includes(q) || e.place.toLowerCase().includes(q) || e.prov.toLowerCase().includes(q))
+      list = list.filter(
+        (e) =>
+          e.title.toLowerCase().includes(q) ||
+          e.place.toLowerCase().includes(q) ||
+          e.prov.toLowerCase().includes(q),
+      )
     }
     return list
   }, [filterSev, filterCat, search])
 
-  const stabilityLevel = stats.avg >= 70 ? { t: 'VOLATILE', c: '#f43f5e' } : stats.avg >= 55 ? { t: 'UNSTABLE', c: '#fb923c' } : stats.avg >= 40 ? { t: 'ALERT', c: '#facc15' } : { t: 'CALM', c: '#22c55e' }
+  const level =
+    stats.avg >= 70
+      ? { label: 'Volatile', status: 'critical' }
+      : stats.avg >= 55
+        ? { label: 'Unstable', status: 'serious' }
+        : stats.avg >= 40
+          ? { label: 'Alert', status: 'warning' }
+          : { label: 'Calm', status: 'good' }
 
-  // MAP INIT (Leaflet, replaces Mapbox). Guarded vs StrictMode double-mount.
+  const sevColor = useMemo(
+    () => ({
+      CRIT: t.status.critical,
+      HIGH: t.status.serious,
+      ELEV: t.status.warning,
+      MON: t.seriesAt(0),
+      OK: t.status.good,
+    }),
+    [t],
+  )
+
+  /* Map init, guarded against StrictMode's double effect. */
   useEffect(() => {
     if (mapRef.current || !mapEl.current) return
-    const m = L.map(mapEl.current, { center: [-2.5, 118], zoom: 5, zoomControl: true, attributionControl: true, worldCopyJump: false })
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap', maxZoom: 18 }).addTo(m)
-    mapRef.current = m
-    markersRef.current = L.layerGroup().addTo(m)
-    const ro = new ResizeObserver(() => m.invalidateSize({ animate: false })); ro.observe(mapEl.current)
-    const t = setTimeout(() => m.invalidateSize({ animate: false }), 80)
-    return () => { clearTimeout(t); ro.disconnect(); m.remove(); mapRef.current = null }
+
+    const map = L.map(mapEl.current, {
+      center: [-2.5, 118],
+      zoom: 5,
+      zoomControl: true,
+      attributionControl: true,
+      worldCopyJump: false,
+    })
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap',
+      maxZoom: 18,
+    }).addTo(map)
+    mapRef.current = map
+    markersRef.current = L.layerGroup().addTo(map)
+
+    const observer = new ResizeObserver(() => map.invalidateSize({ animate: false }))
+    observer.observe(mapEl.current)
+    const settle = setTimeout(() => map.invalidateSize({ animate: false }), 80)
+
+    return () => {
+      clearTimeout(settle)
+      observer.disconnect()
+      map.remove()
+      mapRef.current = null
+    }
   }, [])
 
-  // Plot / refresh markers when filter changes
+  /* Redraw markers when the filter or the theme changes. */
   useEffect(() => {
-    const grp = markersRef.current; if (!grp) return
-    grp.clearLayers()
+    const group = markersRef.current
+    if (!group) return
+    group.clearLayers()
+
     filtered.forEach((e) => {
-      const col = sevColor(e.sev)
-      const r = 5 + (e.npi / 100) * 8
-      const mk = L.circleMarker([e.lat, e.lng], { radius: r, color: col, weight: 1.5, fillColor: col, fillOpacity: 0.55 })
-      mk.bindPopup(
-        `<div class="npi-pop"><div class="pp-sev" style="color:${col}">${SEV[e.sev].label} · NPI ${e.npi}</div>` +
-        `<div class="pp-title">${e.title}</div>` +
-        `<div class="pp-meta">${e.place} · ${e.prov}</div>` +
-        `<div class="pp-meta">${e.cat} · ${e.n} berita · ${e.time} lalu</div></div>`,
-        { className: 'npi-popup' }
-      )
-      mk.on('click', () => setSel((p) => (p?.id === e.id ? null : e)))
-      mk.addTo(grp)
+      const color = sevColor[e.sev]
+      L.circleMarker([e.lat, e.lng], {
+        radius: 5 + (e.npi / 100) * 8,
+        color,
+        weight: 1.5,
+        fillColor: color,
+        fillOpacity: 0.55,
+      })
+        .bindPopup(
+          `<div class="dash-pop-title">${e.title}</div>` +
+            `<div class="dash-pop-meta">${SEV[e.sev].label} · NPI ${e.npi}</div>` +
+            `<div class="dash-pop-meta">${e.place} · ${e.prov}</div>` +
+            `<div class="dash-pop-meta">${e.cat} · ${e.n} berita · ${e.time} lalu</div>`,
+          { className: 'dash-pop' },
+        )
+        .on('click', () => setSelected((p) => (p?.id === e.id ? null : e)))
+        .addTo(group)
     })
-  }, [filtered])
+  }, [filtered, sevColor])
 
-  // fly to selected event
+  /* Fly to the selected event, or back out when it is cleared. */
   useEffect(() => {
-    const m = mapRef.current; if (!m) return
-    if (sel) m.flyTo([sel.lat, sel.lng], 7, { duration: 1 })
-    else m.flyTo([-2.5, 118], 5, { duration: 1 })
-  }, [sel])
-
-  const tickerItems = [...EVENTS, ...EVENTS]
+    const map = mapRef.current
+    if (!map) return
+    if (selected) map.flyTo([selected.lat, selected.lng], 7, { duration: 1 })
+    else map.flyTo([-2.5, 118], 5, { duration: 1 })
+  }, [selected])
 
   return (
-    <div className="npi-dash">
-      {/* TICKER */}
-      <div className="ticker">
-        <div className="ticker-label"><span className="tk-dot" /> LIVE</div>
-        <div className="ticker-vp">
-          <div className="ticker-track">
-            {tickerItems.map((e, i) => (
-              <div className="ticker-item" key={i}><span className="tk-idot" style={{ background: sevColor(e.sev) }} /> {e.title}</div>
-            ))}
-          </div>
-        </div>
-      </div>
+    <DashFrame>
+      <DashBar
+        icon="shield"
+        title="National Stability Index"
+        subtitle="RETS · national-scale monitoring · synthetic demo data"
+      >
+        <Chip icon="database" value={stats.totalNews.toLocaleString('en-US')}>
+          Articles
+        </Chip>
+        <Chip icon="layers" value={stats.sources}>
+          Sources
+        </Chip>
+        <Status level={level.status}>
+          NPI {stats.avg} · {level.label}
+        </Status>
+      </DashBar>
 
-      {/* MAIN */}
-      <div className="main">
-        {/* LEFT PANEL */}
-        <div className="left-panel">
-          <div className="left-scroll">
-            <div className="brand">
-              <div className="brand-t">NATIONAL STABILITY INDEX</div>
-              <div className="brand-s">RETS · National-Scale Monitoring</div>
-            </div>
+      <DashBody rows="auto minmax(0, 1fr)">
+        <StatGrid columns="repeat(4, minmax(0, 1fr))">
+          <Stat label="National NPI" value={stats.avg} note={`${level.label} · mean of 22 provinces`} />
+          <Stat label="Events tracked" value={stats.events} note={`${filtered.length} match the current filter`} />
+          <Stat label="Articles ingested" value={stats.totalNews.toLocaleString('en-US')} note={`${stats.sources} distinct sources`} />
+          <Stat
+            label="Critical + high"
+            value={stats.sevCount.CRIT + stats.sevCount.HIGH}
+            note={`${stats.sevCount.CRIT} critical · ${stats.sevCount.HIGH} high`}
+          />
+        </StatGrid>
 
-            {/* STATS */}
-            <div className="stats-inline">
-              <div className="stat-cell"><div className="stat-num red">{stats.totalNews.toLocaleString('id-ID')}</div><div className="stat-lbl">TOTAL NEWS</div></div>
-              <div className="stat-cell"><div className="stat-num white">{stats.sources}</div><div className="stat-lbl">SOURCES</div></div>
-              <div className="stat-cell"><div className="stat-num orange">{stats.events}</div><div className="stat-lbl">EVENTS</div></div>
-            </div>
-
-            {/* NATIONAL NPI GAUGE */}
-            <div className="npi-gauge">
-              <div className="ng-num" style={{ color: stabilityLevel.c }}>{stats.avg}</div>
-              <div className="ng-side">
-                <div className="ng-lvl" style={{ color: stabilityLevel.c }}>{stabilityLevel.t}</div>
-                <div className="ng-lbl">NATIONAL NPI · avg 22 prov</div>
+        <DashBody columns="300px minmax(0, 1fr) 340px" style={{ padding: 0 }}>
+          {/* ── Trend, breakdown, filters ───────────────────── */}
+          <Col scroll>
+            <Panel title="30-day stability trend" note="national index">
+              <div className="dash-chart">
+                <ResponsiveContainer width="100%" height={116}>
+                  <AreaChart data={TREND} margin={{ top: 6, right: 8, left: -18, bottom: 4 }}>
+                    <defs>
+                      <linearGradient id="npiTrend" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={t.seriesAt(0)} stopOpacity={0.26} />
+                        <stop offset="100%" stopColor={t.seriesAt(0)} stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid {...t.grid} />
+                    <XAxis dataKey="day" {...t.xAxis} interval={6} />
+                    <YAxis domain={[20, 90]} {...t.yAxis} width={30} />
+                    <Tooltip content={<NpiTip />} cursor={t.cursor} />
+                    <Area
+                      type="monotone"
+                      dataKey="npi"
+                      name="NPI"
+                      stroke={t.seriesAt(0)}
+                      strokeWidth={2}
+                      fill="url(#npiTrend)"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
               </div>
-            </div>
+            </Panel>
 
-            {/* TREND */}
-            <div className="sec-title">30-DAY STABILITY TREND</div>
-            <div className="trend-box">
-              <ResponsiveContainer width="100%" height={92}>
-                <AreaChart data={TREND} margin={{ top: 4, right: 4, left: -22, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="npiGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#f43f5e" stopOpacity={0.5} />
-                      <stop offset="100%" stopColor="#f43f5e" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid stroke="#2e2424" vertical={false} />
-                  <XAxis dataKey="day" tick={{ fontSize: 7, fill: '#64748b' }} interval={6} axisLine={{ stroke: '#2e2424' }} tickLine={false} />
-                  <YAxis domain={[20, 90]} tick={{ fontSize: 7, fill: '#64748b' }} axisLine={false} tickLine={false} width={28} />
-                  <Tooltip contentStyle={{ background: '#1c1c1c', border: '1px solid #2e2424', borderRadius: 6, fontSize: 10 }} labelStyle={{ color: '#94a3b8' }} itemStyle={{ color: '#f43f5e' }} />
-                  <Area type="monotone" dataKey="npi" stroke="#f43f5e" strokeWidth={1.6} fill="url(#npiGrad)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-
-            {/* CATEGORY BREAKDOWN */}
-            <div className="sec-title">CATEGORY BREAKDOWN</div>
-            {CATS.map((c) => (
-              <div key={c} className={`bkd-item${filterCat === c ? ' on' : ''}`} onClick={() => setFilterCat(filterCat === c ? '' : c)}>
-                <div className="bkd-name"><span className="dot" style={{ background: CAT_COLOR[c] }} /> {c}</div>
-                <div className="bkd-bar-wrap"><div className="bkd-bar" style={{ width: `${(stats.catCount[c] / stats.maxCat) * 100}%`, background: CAT_COLOR[c] }} /></div>
-                <div className="bkd-num">{stats.catCount[c]}</div>
+            <Panel title="Category breakdown" note="click to filter">
+              <Meters>
+                {CATS.map((c) => (
+                  <Meter
+                    key={c}
+                    label={c}
+                    value={stats.catCount[c]}
+                    max={stats.maxCat}
+                    color={filterCat && filterCat !== c ? t.grid.stroke : t.seriesAt(0)}
+                    display={stats.catCount[c]}
+                  />
+                ))}
+              </Meters>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 10 }}>
+                {CATS.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    className="dash-chip"
+                    aria-pressed={filterCat === c}
+                    onClick={() => setFilterCat(filterCat === c ? '' : c)}
+                    style={{
+                      cursor: 'pointer',
+                      borderColor: filterCat === c ? 'var(--dash-accent-line)' : undefined,
+                      background: filterCat === c ? 'var(--dash-selected)' : undefined,
+                      color: filterCat === c ? 'var(--dash-ink)' : undefined,
+                    }}
+                  >
+                    {c}
+                  </button>
+                ))}
               </div>
-            ))}
+            </Panel>
 
-            {/* SEVERITY FILTER / LEGEND */}
-            <div className="sec-title">SEVERITY FILTER</div>
-            <div className="sev-grid">
-              <button className={`sev-chip${filterSev === '' ? ' on' : ''}`} onClick={() => setFilterSev('')}>ALL</button>
-              {SEV_ORDER.map((k) => (
-                <button key={k} className={`sev-chip${filterSev === k ? ' on' : ''}`} style={filterSev === k ? { background: SEV[k].c, borderColor: SEV[k].c, color: '#fff' } : {}} onClick={() => setFilterSev(filterSev === k ? '' : k)}>
-                  <span className="dot" style={{ background: SEV[k].c }} /> {SEV[k].label} <span className="sev-n">{stats.sevCount[k]}</span>
+            <Panel title="Severity" note="click to filter">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                <button
+                  type="button"
+                  className="dash-row"
+                  aria-selected={filterSev === ''}
+                  onClick={() => setFilterSev('')}
+                >
+                  <span className="dash-row-main">
+                    <span className="dash-row-name">All severities</span>
+                  </span>
+                  <span className="dash-row-value">{EVENTS.length}</span>
                 </button>
-              ))}
-            </div>
-
-            {/* WORD CLOUD */}
-            <div className="sec-title">TACTICAL KEYWORDS</div>
-            <WordCloud terms={TERMS} />
-          </div>
-        </div>
-
-        {/* MAP */}
-        <div className="map-wrap">
-          <div ref={mapEl} className="npi-map" />
-          <div className="map-overlay-top">
-            <div className="map-badge"><span className="hl">●</span> NATIONAL STABILITY MONITOR <span className="hl">{filtered.length}</span> EVENTS</div>
-            <div className="map-score-box">
-              <div className="map-score-num" style={{ color: stabilityLevel.c }}>{stats.avg}</div>
-              <div className="map-score-lbl">NPI · {stabilityLevel.t}</div>
-            </div>
-          </div>
-          <div className="map-legend">
-            <div className="ml-title">SEVERITY</div>
-            {SEV_ORDER.map((k) => (
-              <div className="ml-item" key={k}><span className="ml-dot" style={{ background: SEV[k].c }} /> {SEV[k].label}</div>
-            ))}
-          </div>
-          <div className="map-watermark">RETS · NPI ENGINE v2</div>
-        </div>
-
-        {/* RIGHT PANEL — INTEL / EVENT FEED */}
-        <div className="right-panel">
-          <div className="rp-header">
-            <div className="rp-title">INTEL FEED</div>
-            <div className="rp-badge">{filtered.length}</div>
-          </div>
-          <div className="ev-search-wrap">
-            <input className="ev-search" placeholder="Cari peristiwa, kota, provinsi…" value={search} onChange={(e) => setSearch(e.target.value)} />
-          </div>
-
-          {sel && (
-            <div className="intel-detail" style={{ borderColor: sevColor(sel.sev) + '55' }}>
-              <div className="id-top">
-                <span className="id-sev" style={{ background: sevColor(sel.sev) + '22', color: sevColor(sel.sev) }}>{SEV[sel.sev].label}</span>
-                <span className="id-npi" style={{ color: sevColor(sel.sev) }}>NPI {sel.npi}</span>
-                <button className="id-close" onClick={() => setSel(null)}>✕</button>
+                {SEV_ORDER.map((k) => (
+                  <button
+                    key={k}
+                    type="button"
+                    className="dash-row"
+                    aria-selected={filterSev === k}
+                    onClick={() => setFilterSev(filterSev === k ? '' : k)}
+                  >
+                    <span className="dash-row-main">
+                      <Status level={SEV[k].level}>{SEV[k].label}</Status>
+                    </span>
+                    <span className="dash-row-value">{stats.sevCount[k]}</span>
+                  </button>
+                ))}
               </div>
-              <div className="id-title">{sel.title}</div>
-              <div className="id-meta">{sel.place} · {sel.prov}</div>
-              <div className="id-stats">
-                <div className="id-st"><span>KATEGORI</span><b style={{ color: CAT_COLOR[sel.cat] }}>{sel.cat}</b></div>
-                <div className="id-st"><span>BERITA</span><b>{sel.n}</b></div>
-                <div className="id-st"><span>SUMBER</span><b>{sel.src}</b></div>
-                <div className="id-st"><span>WAKTU</span><b>{sel.time} lalu</b></div>
-              </div>
-            </div>
-          )}
+            </Panel>
 
-          <div className="ev-list">
-            {filtered.map((e) => (
-              <div key={e.id} className={`ev-card${sel?.id === e.id ? ' sel' : ''}`} onClick={() => setSel(sel?.id === e.id ? null : e)}>
-                <div className="ev-bar" style={{ background: sevColor(e.sev) }} />
-                <div className="ev-body">
-                  <div className="ev-title">{e.title}</div>
-                  <div className="ev-meta">
-                    <span className="ev-place">{e.place}</span>
-                    <span className="ev-cat" style={{ color: CAT_COLOR[e.cat] }}>{e.cat}</span>
-                    <span className="ev-time">{e.time}</span>
-                  </div>
+            <Panel title="Top keywords" note="weighted mentions">
+              <Meters>
+                {TERMS.map((term) => (
+                  <Meter
+                    key={term.text}
+                    label={term.text}
+                    value={term.value}
+                    color={t.seriesAt(0)}
+                    display={term.value}
+                  />
+                ))}
+              </Meters>
+            </Panel>
+          </Col>
+
+          {/* ── Map ─────────────────────────────────────────── */}
+          <Col>
+            <Panel flush grow bodyFill style={{ position: 'relative', overflow: 'hidden' }}>
+              <div ref={mapEl} className="dash-map" />
+              <MapOverlay position="bottom-left" title="Severity">
+                <div className="dash-legend is-stacked">
+                  {SEV_ORDER.map((k) => (
+                    <span className="dash-legend-item" key={k}>
+                      <span className="dash-legend-swatch" style={{ background: sevColor[k] }} />
+                      {SEV[k].label}
+                      <span className="spacer" />
+                      <span className="value">{stats.sevCount[k]}</span>
+                    </span>
+                  ))}
                 </div>
-                <div className="ev-npi" style={{ color: sevColor(e.sev) }}>{e.npi}</div>
-              </div>
-            ))}
-            {filtered.length === 0 && <div className="ev-empty">NO EVENTS MATCH FILTER</div>}
-          </div>
-        </div>
-      </div>
-    </div>
+              </MapOverlay>
+            </Panel>
+          </Col>
+
+          {/* ── Event feed ──────────────────────────────────── */}
+          <Col scroll>
+            <Panel title="Event feed" note={`${filtered.length} shown`} grow>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 9 }}>
+                <span className="sr-only">Search events</span>
+                <DashIcon name="filter" size={13} />
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Cari peristiwa, kota, provinsi"
+                  style={{
+                    flex: 1,
+                    padding: '6px 9px',
+                    border: '1px solid var(--dash-line)',
+                    borderRadius: 7,
+                    background: 'var(--dash-panel-alt)',
+                    color: 'var(--dash-ink)',
+                    font: 'inherit',
+                    fontSize: 11,
+                  }}
+                />
+              </label>
+
+              {selected && (
+                <div
+                  style={{
+                    padding: 10,
+                    marginBottom: 9,
+                    border: '1px solid var(--dash-accent-line)',
+                    borderRadius: 8,
+                    background: 'var(--dash-selected)',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                    <Status level={SEV[selected.sev].level}>{SEV[selected.sev].label}</Status>
+                    <span className="dash-num" style={{ fontWeight: 600, color: 'var(--dash-ink)' }}>
+                      NPI {selected.npi}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setSelected(null)}
+                      style={{
+                        marginLeft: 'auto',
+                        border: 0,
+                        background: 'transparent',
+                        color: 'var(--dash-muted)',
+                        cursor: 'pointer',
+                        font: 'inherit',
+                        fontSize: 11,
+                      }}
+                    >
+                      Close
+                    </button>
+                  </div>
+                  <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--dash-ink)' }}>
+                    {selected.title}
+                  </div>
+                  <table className="dash-table" style={{ marginTop: 8 }}>
+                    <tbody>
+                      <tr>
+                        <td>Location</td>
+                        <td className="num">{selected.place}, {selected.prov}</td>
+                      </tr>
+                      <tr>
+                        <td>Category</td>
+                        <td className="num">{selected.cat}</td>
+                      </tr>
+                      <tr>
+                        <td>Articles</td>
+                        <td className="num">{selected.n}</td>
+                      </tr>
+                      <tr>
+                        <td>Source</td>
+                        <td className="num">{selected.src} · {selected.time} lalu</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              <List>
+                {filtered.map((e) => (
+                  <Row
+                    key={e.id}
+                    name={e.title}
+                    sub={`${e.place} · ${e.cat} · ${e.time}`}
+                    value={e.npi}
+                    selected={selected?.id === e.id}
+                    onSelect={() => setSelected(selected?.id === e.id ? null : e)}
+                  >
+                    <span
+                      className="dash-legend-swatch"
+                      style={{ background: sevColor[e.sev] }}
+                      aria-hidden="true"
+                    />
+                  </Row>
+                ))}
+              </List>
+
+              {filtered.length === 0 && (
+                <p className="dash-note" style={{ padding: '18px 0', textAlign: 'center' }}>
+                  No events match the current filter.
+                </p>
+              )}
+            </Panel>
+          </Col>
+        </DashBody>
+      </DashBody>
+    </DashFrame>
   )
 }

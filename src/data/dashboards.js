@@ -2,7 +2,7 @@ const dashboards = [
   {
     id: 'fmcg-sales-performance',
     name: 'FMCG Sales Performance',
-    description: 'Interactive BI dashboard for FMCG distribution across Java — trailing-12-month revenue, YoY growth, category mix, and top SKUs, with a region filter. Synthetic demo data; the web sibling of the author\'s FMCG Excel dashboard.',
+    description: 'Interactive BI dashboard for FMCG distribution across Java: trailing-12-month revenue, YoY growth, category mix, and top SKUs, with a region filter. Synthetic demo data; the web sibling of the author\'s FMCG Excel dashboard.',
     tech: ['React', 'Recharts', 'BI', 'Data Visualization'],
     pipeline: [
       {
@@ -30,7 +30,7 @@ const dashboards = [
   {
     id: 'customer-churn-monitor',
     name: 'Customer Churn Monitor',
-    description: 'Retention analytics dashboard for a telco subscriber base — churn by tenure, contract, and internet service, plus deployed-model performance and at-risk segments. Numbers echo the author\'s telco-churn-prediction study (ROC-AUC 0.84).',
+    description: 'Retention analytics dashboard for a telco subscriber base: churn by tenure, contract, and internet service, plus deployed-model performance and at-risk segments. Numbers echo the author\'s telco-churn-prediction study (ROC-AUC 0.84).',
     tech: ['React', 'Recharts', 'Machine Learning', 'Analytics'],
     pipeline: [
       {
@@ -58,7 +58,7 @@ const dashboards = [
   {
     id: 'seismic-activity-monitor',
     name: 'Seismic Activity Monitor',
-    description: 'Geospatial earthquake monitor for the Sunda Arc & Banda Sea — a Leaflet map of events colored by depth and sized by magnitude, with magnitude/depth distributions and strongest-event tracking. Companion to the author\'s indonesia-earthquake-analysis study.',
+    description: 'Geospatial earthquake monitor for the Sunda Arc and Banda Sea: a Leaflet map of events colored by depth and sized by magnitude, with magnitude/depth distributions and strongest-event tracking. Companion to the author\'s indonesia-earthquake-analysis study.',
     tech: ['React', 'Leaflet / OSM', 'Recharts', 'Geospatial'],
     pipeline: [
       {
