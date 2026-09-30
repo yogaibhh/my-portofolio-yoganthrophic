@@ -1,0 +1,24 @@
+{
+  "name": "Muhamad Yoga Ibrahim — Portfolio",
+  "short_name": "Yoga Ibrahim",
+  "description": "AI Engineer, Data Scientist and Data Analyst in Bogor, Indonesia. Edge ML models, LLM-integrated tooling, dashboards and data pipelines.",
+  "start_url": "/my-portofolio-yoganthrophic/",
+  "scope": "/my-portofolio-yoganthrophic/",
+  "display": "standalone",
+  "background_color": "#faf9f5",
+  "theme_color": "#cc785c",
+  "icons": [
+    {
+      "src": "/my-portofolio-yoganthrophic/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/my-portofolio-yoganthrophic/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
