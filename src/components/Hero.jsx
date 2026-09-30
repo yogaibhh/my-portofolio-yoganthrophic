@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import Icon from './Icon'
 import Reveal from './Reveal'
 import useCountUp from '../hooks/useCountUp'
 import { profile, stats, socials } from '../data/profile'
+import { CV_URL } from '../data/links'
 import { scrollToId } from '../data/nav'
-
-const CV_URL = `${import.meta.env.BASE_URL}${profile.cvFile}`
 
 const reduceMotion = () =>
   typeof window !== 'undefined' &&
@@ -140,8 +140,9 @@ export default function Hero() {
               Download CV
             </a>
 
-            <span className="mx-1 hidden h-6 w-px bg-hairline sm:block" aria-hidden="true" />
-
+            {/* No divider before the icons: with four of them the row wraps on
+                desktop, and a divider would be left dangling at the end of
+                the button row. */}
             <div className="flex items-center gap-1.5">
               {socials.map((s) => (
                 <a
@@ -159,8 +160,26 @@ export default function Hero() {
             </div>
           </Reveal>
 
+          {/* The shortcut for someone screening against a job description */}
+          <Reveal delay={400} className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm">
+            <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-soft">Hiring?</span>
+            <Link
+              to="/fit"
+              className="link-underline inline-flex items-center gap-1.5 font-medium text-primary no-underline"
+            >
+              <Icon name="target" size={15} />
+              Check my fit against your job description
+            </Link>
+            <span className="text-muted-soft" aria-hidden="true">
+              ·
+            </span>
+            <Link to="/brief" className="link-underline font-medium text-body no-underline hover:text-primary">
+              30-second brief
+            </Link>
+          </Reveal>
+
           {/* Stats strip */}
-          <div className="mt-8 flex flex-wrap gap-y-6">
+          <div className="mt-6 flex flex-wrap gap-y-6">
             {stats.slice(0, 3).map((stat, i) => (
               <StatBlock key={stat.label} stat={stat} delay={420 + i * 70} />
             ))}

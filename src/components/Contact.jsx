@@ -1,9 +1,11 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import Icon from './Icon'
 import Reveal from './Reveal'
 import { profile, socials } from '../data/profile'
+import { CV_URL, mailtoHref, whatsappHref } from '../data/links'
 
-const CV_URL = `${import.meta.env.BASE_URL}${profile.cvFile}`
+const WHATSAPP_URL = whatsappHref('Hi Yoga, I found your portfolio and would like to talk about a role.')
 
 function CopyEmailButton() {
   const [copied, setCopied] = useState(false)
@@ -68,12 +70,23 @@ export default function Contact() {
 
                 <div className="mt-8 flex flex-wrap gap-3">
                   <a
-                    href={`mailto:${profile.email}?subject=Opportunity%20for%20Yoga`}
+                    href={mailtoHref({ subject: 'Opportunity for Yoga' })}
                     className="btn bg-canvas text-ink hover:bg-surface-soft"
                   >
                     <Icon name="mail" size={17} />
                     Send an email
                   </a>
+                  {WHATSAPP_URL && (
+                    <a
+                      href={WHATSAPP_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn border border-on-primary/30 text-on-primary hover:bg-on-primary/10"
+                    >
+                      <Icon name="whatsapp" size={16} />
+                      WhatsApp
+                    </a>
+                  )}
                   <a
                     href={CV_URL}
                     download={profile.cvFile}
@@ -83,6 +96,17 @@ export default function Contact() {
                     Download CV
                   </a>
                 </div>
+
+                <p className="mt-6 text-sm text-on-primary/80">
+                  Hiring for a specific role?{' '}
+                  <Link
+                    to="/fit"
+                    className="font-medium text-on-primary underline decoration-on-primary/40 underline-offset-4 transition-colors hover:decoration-on-primary"
+                  >
+                    Check the fit against your job description first
+                  </Link>
+                  .
+                </p>
               </div>
 
               {/* Details card */}

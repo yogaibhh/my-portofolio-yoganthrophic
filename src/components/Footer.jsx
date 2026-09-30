@@ -21,7 +21,7 @@ export default function Footer() {
   }
 
   return (
-    <footer className="relative isolate overflow-hidden border-t border-hairline bg-surface-dark text-on-dark">
+    <footer className="relative isolate overflow-hidden border-t border-hairline bg-surface-dark text-on-dark print:hidden">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -top-32 left-1/2 h-64 w-[80%] -translate-x-1/2 rounded-full bg-primary/15 blur-[100px]"
@@ -134,10 +134,17 @@ export default function Footer() {
               <li>{profile.location}</li>
             </ul>
 
+            <Link
+              to="/fit"
+              className="mt-5 flex items-center gap-1.5 text-sm font-medium text-primary no-underline transition-colors hover:text-primary-active"
+            >
+              <Icon name="target" size={14} />
+              Check my fit for your role
+            </Link>
             <a
               href="#contact"
               onClick={goToSection('contact')}
-              className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-colors hover:text-primary-active"
+              className="mt-2.5 inline-flex items-center gap-1.5 text-sm font-medium text-on-dark-soft transition-colors hover:text-on-dark"
             >
               Start a conversation
               <Icon name="arrowRight" size={14} />

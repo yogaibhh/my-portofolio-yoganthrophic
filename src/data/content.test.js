@@ -1,7 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { projects, projectCategories, experiences, skillGroups } from './profile'
+import { projects, projectCategories, experiences, skillGroups, stats, socials, profile } from './profile'
 import caseStudies from './caseStudies'
 import dashboards from './dashboards'
+import { roles, generalBrief } from './roles'
+import sampleJobs from './sampleJobs'
+import { taxonomyById } from './skillTaxonomy'
+import { evidenceFor } from '../fit/evidence'
 import { demos } from '../dashboards/demoRegistry'
 
 /* The content is the product here. A slug that drifts from its case-study
@@ -147,6 +151,65 @@ describe('dashboards', () => {
       expect(d.tech.length, `${d.name} tech`).toBeGreaterThan(0)
       expect(d.pipeline.length, `${d.name} pipeline`).toBeGreaterThan(1)
     })
+  })
+})
+
+describe('recruiter briefs', () => {
+  const briefs = [generalBrief, ...roles]
+
+  it('keeps role ids unique and URL-safe', () => {
+    const ids = roles.map((r) => r.id)
+    expect(new Set(ids).size).toBe(ids.length)
+    ids.forEach((id) => expect(id).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/))
+  })
+
+  it('fills everything a brief renders', () => {
+    briefs.forEach((b) => {
+      expect(b.title, `${b.id} title`).toBeTruthy()
+      expect(b.headline, `${b.id} headline`).toBeTruthy()
+      expect(b.pitch, `${b.id} pitch`).toBeTruthy()
+      expect(b.description.length, `${b.id} description`).toBeGreaterThan(40)
+      expect(b.projects, `${b.id} projects`).toHaveLength(3)
+    })
+  })
+
+  it('points every brief at real case studies and dashboards', () => {
+    const slugs = new Set(projects.map((p) => p.slug))
+    const dashboardIds = new Set(dashboards.map((d) => d.id))
+    briefs.forEach((b) => {
+      b.projects.forEach((slug) => expect(slugs.has(slug), `${b.id} → ${slug}`).toBe(true))
+      b.dashboards.forEach((id) => expect(dashboardIds.has(id), `${b.id} → ${id}`).toBe(true))
+    })
+  })
+
+  /* A brief lists skills with the work behind them. One with nothing
+     behind it would be a claim the page cannot back up. */
+  it('never pitches a skill the site cannot prove', () => {
+    briefs.forEach((b) => {
+      b.focusSkills.forEach((id) => {
+        expect(taxonomyById.has(id), `${b.id} lists unknown skill "${id}"`).toBe(true)
+        expect(evidenceFor(id).length, `${b.id} pitches "${id}" with no evidence`).toBeGreaterThan(0)
+      })
+    })
+  })
+
+  it('gives each role a sample job description for the fit check', () => {
+    const samples = new Set(sampleJobs.map((s) => s.id))
+    roles.forEach((r) => expect(samples.has(r.sample), `${r.id} sample`).toBe(true))
+  })
+
+  it('keeps the stat the briefs read', () => {
+    expect(stats.find((s) => s.id === 'years')).toBeTruthy()
+  })
+
+  it('offers WhatsApp only with a number wa.me can use', () => {
+    const whatsapp = socials.find((s) => s.icon === 'whatsapp')
+    if (!profile.whatsapp) {
+      expect(whatsapp).toBeUndefined()
+      return
+    }
+    expect(profile.whatsapp).toMatch(/^\d{8,15}$/)
+    expect(whatsapp.href).toBe(`https://wa.me/${profile.whatsapp}`)
   })
 })
 

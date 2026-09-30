@@ -28,7 +28,7 @@ export default function ScrollProgress() {
   }, [])
 
   return (
-    <div className="fixed left-0 right-0 top-[68px] z-50 h-[2px] bg-transparent" aria-hidden="true">
+    <div className="fixed left-0 right-0 top-[68px] z-50 h-[2px] bg-transparent print:hidden" aria-hidden="true">
       <div
         className="h-full origin-left bg-gradient-to-r from-primary via-accent-amber to-accent-teal"
         style={{ transform: `scaleX(${progress})`, transition: 'transform 90ms linear' }}

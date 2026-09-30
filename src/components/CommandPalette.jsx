@@ -5,8 +5,8 @@ import useTheme from '../hooks/useTheme'
 import { sections, scrollToId } from '../data/nav'
 import dashboards from '../data/dashboards'
 import { profile, projects, socials } from '../data/profile'
-
-const CV_URL = `${import.meta.env.BASE_URL}${profile.cvFile}`
+import { roles } from '../data/roles'
+import { CV_URL } from '../data/links'
 
 /* Subsequence match — "mcp" hits "MCP AI Data Analyst", "cchm" hits
    "Customer Churn Monitor". Cheap, no dependency, good enough for ~30 items. */
@@ -59,6 +59,33 @@ export default function CommandPalette({ onClose }) {
         label: s.label,
         icon: s.icon,
         run: () => go(s.id),
+      })),
+      {
+        group: 'For recruiters',
+        label: 'Check my fit against a job description',
+        icon: 'target',
+        run: () => {
+          onClose()
+          navigate('/fit')
+        },
+      },
+      {
+        group: 'For recruiters',
+        label: '30-second brief',
+        icon: 'file',
+        run: () => {
+          onClose()
+          navigate('/brief')
+        },
+      },
+      ...roles.map((r) => ({
+        group: 'For recruiters',
+        label: `${r.title} brief`,
+        icon: 'briefcase',
+        run: () => {
+          onClose()
+          navigate(`/for/${r.id}`)
+        },
       })),
       ...projects.map((pr) => ({
         group: 'Projects',

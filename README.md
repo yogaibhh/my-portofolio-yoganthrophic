@@ -11,6 +11,19 @@ study behind every project.
 
 ## Highlights
 
+- **A job fit check for recruiters** (`/fit`). Paste a job description and
+  every technical requirement in it comes back marked *Direct* (with links to
+  the case studies, dashboards and jobs that show it), *Transferable* (the
+  closest neighbour I have shipped) or *Not yet*. It reads English and
+  Indonesian postings, treats "A or B" as one requirement, skips benefits,
+  and does not score degrees or years. It runs entirely in the browser: no
+  API, nothing uploaded. The report can be emailed, sent over WhatsApp,
+  copied for a hiring manager or saved as PDF.
+- **Thirty-second briefs** at `/brief` and `/for/<role>` (AI Engineer, Data
+  Scientist, Data Analyst): one printable A4 page per role with the skills,
+  each linked to its proof, the three case studies to read first,
+  availability and contact. Each brief has its own link preview, so it is
+  the link to send with an application.
 - **Case studies, not just cards.** Every project has its own page at
   `/project/<slug>`: the problem, the approach step by step, the numbers, the
   findings, and what I took from it.
@@ -70,14 +83,19 @@ npm run test:watch # vitest, watching
 ```
 src/
   components/      Section components + shared UI (Icon, Reveal, SectionHeading…)
-  pages/           Home, ProjectDetail, DashboardDetail, NotFound
+  pages/           Home, ProjectDetail, DashboardDetail, FitCheck, RoleBrief, NotFound
   dashboards/
     ui/            The dashboard design system: tokens, primitives, chart theme
     *.jsx          The nine live demos, all built on ui/
     data.js        Synthetic data for the demos that share it
+  fit/             The job fit check: term matching, evidence index, scoring
   data/
     profile.js     ← bio, roles, stats, experience, projects, skills, education
     caseStudies.js ← the long-form write-up behind each project, keyed by slug
+    roles.js       ← the recruiter briefs (pitch, focus skills, projects per role)
+    skillTaxonomy.js the vocabulary the fit check reads job descriptions with
+    sampleJobs.js  sample job descriptions for the fit check
+    links.js       CV, WhatsApp and mailto links built from the profile
     dashboards.js  dashboard metadata (name, description, pipeline, tech)
     nav.js         section list + scroll helper
   hooks/           useTheme, useReveal, useInView, useCountUp, useSpotlight,
@@ -109,6 +127,27 @@ page so it cannot be forgotten.
 The CV is a static file in `public/`. Replace it and update `profile.cvFile` if
 the filename changes.
 
+### The fit check and the briefs
+
+The fit check reads evidence from the same files, so a new project feeds it
+without any extra step. It only reads list-shaped fields: project titles and
+tags, case-study `stack` items, job titles, stacks and bullets, dashboard
+names and tech lists, certifications and the degree. Case-study prose is never
+read, because it is full of negations ("without hiding behind Airflow") that a
+matcher would turn into claims.
+
+- To teach it a new skill, add an entry to
+  [`src/data/skillTaxonomy.js`](src/data/skillTaxonomy.js): the terms it is
+  written as, the skills that transfer to it (`related`), and what it implies.
+- Concepts no tag names (statistics, KPIs, prompt engineering…) get their
+  proof from the entry's `evidence` list. Those are claims, so keep them to
+  work a page actually shows.
+- Each brief in [`src/data/roles.js`](src/data/roles.js) lists its focus
+  skills and three projects. The tests fail if a brief pitches a skill with
+  nothing behind it.
+- `profile.whatsapp` drives every WhatsApp button; remove it and they all go.
+  `profile.noticePeriod`, when set, shows on the briefs.
+
 ## Tests
 
 The content is the product here, so that is what the tests guard. A project
@@ -116,7 +155,7 @@ slug that drifts from its case-study key does not throw, it just serves a
 project page with no story on it, and nobody notices until a recruiter is
 already reading it.
 
-`npm run test` covers four things:
+`npm run test` covers six things:
 
 - **Content integrity** (`src/data/content.test.js`): slugs are unique and
   URL-safe, every project has a case study and every case study maps to a
@@ -135,6 +174,18 @@ already reading it.
 - **Projects section** (`src/components/Projects.test.jsx`): every card links
   to a real case study, the filters count what they claim, and private work
   is labelled rather than looking like a missing repository.
+- **The fit check** (`src/fit/fit.test.js`): it claims no evidence for what
+  the site does not show (Airflow, AWS, Docker, Tableau and others, several of
+  them named in the case studies as things that were not used), the
+  multi-agent *simulation* job never reads as AI-agent work, every skill in
+  the Skills section is backed by something, and postings are read the way a
+  person reads them: sections in English and Indonesian, "A or B", example
+  lists, degree lines left unscored. Every sample posting shows at least one
+  gap, so none of them reads as rigged.
+- **Recruiter pages** (`src/pages/*.test.jsx`, plus the brief checks in
+  `content.test.js`): each brief opens on its own case studies and links every
+  skill it lists to proof; the fit page scores, marks gaps and says where the
+  text goes.
 
 CI runs lint, then the tests, then the build, before anything is published.
 

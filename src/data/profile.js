@@ -14,7 +14,14 @@ export const profile = {
   timezone: 'Asia/Jakarta',
   email: 'yoga.ibh205@gmail.com',
   phone: '+62 812-9235-8420',
+  /* Digits only, country code first, as wa.me expects. Remove it and every
+     WhatsApp button on the site disappears with it. */
+  whatsapp: '6281292358420',
   availability: 'Open to AI/ML, Data Science & Data Analyst roles',
+  workMode: 'Remote or hybrid',
+  /* Optional. Set it (e.g. 'One month') and the recruiter briefs show it
+     under "At a glance"; left out, the row is simply not rendered. */
+  // noticePeriod: '',
   cvFile: 'Muhamad_Yoga_Ibrahim_CV_AI_Engineer.pdf',
   githubUser: 'yogaibhh',
   summary:
@@ -35,13 +42,17 @@ export const socials = [
   { label: 'GitHub', href: 'https://github.com/yogaibhh', icon: 'github' },
   { label: 'LinkedIn', href: 'https://www.linkedin.com/in/muhamadyogaibra', icon: 'linkedin' },
   { label: 'Email', href: 'mailto:yoga.ibh205@gmail.com', icon: 'mail' },
+  ...(profile.whatsapp
+    ? [{ label: 'WhatsApp', href: `https://wa.me/${profile.whatsapp}`, icon: 'whatsapp' }]
+    : []),
 ]
 
+/* `id` lets the recruiter briefs pick a stat without depending on order. */
 export const stats = [
-  { value: 3, suffix: '+', label: 'Years of experience', hint: 'Data analyst, data scientist, AI native engineer' },
-  { value: 40, suffix: '%', label: 'Faster reporting', hint: 'Automated meteorological data workflows' },
-  { value: 4, suffix: '', label: 'LLM providers integrated', hint: 'OpenAI · Groq · OpenRouter · Deepgram' },
-  { value: 9, suffix: '', label: 'Live dashboards shipped', hint: 'Interactive demos you can open on this site' },
+  { id: 'years', value: 3, suffix: '+', label: 'Years of experience', hint: 'Data analyst, data scientist, AI native engineer' },
+  { id: 'reporting', value: 40, suffix: '%', label: 'Faster reporting', hint: 'Automated meteorological data workflows' },
+  { id: 'llm-providers', value: 4, suffix: '', label: 'LLM providers integrated', hint: 'OpenAI · Groq · OpenRouter · Deepgram' },
+  { id: 'dashboards', value: 9, suffix: '', label: 'Live dashboards shipped', hint: 'Interactive demos you can open on this site' },
 ]
 
 export const experiences = [

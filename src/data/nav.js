@@ -2,6 +2,7 @@ export const NAV_HEIGHT = 68
 
 export const sections = [
   { id: 'about', label: 'About', icon: 'spark' },
+  { id: 'recruiters', label: 'For recruiters', icon: 'target' },
   { id: 'experience', label: 'Experience', icon: 'briefcase' },
   { id: 'projects', label: 'Projects', icon: 'layers' },
   { id: 'dashboards', label: 'Dashboards', icon: 'chart' },

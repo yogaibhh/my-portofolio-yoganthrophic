@@ -2,6 +2,7 @@ import useDocumentHead from '../hooks/useDocumentHead'
 import Hero from '../components/Hero'
 import TechMarquee from '../components/TechMarquee'
 import About from '../components/About'
+import Recruiters from '../components/Recruiters'
 import Experience from '../components/Experience'
 import Projects from '../components/Projects'
 import Dashboards from '../components/Dashboards'
@@ -18,6 +19,7 @@ export default function Home() {
       <Hero />
       <TechMarquee />
       <About />
+      <Recruiters />
       <Experience />
       <Projects />
       <Dashboards />

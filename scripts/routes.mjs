@@ -9,6 +9,7 @@
 import dashboards from '../src/data/dashboards.js'
 import { projects } from '../src/data/profile.js'
 import caseStudies from '../src/data/caseStudies.js'
+import { roles, generalBrief, fitCheck, briefTitle } from '../src/data/roles.js'
 
 export const SITE = 'https://yogaibhh.github.io/my-portofolio-yoganthrophic'
 export const NAME = 'Muhamad Yoga Ibrahim'
@@ -28,6 +29,26 @@ export function buildRoutes() {
         'AI Engineer, Data Scientist & Data Analyst in Bogor, Indonesia. Muhamad Yoga Ibrahim builds edge ML models, LLM-integrated tools, dashboards, and data pipelines.',
       priority: '1.0',
     },
+    /* The recruiter pages. A role brief is the link sent with an
+       application, so its preview has to name the role. */
+    {
+      path: '/fit',
+      title: `${fitCheck.title} · ${NAME}`,
+      description: fitCheck.description,
+      priority: '0.9',
+    },
+    {
+      path: '/brief',
+      title: `${briefTitle(generalBrief)} · ${NAME}`,
+      description: generalBrief.description,
+      priority: '0.9',
+    },
+    ...roles.map((r) => ({
+      path: `/for/${r.id}`,
+      title: `${briefTitle(r)} · ${NAME}`,
+      description: r.description,
+      priority: '0.8',
+    })),
     ...projects.map((p) => ({
       path: `/project/${p.slug}`,
       title: `${p.title} · case study · ${NAME}`,

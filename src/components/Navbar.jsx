@@ -72,7 +72,7 @@ export default function Navbar({ onOpenPalette }) {
     <>
       <nav
         aria-label="Main navigation"
-        className={`fixed inset-x-0 top-0 z-50 h-[68px] transition-all duration-300 ${
+        className={`fixed inset-x-0 top-0 z-50 h-[68px] transition-all duration-300 print:hidden ${
           scrolled ? 'glass shadow-[var(--shadow-sm)]' : 'border-b border-transparent bg-transparent'
         }`}
       >
@@ -161,7 +161,7 @@ export default function Navbar({ onOpenPalette }) {
 
       {/* Mobile drawer */}
       <div
-        className={`fixed inset-0 z-40 lg:hidden ${mobileOpen ? '' : 'pointer-events-none'}`}
+        className={`fixed inset-0 z-40 lg:hidden print:hidden ${mobileOpen ? '' : 'pointer-events-none'}`}
         aria-hidden={!mobileOpen}
       >
         <div

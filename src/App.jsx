@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { Suspense, lazy, useCallback, useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import { scrollToId } from './data/nav'
 import Navbar from './components/Navbar'
@@ -11,6 +11,19 @@ import Home from './pages/Home'
 import DashboardDetail from './pages/DashboardDetail'
 import ProjectDetail from './pages/ProjectDetail'
 import NotFound from './pages/NotFound'
+
+/* The recruiter pages carry the skill taxonomy and the matcher, so they load
+   when visited rather than with the homepage. */
+const FitCheck = lazy(() => import('./pages/FitCheck'))
+const RoleBrief = lazy(() => import('./pages/RoleBrief'))
+
+function PageFallback() {
+  return (
+    <div className="shell pb-24 pt-[140px] text-sm text-muted-soft" role="status">
+      Loading…
+    </div>
+  )
+}
 
 /* Land at the top on every route change. Without this, opening a dashboard
    from halfway down the homepage drops you halfway down the detail page.
@@ -86,12 +99,17 @@ function AppShell() {
 
       <main id="main">
         <PageTransition>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/dashboard/:id" element={<DashboardDetail />} />
-            <Route path="/project/:slug" element={<ProjectDetail />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <Suspense fallback={<PageFallback />}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/dashboard/:id" element={<DashboardDetail />} />
+              <Route path="/project/:slug" element={<ProjectDetail />} />
+              <Route path="/fit" element={<FitCheck />} />
+              <Route path="/brief" element={<RoleBrief />} />
+              <Route path="/for/:role" element={<RoleBrief />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
         </PageTransition>
       </main>
 

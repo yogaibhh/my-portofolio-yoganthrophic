@@ -125,7 +125,7 @@ export default function About() {
                 </div>
                 <div className="flex items-center gap-2.5 text-muted">
                   <Icon name="briefcase" size={15} className="text-primary" />
-                  Open to remote & hybrid
+                  Open to {profile.workMode.toLowerCase()}
                 </div>
               </div>
             </div>

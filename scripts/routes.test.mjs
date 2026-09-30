@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { buildRoutes, canonical, SITE } from './routes.mjs'
 import { projects } from '../src/data/profile.js'
 import dashboards from '../src/data/dashboards.js'
+import { roles } from '../src/data/roles.js'
 
 /* The build writes one HTML file per route. If a route goes missing, the
    page 404s on a hard refresh and drops out of the sitemap, which is exactly
@@ -10,13 +11,27 @@ import dashboards from '../src/data/dashboards.js'
 describe('published routes', () => {
   const routes = buildRoutes()
 
-  it('publishes the homepage, every project and every dashboard', () => {
-    expect(routes).toHaveLength(1 + projects.length + dashboards.length)
+  it('publishes the homepage, the recruiter pages, every project and every dashboard', () => {
+    /* home + /fit + /brief + one brief per role */
+    expect(routes).toHaveLength(3 + roles.length + projects.length + dashboards.length)
     expect(routes[0].path).toBe('/')
 
     const paths = new Set(routes.map((r) => r.path))
+    expect(paths.has('/fit')).toBe(true)
+    expect(paths.has('/brief')).toBe(true)
+    roles.forEach((r) => expect(paths.has(`/for/${r.id}`)).toBe(true))
     projects.forEach((p) => expect(paths.has(`/project/${p.slug}`)).toBe(true))
     dashboards.forEach((d) => expect(paths.has(`/dashboard/${d.id}`)).toBe(true))
+  })
+
+  /* A role brief is the link sent with an application; its preview is the
+     first thing a recruiter sees, so it has to name the role. */
+  it('names the role in every brief link preview', () => {
+    roles.forEach((r) => {
+      const route = routes.find((x) => x.path === `/for/${r.id}`)
+      expect(route.title).toContain(r.title)
+      expect(route.description).toContain(r.title)
+    })
   })
 
   it('gives each route a distinct title and a description', () => {
